@@ -76,9 +76,8 @@ bool arcana_process(arcana_tokens_t *tokens, arcana_tokens_options opts) {
     if (inc == 0) {
       return false;
     } else if (inc < 0) {
-      cur += -inc;
-
       calc_meta(opts.content.data + cur, -inc, &line, &col);
+      cur += -inc;
     } else {
       if (cur + inc > opts.content.len) {
         return false;
