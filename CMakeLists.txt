@@ -7,7 +7,7 @@ project(arcana
 
 add_library(
   arcana SHARED
-  src/token.c
+  src/tokens.c
   src/table.c
 )
 
