@@ -17,7 +17,8 @@ add_executable(
   unit
 
   tests/monkey.cpp
-  tests/tokenize.cpp
+  tests/tokens.cpp
+  tests/util.cpp
 )
 
 target_include_directories(unit PUBLIC ./src)

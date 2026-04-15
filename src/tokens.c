@@ -122,3 +122,16 @@ size_t arcana_tokens_capacity(arcana_tokens_t *tokens) {
   return (tokens->cap - sizeof(arcana_tokens_t)) /
          (sizeof(arcana_token) + sizeof(arcana_linemeta));
 }
+
+arcana_slice arcana_tokens_slice(arcana_tokens_t *tokens, uint16_t index) {
+  arcana_token *elem = arcana_tokens_data(tokens);
+  elem += index;
+
+  const char *data = tokens->content.data + (size_t)elem->off;
+  size_t len = elem->len;
+
+  return (arcana_slice){
+      .data = data,
+      .len = len,
+  };
+}

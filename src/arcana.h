@@ -47,6 +47,7 @@ size_t arcana_tokens_len(arcana_tokens_t *);
 size_t arcana_tokens_capacity(arcana_tokens_t *);
 arcana_token *arcana_tokens_data(arcana_tokens_t *);
 arcana_linemeta *arcana_tokens_linemeta(arcana_tokens_t *);
+arcana_slice arcana_tokens_slice(arcana_tokens_t *, uint16_t);
 
 arcana_token_table_t *arcana_token_table_init();
 void arcana_token_table_deinit(arcana_token_table_t *);

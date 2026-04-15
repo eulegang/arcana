@@ -58,6 +58,7 @@ ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
   const char ch = content.data[cur];
   switch (ch) {
   case ' ':
+  case '\n':
     return -1;
   case '=':
     *type = monkey_token_type_assign;
