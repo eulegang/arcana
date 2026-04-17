@@ -1,8 +1,8 @@
 #include "arcana.h"
 
-ssize_t arcana_util_skip_while(arcana_slice slice, bool (*pred)(char)) {
+ssize_t arcana_util_take_while(arcana_slice slice, bool (*pred)(char)) {
   ssize_t amount = 0;
-  for (; slice.len; slice.data++, slice.len--, amount--) {
+  for (; slice.len; slice.data++, slice.len--, amount++) {
     if (!pred(*slice.data))
       break;
   }

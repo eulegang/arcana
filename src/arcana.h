@@ -58,7 +58,7 @@ size_t arcana_token_table_len(arcana_token_table_t *);
 void arcana_token_table_push(arcana_token_table_t **, const char *);
 
 arcana_slice arcana_slice_advance(arcana_slice, size_t);
-ssize_t arcana_util_skip_while(arcana_slice, bool (*)(char));
+ssize_t arcana_util_take_while(arcana_slice, bool (*)(char));
 ssize_t arcana_util_keyword(arcana_slice, const char *);
 
 #ifdef __cplusplus
