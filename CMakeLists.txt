@@ -11,6 +11,7 @@ add_library(
   src/table.c
   src/util.c
   src/slice.c
+  src/parser.c
 )
 
 find_package(GTest REQUIRED)
@@ -19,7 +20,9 @@ add_executable(
   unit
 
   tests/monkey.cpp
+  tests/monkey_parse.cpp
   tests/tokens.cpp
+  tests/parser.cpp
   tests/util.cpp
 )
 

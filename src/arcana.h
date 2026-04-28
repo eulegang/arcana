@@ -79,6 +79,55 @@ size_t arcana_token_table_len(arcana_token_table_t *);
 void arcana_token_table_push(arcana_token_table_t **, const char *);
 
 /*
+ * Parser
+ */
+
+typedef struct arcana_parser_ast arcana_parser_ast;
+
+typedef struct arcana_parser_state {
+  arcana_tokens_t *tokens;
+  arcana_parser_ast *ast;
+
+  uint16_t token_cursor;
+  uint16_t node_cursor;
+  uint16_t data_cursor;
+  uint16_t last_root_child;
+  uint16_t status;
+} arcana_parser_state;
+
+typedef struct arcana_parser arcana_parser;
+
+typedef arcana_parser_state (*arcana_parser_branch_prefix)(arcana_parser_state);
+
+typedef struct {
+  uint16_t child;
+  uint16_t next;
+  uint16_t offset;
+  uint16_t type;
+} arcana_parse_node;
+
+arcana_parser *arcana_parser_init(arcana_parser_branch_prefix);
+void arcana_parser_deinit(arcana_parser *);
+
+arcana_parser_ast *arcana_parser_parse(arcana_parser *, arcana_tokens_t *);
+void arcana_parser_ast_deinit(arcana_parser_ast *);
+
+arcana_token arcana_parser_token(arcana_parser_state);
+arcana_parser_state arcana_parser_expect_token(arcana_parser_state,
+                                               arcana_token_type);
+
+uint16_t arcana_parser_ast_malloc(arcana_parser_state *, size_t);
+uint16_t arcana_parser_alloc_node(arcana_parser_state *);
+
+void arcana_parser_ast_next_token(arcana_parser_state *);
+bool arcana_parser_state_done(arcana_parser_state);
+
+arcana_parse_node *arcana_parser_ast_nodes(arcana_parser_ast *);
+uint16_t arcana_parser_ast_node_count(arcana_parser_ast *);
+uint16_t arcana_parser_ast_data_size(arcana_parser_ast *);
+void *arcana_parser_ast_data(arcana_parser_ast *);
+
+/*
  * Lexer Util
  */
 

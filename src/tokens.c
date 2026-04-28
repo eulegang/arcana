@@ -47,7 +47,7 @@ arcana_tokens_t *arcana_tokens_init(arcana_tokens_options opts,
 }
 
 void arcana_tokens_deinit(arcana_tokens_t *tokens) {
-  munmap(tokens, tokens->len);
+  munmap(tokens, tokens->cap);
 }
 
 void calc_meta(const char *base, size_t len, uint16_t *line, uint16_t *col) {
