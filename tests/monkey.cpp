@@ -2,6 +2,8 @@
 #include "monkey.h"
 #include "arcana.h"
 
+#define token(T) (arcana_token_type) monkey_token_type::T
+
 arcana_slice pull_word(arcana_slice content, uint16_t offset) {
   arcana_slice s = {.data = content.data + (size_t)offset, .len = 0};
 
@@ -65,40 +67,40 @@ ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
   case '\n':
     return -1;
   case '=':
-    *type = monkey_token_type_assign;
+    *type = token(assign);
     return 1;
 
   case ';':
-    *type = monkey_token_type_semi;
+    *type = token(semi);
     return 1;
 
   case '(':
-    *type = monkey_token_type_lparen;
+    *type = token(lparen);
     return 1;
 
   case ')':
-    *type = monkey_token_type_lparen;
+    *type = token(lparen);
     return 1;
 
   case '+':
-    *type = monkey_token_type_plus;
+    *type = token(plus);
     return 1;
 
   case '-':
-    *type = monkey_token_type_minus;
+    *type = token(minus);
     return 1;
 
   case '*':
-    *type = monkey_token_type_mult;
+    *type = token(mult);
     return 1;
 
   case '/':
-    *type = monkey_token_type_div;
+    *type = token(div);
     return 1;
 
   case 'l':
     if ((i = arcana_util_keyword(window, "let"))) {
-      *type = monkey_token_type_let;
+      *type = token(let);
       return i;
     }
     break;
@@ -106,13 +108,13 @@ ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
 
   if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_') {
     arcana_slice c = pull_word(content, cur);
-    *type = monkey_token_type_ident;
+    *type = token(ident);
     return c.len;
   }
 
   if ('0' <= ch && ch <= '9') {
     arcana_slice c = pull_number(content, cur);
-    *type = monkey_token_type_number;
+    *type = token(number);
     return c.len;
   }
 

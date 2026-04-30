@@ -76,7 +76,9 @@ arcana_token arcana_parser_token(arcana_parser_state state) {
 arcana_parser_state arcana_parser_expect_token(arcana_parser_state state,
                                                arcana_token_type token_type) {
   arcana_token token = arcana_parser_token(state);
-  state.node_cursor |= token.type == token_type ? 0 : 1;
+  if (token.type != token_type) {
+    state.status = 1;
+  }
   return state;
 }
 

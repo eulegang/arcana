@@ -84,7 +84,7 @@ TEST(parse, basic) {
 
 TEST(parse, expr) {
   static const char *buffer =
-      "let x = 1;\nlet y = 12;let z = (x + 1) + 3 * (y + 1)";
+      "let x = 1;\nlet y = 12;\nlet z = (x + 1) + 3 * (y + 1);";
   std::string_view sv{buffer};
 
   arcana_slice content = {.data = buffer, .len = strlen(buffer)};

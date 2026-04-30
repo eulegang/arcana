@@ -10,20 +10,19 @@ struct monkey_slice {
   uint16_t len;
 };
 
-enum monkey_token_type : uint32_t {
-  monkey_token_type_let,
-  monkey_token_type_assign,
-  monkey_token_type_semi,
-  monkey_token_type_ident,
-  monkey_token_type_number,
+enum class monkey_token_type : uint32_t {
+  let,
+  assign,
+  semi,
+  ident,
+  number,
 
-  monkey_token_type_lparen,
-  monkey_token_type_rparen,
-  monkey_token_type_plus,
-  monkey_token_type_minus,
-  monkey_token_type_mult,
-  monkey_token_type_div,
-
+  lparen,
+  rparen,
+  plus,
+  minus,
+  mult,
+  div,
 };
 
 enum class monkey_node_type : uint16_t {
