@@ -45,7 +45,7 @@ arcana_parser_ast *arcana_parser_parse(arcana_parser *parser,
       .token_cursor = 0,
       .node_cursor = 0,
       .data_cursor = 0,
-      .last_root_child = 0,
+      .subroot = 0,
       .status = 0,
   };
 
@@ -116,4 +116,42 @@ void arcana_parser_ast_next_token(arcana_parser_state *state) {
 
 bool arcana_parser_state_done(arcana_parser_state state) {
   return state.token_cursor >= arcana_tokens_len(state.tokens);
+}
+
+void arcana_parser_ast_visit_recur(arcana_parser_ast *ast,
+                                   arcana_parse_node node, size_t level,
+                                   void (*fn)(arcana_parse_node node,
+                                              void *data, size_t level)) {
+
+  void *addr = NULL;
+
+  if (node.offset != 0xFFFF) {
+    addr = arcana_parser_ast_data(ast) + node.offset;
+  }
+
+  fn(node, addr, level);
+
+  if (node.child != 0) {
+    arcana_parser_ast_visit_recur(ast, arcana_parser_ast_nodes(ast)[node.child],
+                                  level + 1, fn);
+  }
+
+  if (node.next != 0) {
+    arcana_parser_ast_visit_recur(ast, arcana_parser_ast_nodes(ast)[node.next],
+                                  level, fn);
+  }
+}
+
+void arcana_parser_ast_visit(arcana_parser_ast *ast,
+                             void (*fn)(arcana_parse_node node, void *data,
+                                        size_t level)) {
+  if (ast->nodes == 0) {
+    return;
+  }
+
+  uint16_t cur = 0;
+  arcana_parse_node *base = arcana_parser_ast_nodes(ast);
+  arcana_parse_node node = base[cur];
+
+  arcana_parser_ast_visit_recur(ast, node, 0, fn);
 }

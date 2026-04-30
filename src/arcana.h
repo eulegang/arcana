@@ -91,7 +91,7 @@ typedef struct arcana_parser_state {
   uint16_t token_cursor;
   uint16_t node_cursor;
   uint16_t data_cursor;
-  uint16_t last_root_child;
+  uint16_t subroot;
   uint16_t status;
 } arcana_parser_state;
 
@@ -126,6 +126,10 @@ arcana_parse_node *arcana_parser_ast_nodes(arcana_parser_ast *);
 uint16_t arcana_parser_ast_node_count(arcana_parser_ast *);
 uint16_t arcana_parser_ast_data_size(arcana_parser_ast *);
 void *arcana_parser_ast_data(arcana_parser_ast *);
+
+void arcana_parser_ast_visit(arcana_parser_ast *ast,
+                             void (*fn)(arcana_parse_node node, void *data,
+                                        size_t level));
 
 /*
  * Lexer Util

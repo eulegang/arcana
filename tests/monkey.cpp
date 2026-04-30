@@ -55,6 +55,10 @@ arcana_token_table_t *monkey_table() {
 
 ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
                          arcana_token_type *type) {
+
+  arcana_slice window = arcana_slice_advance(content, cur);
+  ssize_t i = 0;
+
   const char ch = content.data[cur];
   switch (ch) {
   case ' ':
@@ -68,10 +72,30 @@ ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
     *type = monkey_token_type_semi;
     return 1;
 
+  case '(':
+    *type = monkey_token_type_lparen;
+    return 1;
+
+  case ')':
+    *type = monkey_token_type_lparen;
+    return 1;
+
+  case '+':
+    *type = monkey_token_type_plus;
+    return 1;
+
+  case '-':
+    *type = monkey_token_type_minus;
+    return 1;
+
+  case '/':
+    *type = monkey_token_type_div;
+    return 1;
+
   case 'l':
-    if (content.data[cur + 1] == 'e' && content.data[cur + 2] == 't') {
+    if ((i = arcana_util_keyword(window, "let"))) {
       *type = monkey_token_type_let;
-      return 3;
+      return i;
     }
     break;
   }

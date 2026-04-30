@@ -21,6 +21,7 @@ add_executable(
 
   tests/monkey.cpp
   tests/monkey_parse.cpp
+  tests/monkey_debug.cpp
   tests/tokens.cpp
   tests/parser.cpp
   tests/util.cpp
