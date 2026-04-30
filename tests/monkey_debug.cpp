@@ -27,5 +27,19 @@ void monkey_debug_tree(arcana_parse_node node, void *addr, size_t level,
     std::string_view slice{content.data + ms.base, ms.len};
     std::cout << "lit" << " (" << slice << ")" << std::endl;
   } break;
+
+  case monkey_node_type::sub:
+    std::cout << "-" << std::endl;
+    break;
+
+  case monkey_node_type::add:
+    std::cout << "+" << std::endl;
+    break;
+  case monkey_node_type::mult:
+    std::cout << "*" << std::endl;
+    break;
+  case monkey_node_type::div:
+    std::cout << "/" << std::endl;
+    break;
   }
 }

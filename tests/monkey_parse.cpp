@@ -1,11 +1,25 @@
 
 #include "arcana.h"
 #include "monkey.h"
+#include "gmock/gmock.h"
 #include <cstdint>
+
+#include <cstdio>
+
+#ifndef NDEBUG
+#define debug(msg, ...)                                                        \
+  do {                                                                         \
+    printf(msg "\n" __VA_OPT__(, ) __VA_ARGS__);                               \
+  } while (0)
+
+#else
+#define debug(msg, ...)
+#endif
 
 arcana_parser_state monkey_parse_expr(arcana_parser_state);
 
 arcana_parser_state monkey_parse_expr_infix(arcana_parser_state state) {
+  debug("parse_expr_infix");
   arcana_token token = arcana_parser_token(state);
   arcana_parse_node *nodes = arcana_parser_ast_nodes(state.ast);
   void *data = arcana_parser_ast_data(state.ast);
@@ -79,15 +93,52 @@ arcana_parser_state monkey_parse_expr_infix(arcana_parser_state state) {
   return state;
 }
 
-arcana_parser_state monkey_parse_expr_low(arcana_parser_state state, uint16_t) {
+arcana_parser_state monkey_parse_expr_l_term(arcana_parser_state state,
+                                             uint16_t expr_id) {
+  debug("parse_expr_l_term");
+  state.subroot = expr_id;
+  return state;
+}
+
+arcana_parser_state monkey_parse_expr_l2(arcana_parser_state state,
+                                         uint16_t expr_id) {
+  debug("parse_expr_l2");
+  return monkey_parse_expr_l_term(state, expr_id);
+}
+
+arcana_parser_state monkey_parse_expr_l1(arcana_parser_state state,
+                                         uint16_t expr_id) {
+  debug("parse_expr_l1");
+  auto token = arcana_parser_token(state);
+
+  if (token.type == monkey_token_type_plus ||
+      token.type == monkey_token_type_minus) {
+    arcana_parser_ast_next_token(&state);
+    if (state.status)
+      return state;
+
+    uint16_t root = arcana_parser_alloc_node(&state);
+    arcana_parse_node *node = arcana_parser_ast_nodes(state.ast) + root;
+    node->offset = 0xFFFF;
+    node->child = 0;
+    node->next = 0;
+    node->type = token.type == monkey_token_type_plus
+                     ? (uint16_t)monkey_node_type::add
+                     : (uint16_t)monkey_node_type::sub;
+
+  } else {
+    return monkey_parse_expr_l2(state, expr_id);
+  }
+
   return state;
 }
 
 arcana_parser_state monkey_parse_expr(arcana_parser_state state) {
+  debug("parse_expr");
   state = monkey_parse_expr_infix(state);
   uint16_t expr_id = state.subroot;
 
-  arcana_parser_state attempt = monkey_parse_expr_low(state, expr_id);
+  arcana_parser_state attempt = monkey_parse_expr_l1(state, expr_id);
 
   if (attempt.status) {
     return state;
@@ -97,6 +148,7 @@ arcana_parser_state monkey_parse_expr(arcana_parser_state state) {
 }
 
 arcana_parser_state monkey_parse_let(arcana_parser_state state) {
+  debug("parse_let");
   arcana_parse_node *nodes = arcana_parser_ast_nodes(state.ast);
   void *data = arcana_parser_ast_data(state.ast);
 
@@ -200,6 +252,7 @@ arcana_parser_state monkey_parse_let(arcana_parser_state state) {
 }
 
 arcana_parser_state monkey_parse_file(arcana_parser_state state) {
+  debug("parse_file");
   uint16_t last = 0xFFFF;
 
   while (!arcana_parser_state_done(state)) {

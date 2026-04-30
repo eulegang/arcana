@@ -30,6 +30,11 @@ enum class monkey_node_type : uint16_t {
   let,
   ident,
   lit,
+
+  sub,
+  add,
+  mult,
+  div,
 };
 
 ssize_t monkey_tokenizer(size_t cur, arcana_slice content,
