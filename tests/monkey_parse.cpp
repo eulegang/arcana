@@ -154,10 +154,8 @@ arcana_parser_state monkey_parse_let(arcana_parser_state state) {
 
   uint16_t let_node = arcana_parser_alloc_node(&state);
   uint16_t ident_node = arcana_parser_alloc_node(&state);
-  uint16_t lit_node = arcana_parser_alloc_node(&state);
 
   uint16_t ident_addr = arcana_parser_ast_malloc(&state, sizeof(monkey_slice));
-  uint16_t lit_addr = arcana_parser_ast_malloc(&state, sizeof(monkey_slice));
 
   if (state.status) {
     return state;
@@ -172,18 +170,18 @@ arcana_parser_state monkey_parse_let(arcana_parser_state state) {
 
   nodes[ident_node] = {
       .child = 0,
-      .next = lit_node,
+      .next = 0,
       .offset = ident_addr,
       .type = (uint16_t)monkey_node_type::ident,
   };
 
-  nodes[lit_node] = {
-      .child = 0,
-      .next = 0,
-      .offset = lit_addr,
-      .type = (uint16_t)monkey_node_type::lit,
-  };
-
+  // nodes[lit_node] = {
+  //     .child = 0,
+  //     .next = 0,
+  //     .offset = lit_addr,
+  //     .type = (uint16_t)monkey_node_type::lit,
+  // };
+  //
   state = arcana_parser_expect_token(state, monkey_token_type_let);
   if (state.status) {
     return state;
@@ -220,21 +218,12 @@ arcana_parser_state monkey_parse_let(arcana_parser_state state) {
     return state;
   }
 
-  state = arcana_parser_expect_token(state, monkey_token_type_number);
-  if (state.status) {
-    return state;
+  arcana_parser_state expr_state = monkey_parse_expr(state);
+  if (expr_state.status) {
+    return expr_state;
   }
 
-  arcana_token lit_token = arcana_tokens_data(state.tokens)[state.token_cursor];
-  *(monkey_slice *)((char *)data + lit_addr) = {
-      .base = lit_token.off,
-      .len = lit_token.len,
-  };
-
-  arcana_parser_ast_next_token(&state);
-  if (state.status) {
-    return state;
-  }
+  nodes[ident_node].next = expr_state.subroot;
 
   state = arcana_parser_expect_token(state, monkey_token_type_semi);
   if (state.status) {
