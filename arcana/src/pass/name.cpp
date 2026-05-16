@@ -6,7 +6,7 @@
 
 namespace arcana {
 namespace pass {
-NamePass::NamePass(SymbolTable &table) : symbol_table{table} {}
+NamePass::NamePass(SymbolTable &table) : symbol_table{table}, current{0} {}
 
 void NamePass::scan(const sigil::Tokens<arcana::Token> &tokens,
                     const sigil::Ast<arcana::Node> &ast, uint16_t space,
@@ -25,7 +25,7 @@ void NamePass::scan(const sigil::Tokens<arcana::Token> &tokens,
 
       name->_parent = space;
       name->_symbol = sym;
-      subspace = cur + 1;
+      subspace = current++;
     }
 
     break;
@@ -41,6 +41,21 @@ void NamePass::scan(const sigil::Tokens<arcana::Token> &tokens,
     name->_symbol = sym;
 
   } break;
+
+  case Node::fn_param:
+  case Node::st_field:
+  case Node::bs_case:
+  case Node::en_case: {
+    uint16_t token = *ast.data<uint16_t>(node.offset);
+    std::string_view view = tokens.content(token);
+
+    symbol sym = symbol_table.intern(view);
+    Name *name = overlay.alloc(cur);
+
+    name->_parent = 0;
+    name->_symbol = sym;
+  }
+
   default:
     break;
   }

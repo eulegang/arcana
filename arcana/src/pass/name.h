@@ -13,6 +13,7 @@ struct NamePass : Pass<arcana::Token, arcana::Node> {
 
   SymbolTable &symbol_table;
   sigil::Overlay<Name> overlay;
+  uint16_t current;
 
   NamePass(SymbolTable &);
 

@@ -42,8 +42,10 @@ int main(int argc, char **argv) {
   pass.run(tokens, ast);
 
   for (const auto &sym : syms) {
-    std::cout << sym << ":\t" << syms.resolve(sym) << std::endl;
+    std::cout << sym << ":\t" << syms.resolve(sym) << "\n";
   }
+
+  std::cout << std::flush;
 
   return 0;
 }
