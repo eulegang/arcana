@@ -16,7 +16,7 @@ sigil_state parse_namespace(sigil_state state) {
   *root = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(ns),
   };
   sigil_state_next(&state);

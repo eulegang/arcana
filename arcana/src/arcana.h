@@ -138,8 +138,8 @@ struct Unit final {
   Unit(std::string_view);
 };
 
-struct Pass {
-  virtual void run(const Unit &) = 0;
+template <typename T, typename N> struct Pass {
+  virtual void run(const sigil::Tokens<T> &, const sigil::Ast<N> &) = 0;
 };
 
 } // namespace arcana

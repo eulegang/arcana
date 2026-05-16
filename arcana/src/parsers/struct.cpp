@@ -78,7 +78,7 @@ sigil_state parse_struct(sigil_state state) {
   *fields = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(st_fields),
   };
 
@@ -88,7 +88,7 @@ sigil_state parse_struct(sigil_state state) {
   *decls = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(decls),
   };
 
@@ -195,7 +195,7 @@ sigil_state parse_alias(sigil_state state) {
   *root = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(alias),
   };
 

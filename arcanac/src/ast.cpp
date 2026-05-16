@@ -12,7 +12,7 @@ struct ctx {
   const sigil::Tokens<arcana::Token> &tokens;
 };
 
-sigil::Ast<arcana::Node> ast(const sigil::Tokens<arcana::Token> &tokens) {
+sigil::Ast<arcana::Node> parse_ast(const sigil::Tokens<arcana::Token> &tokens) {
   try {
     sigil::Ast<arcana::Node> ast{arcana::parser, tokens};
     return ast;

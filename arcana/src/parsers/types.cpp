@@ -28,7 +28,7 @@ sigil_state parse_slice(sigil_state state) {
     *root = {
         .child = 0,
         .next = 0,
-        .offset = 0,
+        .offset = 0xFFFF,
         .type = node_code(slice),
     };
 
@@ -84,7 +84,7 @@ sigil_state parse_pointer(sigil_state state) {
   *root = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(pointer),
 
   };
@@ -104,7 +104,7 @@ sigil_state parse_type(sigil_state state) {
   *root = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(ty),
 
   };

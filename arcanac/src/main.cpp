@@ -12,6 +12,8 @@
 #include "arcana.h"
 #include "args.h"
 #include "ast.h"
+#include "pass/name.h"
+#include "symbol.h"
 #include "tokenize.h"
 
 int main(int argc, char **argv) {
@@ -27,11 +29,20 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  const sigil::Ast<arcana::Node> tree = ast(tokens);
+  const sigil::Ast<arcana::Node> ast = parse_ast(tokens);
 
   if (stops == 2) {
-    report_ast(tokens, tree);
+    report_ast(tokens, ast);
     return 0;
+  }
+
+  SymbolTable syms{4096, 16};
+  arcana::pass::NamePass pass{syms};
+
+  pass.run(tokens, ast);
+
+  for (const auto &sym : syms) {
+    std::cout << sym << ":\t" << syms.resolve(sym) << std::endl;
   }
 
   return 0;

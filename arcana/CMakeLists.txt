@@ -2,9 +2,9 @@ add_library(
   arcana SHARED
 
   src/token-table.cpp
-
   src/tokens.cpp
   src/tree.cpp
+
   src/parsers/bitset.cpp
   src/parsers/ident.cpp
   src/parsers/lit.cpp
@@ -14,6 +14,8 @@ add_library(
   src/parsers/struct.cpp
   src/parsers/types.cpp
   src/parsers/func.cpp
+
+  src/pass/name.cpp
 )
 
 pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)

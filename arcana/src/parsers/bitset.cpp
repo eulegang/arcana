@@ -10,7 +10,7 @@ sigil_state parse_bitset_backing(sigil_state state) {
     *sigil_state_node(state, node) = {
         .child = 0,
         .next = 0,
-        .offset = 0,
+        .offset = 0xFFFF,
         .type = node_code(infer_type),
     };
 
@@ -94,7 +94,7 @@ sigil_state parse_bitset(sigil_state state) {
   *root = {
       .child = 0,
       .next = 0,
-      .offset = 0,
+      .offset = 0xFFFF,
       .type = node_code(bs),
   };
   sigil_state_next(&state);
