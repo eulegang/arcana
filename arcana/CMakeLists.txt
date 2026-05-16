@@ -16,6 +16,7 @@ add_library(
   src/parsers/func.cpp
 
   src/pass/name.cpp
+  src/pass/types.cpp
 )
 
 pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)

@@ -8,8 +8,7 @@ namespace arcana {
 namespace pass {
 NamePass::NamePass(SymbolTable &table) : symbol_table{table}, current{0} {}
 
-void NamePass::scan(const sigil::Tokens<arcana::Token> &tokens,
-                    const sigil::Ast<arcana::Node> &ast, uint16_t space,
+void NamePass::scan(const Tokens &tokens, const Ast &ast, uint16_t space,
                     uint16_t cur) {
   auto node = ast[cur];
   uint16_t subspace = space;
@@ -68,10 +67,7 @@ void NamePass::scan(const sigil::Tokens<arcana::Token> &tokens,
     scan(tokens, ast, space, node.next);
   }
 }
-void NamePass::run(const sigil::Tokens<arcana::Token> &tokens,
-                   const sigil::Ast<arcana::Node> &ast
-
-) {
+void NamePass::run(const Tokens &tokens, const Ast &ast) {
   overlay = sigil::Overlay<Name>(ast.ptr.get(), 4);
 
   scan(tokens, ast, 0, 0);

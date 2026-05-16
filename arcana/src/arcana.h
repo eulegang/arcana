@@ -2,6 +2,12 @@
 
 #include "sigil.h"
 
+namespace sigil {
+template <typename T, typename N> struct Pass {
+  virtual void run(const sigil::Tokens<T> &, const sigil::Ast<N> &) = 0;
+};
+} // namespace sigil
+
 namespace arcana {
 enum class Token : sigil_token_type {
   ident,
@@ -131,15 +137,14 @@ enum class Perc : size_t {
 
 extern sigil_parser *parser;
 
+using Tokens = sigil::Tokens<arcana::Token>;
+using Ast = sigil::Ast<arcana::Node>;
+using Pass = sigil::Pass<arcana::Token, arcana::Node>;
+
 struct Unit final {
   sigil::Tokens<Token> tokens;
   sigil::Ast<Node> ast;
 
   Unit(std::string_view);
 };
-
-template <typename T, typename N> struct Pass {
-  virtual void run(const sigil::Tokens<T> &, const sigil::Ast<N> &) = 0;
-};
-
 } // namespace arcana
