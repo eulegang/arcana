@@ -20,6 +20,7 @@ void symbol_table_deinit(symbol_table *);
 symbol symbol_table_intern(symbol_table *, const char *);
 symbol symbol_table_intern_slice(symbol_table *, const char *, size_t);
 const char *symbol_table_resolve(symbol_table *, symbol);
+uint16_t symbol_table_len(symbol_table *);
 
 #ifdef __cplusplus
 }
@@ -41,6 +42,17 @@ struct SymbolTable {
   const char *resolve(symbol sym) {
     return symbol_table_resolve(ptr.get(), sym);
   }
+
+  struct SymbolIter {
+    uint16_t sym;
+
+    uint16_t operator*() const { return sym; }
+    SymbolIter operator++() { return {.sym = sym++}; }
+    bool operator==(const SymbolIter &other) const { return sym == other.sym; }
+  };
+
+  SymbolIter begin() const { return {.sym = 0}; }
+  SymbolIter end() const { return {.sym = symbol_table_len(ptr.get())}; }
 };
 
 #endif

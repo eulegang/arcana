@@ -96,3 +96,5 @@ const char *symbol_table_resolve(symbol_table *self, symbol sym) {
 
   return base + offset;
 }
+
+uint16_t symbol_table_len(symbol_table *self) { return self->len; }
