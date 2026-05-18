@@ -66,7 +66,7 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
     BitSet set{};
     set.node = cur;
 
-    *type_overlay.alloc(cur) = ty_id<bitset_type>(bitsets.size());
+    *type_overlay.alloc(cur) = type_id(type_id::cat::bs, bitsets.size());
     bitsets.push_back(set);
 
     if (node.child != 0) {
@@ -79,7 +79,7 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
     Enumeration en{};
     en.node = cur;
 
-    *type_overlay.alloc(cur) = ty_id<enum_type>(enums.size());
+    *type_overlay.alloc(cur) = type_id(type_id::cat::en, enums.size());
     enums.push_back(en);
 
     if (node.child != 0) {

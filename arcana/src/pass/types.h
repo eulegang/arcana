@@ -2,13 +2,29 @@
 
 #include "../arcana.h"
 #include "symbol.h"
+#include <cstdint>
 #include <sigil.h>
 #include <vector>
 
 namespace arcana {
 namespace pass {
 
-using type_id = uint16_t;
+struct type_id {
+  enum class cat : uint16_t {
+    bs = 1,
+    en = 2,
+  };
+
+  uint16_t id;
+
+  type_id(cat category, uint16_t id) {
+    if (0xE000 & id) {
+      throw std::runtime_error("type id overflow");
+    }
+
+    id = ((uint16_t)category << 13) | id;
+  }
+};
 
 struct BitSet {
   struct Case {
