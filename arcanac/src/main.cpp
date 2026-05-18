@@ -13,8 +13,11 @@
 #include "args.h"
 #include "ast.h"
 #include "pass/name.h"
+#include "pass/types.h"
 #include "symbol.h"
+#include "symbols.h"
 #include "tokenize.h"
+#include "types.h"
 
 int main(int argc, char **argv) {
   parse_args(argc, argv);
@@ -37,15 +40,22 @@ int main(int argc, char **argv) {
   }
 
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass pass{syms};
+  arcana::pass::NamePass name_pass{syms};
 
-  pass.run(tokens, ast);
+  name_pass.run(tokens, ast);
 
-  for (const auto &sym : syms) {
-    std::cout << sym << ":\t" << syms.resolve(sym) << "\n";
+  if (stops == 4) {
+    report_symbols(syms);
+    return 0;
   }
 
-  std::cout << std::flush;
+  arcana::pass::TypeDefPass type_def{syms};
+  type_def.run(tokens, ast);
+
+  if (stops == 8) {
+    report_types(tokens, ast, name_pass.overlay, type_def);
+    return 0;
+  }
 
   return 0;
 }

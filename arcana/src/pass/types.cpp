@@ -1,8 +1,20 @@
 #include "types.h"
+#include <sigil.h>
 #include <stdexcept>
 
 namespace arcana {
 namespace pass {
+
+#define bitset_type 0x01
+
+template <uint8_t ty> uint16_t ty_id(uint16_t id) {
+  if (0xE000 & id) {
+    throw std::runtime_error("");
+  }
+
+  return (ty << 13) | id;
+}
+
 bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
                        uint16_t &size) {
   if (node.offset == 0xFFFF)
@@ -41,6 +53,7 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
 }
 
 void TypeDefPass::run(const Tokens &tokens, const Ast &ast) {
+  type_overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
   visit(tokens, ast, 0);
 }
 
@@ -52,8 +65,11 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
     BitSet set{};
     set.node = cur;
 
+    *type_overlay.alloc(cur) = ty_id<bitset_type>(bitsets.size());
+    bitsets.push_back(set);
+
     if (node.child != 0) {
-      visit_bs(tokens, ast, node.child, set);
+      visit_bs(tokens, ast, node.child, bitsets[bitsets.size() - 1]);
       return;
     }
   }

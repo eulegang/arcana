@@ -5,6 +5,8 @@ add_executable(
   src/tokenize.cpp
   src/args.cpp
   src/ast.cpp
+  src/symbols.cpp
+  src/types.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../arcana/src)

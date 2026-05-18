@@ -50,7 +50,7 @@ symbol symbol_table_intern_slice(symbol_table *self, const char *content,
     uint16_t off = index_base[i];
 
     if (memcmp(base + off, content, len) == 0) {
-      return off;
+      return i;
     }
   }
 

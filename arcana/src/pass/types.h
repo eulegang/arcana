@@ -2,10 +2,13 @@
 
 #include "../arcana.h"
 #include "symbol.h"
+#include <sigil.h>
 #include <vector>
 
 namespace arcana {
 namespace pass {
+
+using type_id = uint16_t;
 
 struct BitSet {
   struct Case {
@@ -23,6 +26,7 @@ struct BitSet {
 struct TypeDefPass : Pass {
   SymbolTable &table;
   std::vector<BitSet> bitsets;
+  sigil::Overlay<type_id> type_overlay;
 
   TypeDefPass(SymbolTable &table) : table{table}, bitsets{} {}
 

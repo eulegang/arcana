@@ -14,14 +14,15 @@ uint16_t stops = 0;
 
 void parse_args(int argc, char **argv) {
   static struct option long_options[] = {
-      {"verbose", no_argument, 0, 'v'},
-      {"help", no_argument, 0, 'h'},
-      {"tokenize", no_argument, 0, 't'},
-      {0, 0, 0, 0},
+      {"verbose", no_argument, 0, 'v'},  {"help", no_argument, 0, 'h'},
+      {"tokenize", no_argument, 0, 't'}, {"ast", no_argument, 0, 'a'},
+      {"types", no_argument, 0, 'T'},
+
+      {"symbols", no_argument, 0, 's'},  {0, 0, 0, 0},
   };
 
   int c;
-  while ((c = getopt_long(argc, argv, "vhta", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "vhtasT", long_options, NULL)) != -1) {
     switch (c) {
     case 'v':
       verbose = true;
@@ -33,6 +34,14 @@ void parse_args(int argc, char **argv) {
 
     case 'a':
       stops |= 2;
+      break;
+
+    case 's':
+      stops |= 4;
+      break;
+
+    case 'T':
+      stops |= 8;
       break;
 
     case 'h':

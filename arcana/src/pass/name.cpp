@@ -16,7 +16,9 @@ void NamePass::scan(const Tokens &tokens, const Ast &ast, uint16_t space,
   switch (node.type) {
   case Node::declare:
     if (node.child != 0 && ast[node.child].type == Node::ident) {
-      uint16_t token = *ast.data<uint16_t>(ast[node.child].offset);
+      Ast::Node child = ast[node.child];
+
+      uint16_t token = *ast.data<uint16_t>(child.offset);
       std::string_view view = tokens.content(token);
 
       symbol sym = symbol_table.intern(view);
@@ -24,7 +26,15 @@ void NamePass::scan(const Tokens &tokens, const Ast &ast, uint16_t space,
 
       name->_parent = space;
       name->_symbol = sym;
-      subspace = current++;
+
+      if (child.next) {
+        Name *name = overlay.alloc(child.next);
+
+        name->_parent = space;
+        name->_symbol = sym;
+      }
+
+      subspace = cur;
     }
 
     break;

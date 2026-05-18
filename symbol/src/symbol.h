@@ -39,7 +39,7 @@ struct SymbolTable {
     return symbol_table_intern_slice(ptr.get(), str.data(), str.length());
   }
 
-  const char *resolve(symbol sym) {
+  const char *resolve(symbol sym) const {
     return symbol_table_resolve(ptr.get(), sym);
   }
 
