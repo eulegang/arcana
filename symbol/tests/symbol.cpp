@@ -43,3 +43,21 @@ TEST(symbol_table, overflow_cap) {
 
   symbol_table_deinit(table);
 }
+
+TEST(symbol_table, prefix_confusion) {
+  symbol_table *table = symbol_table_init(32, 16);
+
+  uint16_t prefix_symbol = symbol_table_intern(table, "token_error");
+  uint16_t full_symbol = symbol_table_intern(table, "token");
+
+  EXPECT_EQ(prefix_symbol, 0);
+  EXPECT_EQ(full_symbol, 1);
+
+  const char *msg_a = symbol_table_resolve(table, prefix_symbol);
+  const char *msg_b = symbol_table_resolve(table, full_symbol);
+
+  EXPECT_STREQ(msg_a, "token_error");
+  EXPECT_STREQ(msg_b, "token");
+
+  symbol_table_deinit(table);
+}
