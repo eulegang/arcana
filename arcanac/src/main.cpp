@@ -10,14 +10,14 @@
 #include <sigil.h>
 
 #include "arcana.h"
-#include "args.h"
-#include "ast.h"
 #include "pass/name.h"
 #include "pass/types.h"
 #include "symbol.h"
-#include "symbols.h"
-#include "tokenize.h"
-#include "types.h"
+
+#include "args.h"
+#include "ast.h"
+
+#include "reports.h"
 
 int main(int argc, char **argv) {
   parse_args(argc, argv);
@@ -28,14 +28,14 @@ int main(int argc, char **argv) {
   const sigil::Tokens<arcana::Token> tokens = tokenize(content);
 
   if (stops == 1) {
-    report_tokens(tokens);
+    report::tokens(tokens);
     return 0;
   }
 
   const sigil::Ast<arcana::Node> ast = parse_ast(tokens);
 
   if (stops == 2) {
-    report_ast(tokens, ast);
+    report::ast(tokens, ast);
     return 0;
   }
 
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
   name_pass.run(tokens, ast);
 
   if (stops == 4) {
-    report_symbols(syms);
+    report::symbols(syms);
     return 0;
   }
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
   type_def.run(tokens, ast);
 
   if (stops == 8) {
-    report_types(tokens, ast, name_pass.overlay, type_def);
+    report::types(tokens, ast, name_pass.overlay, type_def);
     return 0;
   }
 

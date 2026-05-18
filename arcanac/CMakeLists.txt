@@ -2,11 +2,14 @@ add_executable(
   arcanac
 
   src/main.cpp
-  src/tokenize.cpp
   src/args.cpp
   src/ast.cpp
-  src/symbols.cpp
-  src/types.cpp
+
+  src/reports/tokenize.cpp
+  src/reports/ast.cpp
+  src/reports/symbols.cpp
+  src/reports/types.cpp
+  src/reports/op.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../arcana/src)

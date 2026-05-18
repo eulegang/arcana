@@ -1,42 +1,10 @@
-#include "tokenize.h"
-#include "args.h"
-
+#include "../reports.h"
 #include <chroma.h>
 #include <iostream>
 
-chroma::basic_t token_color(arcana::Token type);
+chroma::basic_t token_color(arcana::Token);
 
-sigil::Tokens<arcana::Token> tokenize(std::string_view content) {
-  try {
-    sigil::Tokens<arcana::Token> tokens{content, arcana::tokenizer};
-    return tokens;
-  } catch (sigil_tokens_error err) {
-
-    switch (err.err) {
-    case SIGIL_TOKENS_ERROR_MAP:
-      std::cerr << "failed to map memory" << std::endl;
-      break;
-    case SIGIL_TOKENS_ERROR_OVERFLOW:
-      std::cerr << "File to large to tokenize" << std::endl;
-      break;
-    case SIGIL_TOKENS_ERROR_INVALID:
-      std::cerr << "Invalid token found" << std::endl;
-      auto len = content.find_first_of("\n", err.pos);
-      auto sub = content.substr(err.pos, len - 1);
-      std::cerr << sub << std::endl;
-      std::cerr << "^" << std::endl;
-
-      exit(2);
-      break;
-    }
-    exit(4);
-  } catch (...) {
-    std::cerr << chroma::red << "unknown error while tokenizing" << std::endl;
-    exit(4);
-  }
-}
-
-void report_tokens(const sigil::Tokens<arcana::Token> &tokens) {
+void report::tokens(const sigil::Tokens<arcana::Token> &tokens) {
 
   size_t len = tokens.length();
 

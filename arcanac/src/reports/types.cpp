@@ -1,4 +1,4 @@
-#include "types.h"
+#include "../reports.h"
 #include "symbol.h"
 #include <iostream>
 #include <iterator>
@@ -31,9 +31,9 @@ std::string resolve(const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
   return res;
 }
 
-void report_types(const arcana::Tokens &, const arcana::Ast &,
-                  const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
-                  const arcana::pass::TypeDefPass &pass) {
+void report::types(const arcana::Tokens &, const arcana::Ast &,
+                   const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
+                   const arcana::pass::TypeDefPass &pass) {
 
   std::cout << "bitsets" << std::endl;
   for (const auto &bitset : pass.bitsets) {
