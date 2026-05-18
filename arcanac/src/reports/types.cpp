@@ -4,35 +4,8 @@
 #include <iterator>
 #include <ranges>
 
-std::string resolve(const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
-                    const SymbolTable &table,
-                    arcana::pass::NamePass::Name name) {
-
-  std::string res;
-  std::vector<symbol> syms;
-  arcana::pass::NamePass::Name n = name;
-
-  syms.push_back(n._symbol);
-  while (n._parent != 0xFFFF) {
-    n = *scopes.resolve(n._parent);
-
-    syms.push_back(n._symbol);
-  }
-
-  for (const auto &sym : syms | std::views::reverse) {
-    res += table.resolve(sym);
-    res += "::";
-  }
-
-  if (res.size()) {
-    res.resize(res.size() - 2);
-  }
-
-  return res;
-}
-
 void report::types(const arcana::Tokens &, const arcana::Ast &,
-                   const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
+                   const arcana::pass::NamePass::Overlay &scopes,
                    const arcana::pass::TypeDefPass &pass) {
 
   std::cout << "bitsets" << std::endl;
@@ -40,7 +13,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &,
 
     auto name = scopes.resolve(bitset.node);
 
-    std::string id = resolve(scopes, pass.table, *name);
+    std::string id = resolve(scopes, pass.table, *name, "::");
 
     std::cout << "  " << id << " (" << bitset.size << ")" << std::endl;
 
@@ -56,7 +29,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &,
 
     auto name = scopes.resolve(en.node);
 
-    std::string id = resolve(scopes, pass.table, *name);
+    std::string id = resolve(scopes, pass.table, *name, "::");
 
     std::cout << "  " << id << " (" << en.size << ")" << std::endl;
 

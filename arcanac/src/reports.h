@@ -21,8 +21,13 @@ void names(const arcana::Ast &, const SymbolTable &,
            const sigil::Overlay<arcana::pass::NamePass::Name> &);
 
 void types(const arcana::Tokens &, const arcana::Ast &,
-           const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
+           const arcana::pass::NamePass::Overlay &,
            const arcana::pass::TypeDefPass &);
+
+std::string resolve(const arcana::pass::NamePass::Overlay &scopes,
+                    const SymbolTable &table, arcana::pass::NamePass::Name name,
+                    std::string_view join);
+
 } // namespace report
 
 std::ostream &operator<<(std::ostream &os, const arcana::Node &);

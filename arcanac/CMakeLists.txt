@@ -11,6 +11,7 @@ add_executable(
   src/reports/types.cpp
   src/reports/names.cpp
   src/reports/op.cpp
+  src/reports/resolve.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../arcana/src)

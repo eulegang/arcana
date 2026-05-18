@@ -11,8 +11,10 @@ struct NamePass : Pass {
     uint16_t _parent;
   };
 
+  using Overlay = sigil::Overlay<Name>;
+
   SymbolTable &symbol_table;
-  sigil::Overlay<Name> overlay;
+  Overlay overlay;
   uint16_t current;
 
   NamePass(SymbolTable &);
