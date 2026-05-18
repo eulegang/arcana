@@ -1,3 +1,4 @@
+#include "pass/types.h"
 #include "../reports.h"
 #include "symbol.h"
 #include <chroma.h>
@@ -5,21 +6,72 @@
 #include <iterator>
 #include <ranges>
 
-void report::types(const arcana::Tokens &, const arcana::Ast &,
+struct ctx {
+  std::ostream *out;
+  const SymbolTable &table;
+  const arcana::pass::TypeDefPass::Overlay &overlay;
+};
+
+std::ostream &operator<<(std::ostream &out, arcana::pass::type_id tid) {
+  switch (tid.category()) {
+  case arcana::pass::type_id::cat::bs:
+    out << chroma::clear << "(" << chroma::purple << "bitset" << chroma::clear
+        << ")" << chroma::yellow << tid.id();
+    break;
+  case arcana::pass::type_id::cat::en:
+    out << chroma::clear << "(" << chroma::purple << "enum" << chroma::clear
+        << ")" << chroma::yellow << tid.id();
+    break;
+  default:
+    out << chroma::red << "oh no!";
+    break;
+  }
+
+  return out;
+}
+
+void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
+                      size_t level, ctx *ctx) {
+
+  auto &out = *ctx->out;
+
+  out << std::string(2 * level, ' ');
+  out << node.type;
+
+  const arcana::pass::type_id *tid = ctx->overlay.resolve(id);
+  if (tid) {
+    out << " " << *tid;
+  }
+
+  out << chroma::clear << std::endl;
+}
+
+void report::types(const arcana::Tokens &, const arcana::Ast &ast,
                    const arcana::pass::NamePass::Overlay &scopes,
                    const arcana::pass::TypeDefPass &pass) {
 
+  std::ostream *out = &std::cout;
+  ctx ctx = {
+      .out = out,
+      .table = pass.table,
+      .overlay = pass.type_overlay,
+  };
+
+  ast.visit(&ctx, types_dump_nodes);
+
   std::cout << chroma::purple << "summary" << std::endl;
 
+  uint16_t id = 0;
   std::cout << chroma::purple << "  bitsets" << std::endl;
   for (const auto &bitset : pass.bitsets) {
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::bs, id++);
 
     auto name = scopes.resolve(bitset.node);
 
-    std::string id = resolve(scopes, pass.table, *name, "::");
+    std::string fullname = resolve(scopes, pass.table, *name, "::");
 
-    std::cout << "    " << chroma::green << id << chroma::clear << " ("
-              << chroma::yellow << bitset.size << chroma::clear << ")"
+    std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
+              << chroma::yellow << bitset.size << chroma::clear << ") " << tid
               << std::endl;
 
     for (const auto &c : bitset.cases) {
@@ -30,15 +82,17 @@ void report::types(const arcana::Tokens &, const arcana::Ast &,
     }
   }
 
+  id = 0;
   std::cout << chroma::purple << "  enums" << std::endl;
   for (const auto &en : pass.enums) {
-
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::en, id++);
     auto name = scopes.resolve(en.node);
 
-    std::string id = resolve(scopes, pass.table, *name, "::");
+    std::string fullname = resolve(scopes, pass.table, *name, "::");
 
-    std::cout << "    " << chroma::green << id << chroma::clear << " ("
-              << chroma::yellow << en.size << chroma::clear << ")" << std::endl;
+    std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
+              << chroma::yellow << en.size << chroma::clear << ") " << tid
+              << std::endl;
 
     for (const auto &c : en.cases) {
       auto x = pass.table.resolve(c.sym);

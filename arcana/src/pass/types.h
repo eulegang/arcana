@@ -15,15 +15,19 @@ struct type_id {
     en = 2,
   };
 
-  uint16_t id;
-
   type_id(cat category, uint16_t id) {
     if (0xE000 & id) {
       throw std::runtime_error("type id overflow");
     }
 
-    id = ((uint16_t)category << 13) | id;
+    payload = ((uint16_t)category << 13) | id;
   }
+
+  cat category() const { return (cat)((0xE000 & payload) >> 13); }
+  uint16_t id() const { return (~0xE000 & payload); }
+
+private:
+  uint16_t payload;
 };
 
 struct BitSet {
@@ -53,10 +57,12 @@ struct Enumeration {
 };
 
 struct TypeDefPass : Pass {
+  using Overlay = sigil::Overlay<type_id>;
+
   SymbolTable &table;
   std::vector<BitSet> bitsets;
   std::vector<Enumeration> enums;
-  sigil::Overlay<type_id> type_overlay;
+  Overlay type_overlay;
 
   TypeDefPass(SymbolTable &table) : table{table}, bitsets{} {}
 
