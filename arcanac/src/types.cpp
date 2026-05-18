@@ -42,12 +42,28 @@ void report_types(const arcana::Tokens &, const arcana::Ast &,
 
     std::string id = resolve(scopes, pass.table, *name);
 
-    std::cout << "  " << id << std::endl;
+    std::cout << "  " << id << " (" << bitset.size << ")" << std::endl;
 
     for (const auto &c : bitset.cases) {
       auto x = pass.table.resolve(c.sym);
 
       std::cout << "    " << x << " = " << c.bit << std::endl;
+    }
+  }
+
+  std::cout << "enums" << std::endl;
+  for (const auto &en : pass.enums) {
+
+    auto name = scopes.resolve(en.node);
+
+    std::string id = resolve(scopes, pass.table, *name);
+
+    std::cout << "  " << id << " (" << en.size << ")" << std::endl;
+
+    for (const auto &c : en.cases) {
+      auto x = pass.table.resolve(c.sym);
+
+      std::cout << "    " << x << " = " << c.pattern << std::endl;
     }
   }
 }
