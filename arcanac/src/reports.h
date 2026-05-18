@@ -17,13 +17,12 @@ void ast(const sigil::Tokens<arcana::Token> &tokens,
 
 void symbols(const SymbolTable &);
 
+void names(const arcana::Ast &, const SymbolTable &,
+           const sigil::Overlay<arcana::pass::NamePass::Name> &);
+
 void types(const arcana::Tokens &, const arcana::Ast &,
            const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
            const arcana::pass::TypeDefPass &);
-
-template <typename T>
-void overlay(const arcana::Token &, const arcana::Ast &,
-             const sigil::Overlay<T> &);
 } // namespace report
 
 std::ostream &operator<<(std::ostream &os, const arcana::Node &);

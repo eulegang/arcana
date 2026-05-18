@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
 
   if (stops == 4) {
     report::symbols(syms);
+    report::names(ast, syms, name_pass.overlay);
     return 0;
   }
 

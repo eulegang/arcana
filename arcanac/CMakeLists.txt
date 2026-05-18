@@ -9,6 +9,7 @@ add_executable(
   src/reports/ast.cpp
   src/reports/symbols.cpp
   src/reports/types.cpp
+  src/reports/names.cpp
   src/reports/op.cpp
 )
 

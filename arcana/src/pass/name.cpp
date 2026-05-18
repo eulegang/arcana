@@ -80,7 +80,7 @@ void NamePass::scan(const Tokens &tokens, const Ast &ast, uint16_t space,
 void NamePass::run(const Tokens &tokens, const Ast &ast) {
   overlay = sigil::Overlay<Name>(ast.ptr.get(), 4);
 
-  scan(tokens, ast, 0, 0);
+  scan(tokens, ast, 0xFFFF, 0);
 }
 } // namespace pass
 } // namespace arcana

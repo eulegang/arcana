@@ -13,7 +13,7 @@ std::string resolve(const sigil::Overlay<arcana::pass::NamePass::Name> &scopes,
   arcana::pass::NamePass::Name n = name;
 
   syms.push_back(n._symbol);
-  while (n._parent) {
+  while (n._parent != 0xFFFF) {
     n = *scopes.resolve(n._parent);
 
     syms.push_back(n._symbol);
