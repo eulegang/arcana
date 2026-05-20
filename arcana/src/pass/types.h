@@ -22,19 +22,19 @@ struct type_id {
 
   type_id() { payload = 0; }
   type_id(cat category, uint16_t id) {
-    if (0xE000 & id) {
+    if (0xF0000000 & id) {
       throw std::runtime_error("type id overflow");
     }
 
-    payload = ((uint16_t)category << 13) | id;
+    payload = ((uint16_t)category << 28) | id;
   }
 
-  cat category() const { return (cat)((0xE000 & payload) >> 13); }
-  uint16_t id() const { return (~0xE000 & payload); }
+  cat category() const { return (cat)((0xF0000000 & payload) >> 28); }
+  uint16_t id() const { return (~0xF0000000 & payload); }
   operator bool() { return payload != 0; }
 
 private:
-  uint16_t payload;
+  uint32_t payload;
 };
 
 struct BitSet {
