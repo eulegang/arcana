@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../arcana.h"
+#include "name.h"
 #include "symbol.h"
 #include <cstdint>
 #include <sigil.h>
@@ -11,10 +12,14 @@ namespace pass {
 
 struct type_id {
   enum class cat : uint16_t {
+    meta = 0,
     bs = 1,
     en = 2,
+    st = 3,
+    prim = 4,
   };
 
+  type_id() { payload = 0; }
   type_id(cat category, uint16_t id) {
     if (0xE000 & id) {
       throw std::runtime_error("type id overflow");
@@ -25,6 +30,7 @@ struct type_id {
 
   cat category() const { return (cat)((0xE000 & payload) >> 13); }
   uint16_t id() const { return (~0xE000 & payload); }
+  operator bool() { return payload != 0; }
 
 private:
   uint16_t payload;
@@ -56,20 +62,53 @@ struct Enumeration {
   Enumeration() : node{}, size{}, cases{} {}
 };
 
+struct Struct {
+  struct Field {
+    symbol sym;
+    type_id ty;
+    uint16_t node;
+  };
+
+  uint16_t node;
+
+  std::vector<Field> fields;
+
+  Struct() : node{}, fields{} {}
+};
+
+struct Primitive {
+  using Flags = uint8_t;
+
+  symbol sym;
+  uint8_t size;
+  uint8_t stride;
+  Flags flags;
+};
+
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<type_id>;
 
   SymbolTable &table;
   std::vector<BitSet> bitsets;
   std::vector<Enumeration> enums;
+  std::vector<Struct> structs;
+  std::vector<Primitive> primitives;
   Overlay type_overlay;
+  const arcana::pass::NamePass::Overlay &names;
 
-  TypeDefPass(SymbolTable &table) : table{table}, bitsets{} {}
+  TypeDefPass(SymbolTable &table, const arcana::pass::NamePass::Overlay &names)
+      : table{table}, bitsets{}, enums{}, structs{}, primitives{},
+        type_overlay{}, names{names} {}
 
   void run(const Tokens &, const Ast &) override;
   void visit(const Tokens &, const Ast &, uint16_t cur);
   void visit_bs(const Tokens &, const Ast &, uint16_t cur, BitSet &);
   void visit_en(const Tokens &, const Ast &, uint16_t cur, Enumeration &);
+  void visit_st(const Tokens &, const Ast &, uint16_t cur, Struct &);
+
+  type_id resolve_type(const Tokens &, const Ast &, uint16_t cur);
+
+  type_id resolve_primitive(symbol sym);
 };
 
 } // namespace pass

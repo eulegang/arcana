@@ -1,23 +1,92 @@
 #include "types.h"
+#include <cstdint>
 #include <sigil.h>
 #include <stdexcept>
 
 namespace arcana {
 namespace pass {
 
-#define bitset_type 0x01
-#define enum_type 0x02
+void load_primitives(TypeDefPass &pass) {
+  const Primitive::Flags sign = 0x01;
+  const Primitive::Flags f = 0x02;
 
-template <uint8_t ty> uint16_t ty_id(uint16_t id) {
-  if (0xE000 & id) {
-    throw std::runtime_error("type id overflow");
-  }
-
-  return (ty << 13) | id;
+  pass.primitives.push_back({
+      .sym = pass.table.intern("void"),
+      .size = 0,
+      .stride = 1,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("bool"),
+      .size = 1,
+      .stride = 1,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("u8"),
+      .size = 1,
+      .stride = 1,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("i8"),
+      .size = 1,
+      .stride = 1,
+      .flags = sign,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("u16"),
+      .size = 2,
+      .stride = 2,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("i16"),
+      .size = 2,
+      .stride = 2,
+      .flags = sign,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("u32"),
+      .size = 4,
+      .stride = 4,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("i32"),
+      .size = 4,
+      .stride = 4,
+      .flags = sign,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("u64"),
+      .size = 8,
+      .stride = 8,
+      .flags = 0,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("i64"),
+      .size = 8,
+      .stride = 8,
+      .flags = sign,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("f32"),
+      .size = 4,
+      .stride = 4,
+      .flags = f | sign,
+  });
+  pass.primitives.push_back({
+      .sym = pass.table.intern("f64"),
+      .size = 8,
+      .stride = 8,
+      .flags = sign | f,
+  });
 }
 
 bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
                        uint16_t &size) {
+
   if (node.offset == 0xFFFF)
     return false;
 
@@ -55,6 +124,7 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
 
 void TypeDefPass::run(const Tokens &tokens, const Ast &ast) {
   type_overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
+  load_primitives(*this);
   visit(tokens, ast, 0);
 }
 
@@ -86,6 +156,20 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
       visit_en(tokens, ast, node.child, enums.back());
       return;
     }
+  } break;
+
+  case Node::st: {
+    Struct st;
+    st.node = cur;
+
+    *type_overlay.alloc(cur) = type_id(type_id::cat::st, structs.size());
+    structs.push_back(st);
+
+    if (node.child) {
+      visit_st(tokens, ast, node.child, structs.back());
+    }
+
+    return;
   } break;
 
   default:
@@ -211,6 +295,70 @@ void TypeDefPass::visit_en(const Tokens &tokens, const Ast &ast, uint16_t cur,
   if (node.type != Node::en_case) {
     visit(tokens, ast, cur);
   }
+}
+
+void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast, uint16_t cur,
+                           Struct &st) {
+  const Ast::Node fields = ast[cur];
+
+  if (fields.type != Node::st_fields) {
+    visit(tokens, ast, cur);
+  }
+
+  if (fields.child) {
+    cur = fields.child;
+
+    while (cur) {
+      Ast::Node node = ast[cur];
+
+      NamePass::Name *name = names.resolve(cur);
+
+      type_id tid = resolve_type(tokens, ast, node.child);
+      *type_overlay.alloc(node.child) = tid;
+
+      st.fields.push_back({
+          .sym = name->_symbol,
+          .ty = tid,
+          .node = cur,
+      });
+
+      cur = ast[cur].next;
+    }
+  }
+
+  if (fields.next)
+    visit(tokens, ast, fields.next);
+
+  if (fields.child)
+    visit(tokens, ast, fields.child);
+}
+
+type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
+                                  uint16_t cur) {
+  Ast::Node node = ast[cur];
+
+  if (node.type == Node::ty && node.child) {
+    return resolve_type(tokens, ast, node.child);
+  }
+
+  if (node.type == Node::ident) {
+    return resolve_primitive(names.resolve(cur)->_symbol);
+  }
+
+  return type_id();
+}
+
+type_id TypeDefPass::resolve_primitive(symbol sym) {
+  uint16_t id = 0;
+  for (const auto &prim : primitives) {
+    if (prim.sym == sym) {
+      return type_id(type_id::cat::prim, id);
+    }
+
+    id++;
+  }
+
+  return type_id(type_id::cat::meta, 0);
 }
 } // namespace pass
 } // namespace arcana

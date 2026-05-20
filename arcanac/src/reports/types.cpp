@@ -13,21 +13,31 @@ struct ctx {
 };
 
 std::ostream &operator<<(std::ostream &out, arcana::pass::type_id tid) {
+  if (!tid) {
+    return out << chroma::purple << "null";
+  }
+
+  out << chroma::clear << "(" << chroma::purple;
   switch (tid.category()) {
   case arcana::pass::type_id::cat::bs:
-    out << chroma::clear << "(" << chroma::purple << "bitset" << chroma::clear
-        << ")" << chroma::yellow << tid.id();
+    out << "bitset";
     break;
   case arcana::pass::type_id::cat::en:
-    out << chroma::clear << "(" << chroma::purple << "enum" << chroma::clear
-        << ")" << chroma::yellow << tid.id();
+    out << "enum";
     break;
+  case arcana::pass::type_id::cat::st:
+    out << "struct";
+    break;
+  case arcana::pass::type_id::cat::prim:
+    out << "primitive";
+    break;
+
   default:
     out << chroma::red << "oh no!";
     break;
   }
 
-  return out;
+  return out << chroma::clear << ")" << chroma::yellow << tid.id();
 }
 
 void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
@@ -101,4 +111,23 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
                 << chroma::yellow << c.pattern << std::endl;
     }
   }
+
+  id = 0;
+  std::cout << chroma::purple << "  structs" << std::endl;
+  for (const auto &st : pass.structs) {
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::st, id++);
+    auto name = scopes.resolve(st.node);
+    std::string fullname = resolve(scopes, pass.table, *name, "::");
+
+    std::cout << "    " << chroma::green << fullname << " " << tid << std::endl;
+
+    for (const auto &c : st.fields) {
+      auto x = pass.table.resolve(c.sym);
+
+      std::cout << "      " << chroma::cyan << x << chroma::clear << ": "
+                << c.ty << std::endl;
+    }
+  }
+
+  std::cout << chroma::clear;
 }

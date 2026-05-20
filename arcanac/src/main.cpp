@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  arcana::pass::TypeDefPass type_def{syms};
+  arcana::pass::TypeDefPass type_def{syms, name_pass.overlay};
   type_def.run(tokens, ast);
 
   if (stops == 8) {

@@ -49,7 +49,7 @@ symbol symbol_table_intern_slice(symbol_table *self, const char *content,
   for (size_t i = 0; i < self->len; i++) {
     uint16_t off = index_base[i];
 
-    if (memcmp(base + off, content, len + 1) == 0) {
+    if (memcmp(base + off, content, len) == 0 && *(base + off + len) == 0) {
       return i;
     }
   }
