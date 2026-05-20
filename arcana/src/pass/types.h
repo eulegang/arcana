@@ -18,6 +18,7 @@ struct type_id {
     st = 3,
     prim = 4,
     ref = 5,
+    derive = 6,
   };
 
   type_id() { payload = 0; }
@@ -32,6 +33,10 @@ struct type_id {
   cat category() const { return (cat)((0xF0000000 & payload) >> 28); }
   uint16_t id() const { return (~0xF0000000 & payload); }
   operator bool() { return payload != 0; }
+
+  bool operator==(const type_id &other) const {
+    return payload == other.payload;
+  }
 
 private:
   uint32_t payload;
@@ -91,6 +96,16 @@ struct Ref {
   symbol syms[15];
 };
 
+struct Derive {
+  enum class Type {
+    Pointer,
+    Slice,
+  };
+
+  Type ty;
+  type_id underlying;
+};
+
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<type_id>;
 
@@ -100,6 +115,7 @@ struct TypeDefPass : Pass {
   std::vector<Struct> structs;
   std::vector<Primitive> primitives;
   std::vector<Ref> refs;
+  std::vector<Derive> derives;
   Overlay type_overlay;
   const arcana::pass::NamePass::Overlay &names;
 

@@ -34,6 +34,9 @@ std::ostream &operator<<(std::ostream &out, arcana::pass::type_id tid) {
   case arcana::pass::type_id::cat::ref:
     out << "ref";
     break;
+  case arcana::pass::type_id::cat::derive:
+    out << "derive";
+    break;
 
   default:
     out << chroma::red << "oh no!";
@@ -157,5 +160,23 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
     std::cout << "      " << chroma::cyan << ref_repr << std::endl;
   }
 
+  id = 0;
+  std::cout << chroma::purple << "  derives" << std::endl;
+  for (const auto &derive : pass.derives) {
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::derive, id++);
+
+    std::cout << "    " << chroma::purple;
+
+    switch (derive.ty) {
+    case arcana::pass::Derive::Type::Pointer:
+      std::cout << "* ";
+      break;
+    case arcana::pass::Derive::Type::Slice:
+      std::cout << "[] ";
+      break;
+    }
+
+    std::cout << derive.underlying << " " << tid << std::endl;
+  }
   std::cout << chroma::clear;
 }

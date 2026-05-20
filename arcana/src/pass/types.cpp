@@ -345,6 +345,15 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     type_id tid = resolve_primitive(names.resolve(cur)->_symbol);
 
     if (!tid) {
+      symbol sym = names.resolve(cur)->_symbol;
+      uint32_t id = 0;
+      for (const auto &ref : refs) {
+        if (ref.node == context && ref.syms[0] == sym) {
+          return type_id(type_id::cat::ref, id);
+        }
+        id++;
+      }
+
       tid = type_id(type_id::cat::ref, refs.size());
       refs.push_back({
           .node = context,
@@ -352,6 +361,49 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
       });
     }
 
+    return tid;
+  }
+
+  if (node.type == Node::pointer) {
+    type_id tid = resolve_type(tokens, ast, context, node.child);
+
+    uint32_t id = 0;
+    for (const auto &derive : derives) {
+      if (derive.ty == Derive::Type::Pointer && derive.underlying == tid) {
+        return type_id(type_id::cat::derive, id);
+      }
+
+      id++;
+    }
+
+    type_id underlying{tid};
+    tid = type_id(type_id::cat::derive, derives.size());
+    derives.push_back({
+        .ty = Derive::Type::Pointer,
+        .underlying = underlying,
+    });
+
+    return tid;
+  }
+
+  if (node.type == Node::slice) {
+    type_id tid = resolve_type(tokens, ast, context, node.child);
+
+    uint32_t id = 0;
+    for (const auto &derive : derives) {
+      if (derive.ty == Derive::Type::Slice && derive.underlying == tid) {
+        return type_id(type_id::cat::derive, id);
+      }
+
+      id++;
+    }
+
+    type_id underlying{tid};
+    tid = type_id(type_id::cat::derive, derives.size());
+    derives.push_back({
+        .ty = Derive::Type::Slice,
+        .underlying = underlying,
+    });
     return tid;
   }
 
