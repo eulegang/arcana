@@ -166,7 +166,7 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
     structs.push_back(st);
 
     if (node.child) {
-      visit_st(tokens, ast, node.child, structs.back());
+      visit_st(tokens, ast, cur, node.child, structs.back());
     }
 
     return;
@@ -297,8 +297,8 @@ void TypeDefPass::visit_en(const Tokens &tokens, const Ast &ast, uint16_t cur,
   }
 }
 
-void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast, uint16_t cur,
-                           Struct &st) {
+void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast,
+                           uint16_t context, uint16_t cur, Struct &st) {
   const Ast::Node fields = ast[cur];
 
   if (fields.type != Node::st_fields) {
@@ -313,7 +313,7 @@ void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast, uint16_t cur,
 
       NamePass::Name *name = names.resolve(cur);
 
-      type_id tid = resolve_type(tokens, ast, node.child);
+      type_id tid = resolve_type(tokens, ast, context, node.child);
       *type_overlay.alloc(node.child) = tid;
 
       st.fields.push_back({
@@ -334,15 +334,25 @@ void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast, uint16_t cur,
 }
 
 type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
-                                  uint16_t cur) {
+                                  uint16_t context, uint16_t cur) {
   Ast::Node node = ast[cur];
 
   if (node.type == Node::ty && node.child) {
-    return resolve_type(tokens, ast, node.child);
+    return resolve_type(tokens, ast, context, node.child);
   }
 
   if (node.type == Node::ident) {
-    return resolve_primitive(names.resolve(cur)->_symbol);
+    type_id tid = resolve_primitive(names.resolve(cur)->_symbol);
+
+    if (!tid) {
+      tid = type_id(type_id::cat::ref, refs.size());
+      refs.push_back({
+          .node = context,
+          .syms = {names.resolve(cur)->_symbol, 0},
+      });
+    }
+
+    return tid;
   }
 
   return type_id();

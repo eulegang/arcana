@@ -17,6 +17,7 @@ struct type_id {
     en = 2,
     st = 3,
     prim = 4,
+    ref = 5,
   };
 
   type_id() { payload = 0; }
@@ -85,6 +86,11 @@ struct Primitive {
   Flags flags;
 };
 
+struct Ref {
+  uint16_t node;
+  symbol syms[15];
+};
+
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<type_id>;
 
@@ -93,6 +99,7 @@ struct TypeDefPass : Pass {
   std::vector<Enumeration> enums;
   std::vector<Struct> structs;
   std::vector<Primitive> primitives;
+  std::vector<Ref> refs;
   Overlay type_overlay;
   const arcana::pass::NamePass::Overlay &names;
 
@@ -104,9 +111,11 @@ struct TypeDefPass : Pass {
   void visit(const Tokens &, const Ast &, uint16_t cur);
   void visit_bs(const Tokens &, const Ast &, uint16_t cur, BitSet &);
   void visit_en(const Tokens &, const Ast &, uint16_t cur, Enumeration &);
-  void visit_st(const Tokens &, const Ast &, uint16_t cur, Struct &);
+  void visit_st(const Tokens &, const Ast &, uint16_t context, uint16_t cur,
+                Struct &);
 
-  type_id resolve_type(const Tokens &, const Ast &, uint16_t cur);
+  type_id resolve_type(const Tokens &, const Ast &, uint16_t context,
+                       uint16_t cur);
 
   type_id resolve_primitive(symbol sym);
 };
