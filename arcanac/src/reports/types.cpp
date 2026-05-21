@@ -37,6 +37,12 @@ std::ostream &operator<<(std::ostream &out, arcana::pass::type_id tid) {
   case arcana::pass::type_id::cat::derive:
     out << "derive";
     break;
+  case arcana::pass::type_id::cat::fn:
+    out << "fn";
+    break;
+  case arcana::pass::type_id::cat::alias:
+    out << "alias";
+    break;
 
   default:
     out << chroma::red << "oh no!";
@@ -178,5 +184,29 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
 
     std::cout << derive.underlying << " " << tid << std::endl;
   }
+
+  id = 0;
+  std::cout << chroma::purple << "  fns" << std::endl;
+  for (const auto &fn : pass.fns) {
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::fn, id++);
+
+    std::cout << "    " << chroma::clear << "(";
+
+    for (const auto &param : fn.params) {
+      std::cout << param << ", ";
+    }
+
+    std::cout << chroma::clear << ") -> " << fn.err << "!" << fn.ret
+              << std::endl;
+  }
+
+  id = 0;
+  std::cout << chroma::purple << "  aliases" << std::endl;
+  for (const auto &alias : pass.aliases) {
+    arcana::pass::type_id tid(arcana::pass::type_id::cat::alias, id++);
+
+    std::cout << "    " << alias << " " << tid << std::endl;
+  }
+
   std::cout << chroma::clear;
 }

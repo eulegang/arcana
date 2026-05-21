@@ -19,6 +19,8 @@ struct type_id {
     prim = 4,
     ref = 5,
     derive = 6,
+    fn = 7,
+    alias = 8,
   };
 
   type_id() { payload = 0; }
@@ -106,6 +108,16 @@ struct Derive {
   type_id underlying;
 };
 
+struct Fn {
+  std::vector<type_id> params;
+  type_id err;
+  type_id ret;
+
+  bool operator==(const Fn &other) {
+    return ret == other.ret && err == other.err && params == other.params;
+  }
+};
+
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<type_id>;
 
@@ -116,6 +128,8 @@ struct TypeDefPass : Pass {
   std::vector<Primitive> primitives;
   std::vector<Ref> refs;
   std::vector<Derive> derives;
+  std::vector<Fn> fns;
+  std::vector<type_id> aliases;
   Overlay type_overlay;
   const arcana::pass::NamePass::Overlay &names;
 
