@@ -71,12 +71,11 @@ arcana :: namespace {
 
   parser :: opaque struct {
     len: u64;
-    terminal: token_predicate;
+    terminal: fn(type: token_type) -> bool;
     init: subparser;
 
     subparser :: alias fn(state: state) -> state;
     binparser :: alias fn(state: state, id: u16) -> state;
-    token_predicate :: alias fn(type: token_type) -> bool;
 
     slot :: struct {
       prefix: subparser;
