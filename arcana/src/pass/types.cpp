@@ -84,43 +84,6 @@ void load_primitives(TypeDefPass &pass) {
   });
 }
 
-Fn gen_fn(TypeDefPass *pass, const Tokens &tokens, const Ast &ast,
-          uint16_t context, uint16_t cur) {
-  Ast::Node fn = ast[cur];
-
-  Ast::Node args = ast[fn.child];
-
-  uint16_t param_id = args.child;
-
-  std::vector<type_id> params;
-  type_id err;
-  type_id ret;
-
-  while (param_id) {
-    Ast::Node param = ast[param_id];
-
-    params.push_back(pass->resolve_type(tokens, ast, context, param.child));
-
-    param_id = param.next;
-  }
-
-  if (args.next) {
-    Ast::Node ret_node = ast[args.next];
-    ret = pass->resolve_type(tokens, ast, context, ret_node.child);
-
-    Ast::Node ret_id_node = ast[ret_node.child];
-    if (ret_id_node.next) {
-      err = pass->resolve_type(tokens, ast, context, ret_id_node.next);
-    }
-  }
-
-  return Fn{
-      .params = params,
-      .err = err,
-      .ret = ret,
-  };
-}
-
 bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
                        uint16_t &size) {
 
@@ -159,7 +122,7 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
   return false;
 }
 
-void TypeDefPass::run(const Tokens &tokens, const Ast &ast) {
+void TypeDefPass::run() {
   type_overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
   load_primitives(*this);
   visit(tokens, ast, 0);
@@ -454,7 +417,7 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
   }
 
   if (node.type == Node::fn) {
-    Fn new_fn = gen_fn(this, tokens, ast, context, cur);
+    Fn new_fn = gen_fn(context, cur);
 
     uint32_t id = 0;
     for (const auto &fn : fns) {
@@ -485,5 +448,42 @@ type_id TypeDefPass::resolve_primitive(symbol sym) {
 
   return type_id(type_id::cat::meta, 0);
 }
+
+Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
+  Ast::Node fn = ast[cur];
+
+  Ast::Node args = ast[fn.child];
+
+  uint16_t param_id = args.child;
+
+  std::vector<type_id> params;
+  type_id err;
+  type_id ret;
+
+  while (param_id) {
+    Ast::Node param = ast[param_id];
+
+    params.push_back(resolve_type(tokens, ast, context, param.child));
+
+    param_id = param.next;
+  }
+
+  if (args.next) {
+    Ast::Node ret_node = ast[args.next];
+    ret = resolve_type(tokens, ast, context, ret_node.child);
+
+    Ast::Node ret_id_node = ast[ret_node.child];
+    if (ret_id_node.next) {
+      err = resolve_type(tokens, ast, context, ret_id_node.next);
+    }
+  }
+
+  return Fn{
+      .params = params,
+      .err = err,
+      .ret = ret,
+  };
+}
+
 } // namespace pass
 } // namespace arcana

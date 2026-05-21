@@ -15,12 +15,13 @@ struct NamePass : Pass {
 
   SymbolTable &symbol_table;
   Overlay overlay;
-  uint16_t current;
 
-  NamePass(SymbolTable &);
+  NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &);
 
-  void run(const Tokens &, const Ast &) override;
-  void scan(const Tokens &, const Ast &, uint16_t space, uint16_t cur);
+  void run() override;
+
+private:
+  void scan(uint16_t space, uint16_t cur);
 };
 } // namespace pass
 } // namespace arcana

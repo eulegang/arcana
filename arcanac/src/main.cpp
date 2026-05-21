@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
   }
 
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{syms};
+  arcana::pass::NamePass name_pass{tokens, ast, syms};
 
-  name_pass.run(tokens, ast);
+  name_pass.run();
 
   if (stops == 4) {
     report::symbols(syms);
@@ -50,8 +50,8 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  arcana::pass::TypeDefPass type_def{syms, name_pass.overlay};
-  type_def.run(tokens, ast);
+  arcana::pass::TypeDefPass type_def{tokens, ast, syms, name_pass.overlay};
+  type_def.run();
 
   if (stops == 8) {
     report::types(tokens, ast, name_pass.overlay, type_def);

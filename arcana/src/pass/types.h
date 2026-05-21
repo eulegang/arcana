@@ -130,14 +130,18 @@ struct TypeDefPass : Pass {
   std::vector<Derive> derives;
   std::vector<Fn> fns;
   std::vector<type_id> aliases;
+
   Overlay type_overlay;
-  const arcana::pass::NamePass::Overlay &names;
+  const NamePass::Overlay &names;
 
-  TypeDefPass(SymbolTable &table, const arcana::pass::NamePass::Overlay &names)
-      : table{table}, bitsets{}, enums{}, structs{}, primitives{},
-        type_overlay{}, names{names} {}
+  TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
+              const arcana::pass::NamePass::Overlay &names)
+      : Pass{tokens, ast}, table{table}, bitsets{}, enums{}, structs{},
+        primitives{}, type_overlay{}, names{names} {}
 
-  void run(const Tokens &, const Ast &) override;
+  void run() override;
+
+private:
   void visit(const Tokens &, const Ast &, uint16_t cur);
   void visit_bs(const Tokens &, const Ast &, uint16_t cur, BitSet &);
   void visit_en(const Tokens &, const Ast &, uint16_t cur, Enumeration &);
@@ -148,6 +152,8 @@ struct TypeDefPass : Pass {
                        uint16_t cur);
 
   type_id resolve_primitive(symbol sym);
+
+  Fn gen_fn(uint16_t context, uint16_t cur);
 };
 
 } // namespace pass

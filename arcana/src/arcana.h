@@ -4,7 +4,13 @@
 
 namespace sigil {
 template <typename T, typename N> struct Pass {
-  virtual void run(const sigil::Tokens<T> &, const sigil::Ast<N> &) = 0;
+  const sigil::Tokens<T> &tokens;
+  const sigil::Ast<N> &ast;
+
+  Pass(const sigil::Tokens<T> &tokens, const sigil::Ast<N> &ast)
+      : tokens{tokens}, ast{ast} {}
+
+  virtual void run() = 0;
 };
 } // namespace sigil
 
