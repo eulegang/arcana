@@ -22,7 +22,7 @@ void names(const arcana::Ast &, const SymbolTable &,
 
 void types(const arcana::Tokens &, const arcana::Ast &,
            const arcana::pass::NamePass::Overlay &,
-           const arcana::pass::TypeDefPass &);
+           const arcana::types::Typebase &, const arcana::pass::TypeDefPass &);
 
 std::string resolve(const arcana::pass::NamePass::Overlay &scopes,
                     const SymbolTable &table, arcana::pass::NamePass::Name name,

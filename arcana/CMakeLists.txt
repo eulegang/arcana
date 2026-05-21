@@ -17,6 +17,8 @@ add_library(
 
   src/pass/name.cpp
   src/pass/types.cpp
+
+  src/arcana/types.cpp
 )
 
 pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)

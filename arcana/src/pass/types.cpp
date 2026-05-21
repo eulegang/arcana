@@ -6,83 +6,7 @@
 namespace arcana {
 namespace pass {
 
-void load_primitives(TypeDefPass &pass) {
-  const Primitive::Flags sign = 0x01;
-  const Primitive::Flags f = 0x02;
-
-  pass.primitives.push_back({
-      .sym = pass.table.intern("void"),
-      .size = 0,
-      .stride = 1,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("bool"),
-      .size = 1,
-      .stride = 1,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("u8"),
-      .size = 1,
-      .stride = 1,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("i8"),
-      .size = 1,
-      .stride = 1,
-      .flags = sign,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("u16"),
-      .size = 2,
-      .stride = 2,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("i16"),
-      .size = 2,
-      .stride = 2,
-      .flags = sign,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("u32"),
-      .size = 4,
-      .stride = 4,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("i32"),
-      .size = 4,
-      .stride = 4,
-      .flags = sign,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("u64"),
-      .size = 8,
-      .stride = 8,
-      .flags = 0,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("i64"),
-      .size = 8,
-      .stride = 8,
-      .flags = sign,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("f32"),
-      .size = 4,
-      .stride = 4,
-      .flags = f | sign,
-  });
-  pass.primitives.push_back({
-      .sym = pass.table.intern("f64"),
-      .size = 8,
-      .stride = 8,
-      .flags = sign | f,
-  });
-}
+using type_id = types::type_id;
 
 bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
                        uint16_t &size) {
@@ -124,7 +48,6 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
 
 void TypeDefPass::run() {
   type_overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
-  load_primitives(*this);
   visit(tokens, ast, 0);
 }
 
@@ -133,40 +56,34 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
 
   switch (node.type) {
   case Node::bs: {
-    BitSet set{};
+    auto [id, set] = base.generate<types::BitSet>();
+    *type_overlay.alloc(cur) = id;
     set.node = cur;
 
-    *type_overlay.alloc(cur) = type_id(type_id::cat::bs, bitsets.size());
-    bitsets.push_back(set);
-
     if (node.child != 0) {
-      visit_bs(tokens, ast, node.child, bitsets[bitsets.size() - 1]);
+      visit_bs(tokens, ast, node.child, set);
       return;
     }
   } break;
 
   case Node::en: {
-    Enumeration en{};
+    auto [id, en] = base.generate<types::Enumeration>();
+    *type_overlay.alloc(cur) = id;
     en.node = cur;
 
-    *type_overlay.alloc(cur) = type_id(type_id::cat::en, enums.size());
-    enums.push_back(en);
-
     if (node.child != 0) {
-      visit_en(tokens, ast, node.child, enums.back());
+      visit_en(tokens, ast, node.child, en);
       return;
     }
   } break;
 
   case Node::st: {
-    Struct st;
+    auto [id, st] = base.generate<types::Struct>();
+    *type_overlay.alloc(cur) = id;
     st.node = cur;
 
-    *type_overlay.alloc(cur) = type_id(type_id::cat::st, structs.size());
-    structs.push_back(st);
-
     if (node.child) {
-      visit_st(tokens, ast, cur, node.child, structs.back());
+      visit_st(tokens, ast, cur, node.child, st);
     }
 
     return;
@@ -175,8 +92,8 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
   case Node::alias: {
     type_id tid = resolve_type(tokens, ast, cur, node.child);
 
-    type_id alias = type_id(type_id::cat::alias, aliases.size());
-    aliases.push_back(tid);
+    type_id alias = type_id(type_id::cat::alias, base.aliases.size());
+    base.aliases.push_back(tid);
 
     *type_overlay.alloc(cur) = alias;
   } break;
@@ -195,7 +112,7 @@ void TypeDefPass::visit(const Tokens &tokens, const Ast &ast, uint16_t cur) {
 }
 
 void TypeDefPass::visit_bs(const Tokens &tokens, const Ast &ast, uint16_t cur,
-                           BitSet &bitset) {
+                           types::BitSet &bitset) {
 
   Ast::Node node = ast[cur];
 
@@ -229,7 +146,7 @@ void TypeDefPass::visit_bs(const Tokens &tokens, const Ast &ast, uint16_t cur,
 
     uint16_t idx = *ast.data<uint16_t>(node.offset);
 
-    BitSet::Case bitset_case;
+    types::BitSet::Case bitset_case;
     bitset_case.sym = table.intern(tokens.content(idx));
 
     if (node.child) {
@@ -251,7 +168,7 @@ void TypeDefPass::visit_bs(const Tokens &tokens, const Ast &ast, uint16_t cur,
 }
 
 void TypeDefPass::visit_en(const Tokens &tokens, const Ast &ast, uint16_t cur,
-                           Enumeration &en) {
+                           types::Enumeration &en) {
 
   Ast::Node node = ast[cur];
 
@@ -285,7 +202,7 @@ void TypeDefPass::visit_en(const Tokens &tokens, const Ast &ast, uint16_t cur,
 
     uint16_t idx = *ast.data<uint16_t>(node.offset);
 
-    Enumeration::Case var;
+    types::Enumeration::Case var;
     var.sym = table.intern(tokens.content(idx));
 
     if (node.child) {
@@ -307,7 +224,7 @@ void TypeDefPass::visit_en(const Tokens &tokens, const Ast &ast, uint16_t cur,
 }
 
 void TypeDefPass::visit_st(const Tokens &tokens, const Ast &ast,
-                           uint16_t context, uint16_t cur, Struct &st) {
+                           uint16_t context, uint16_t cur, types::Struct &st) {
   const Ast::Node fields = ast[cur];
 
   if (fields.type != Node::st_fields) {
@@ -356,15 +273,15 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     if (!tid) {
       symbol sym = names.resolve(cur)->_symbol;
       uint32_t id = 0;
-      for (const auto &ref : refs) {
+      for (const auto &ref : base.refs) {
         if (ref.node == context && ref.syms[0] == sym) {
           return type_id(type_id::cat::ref, id);
         }
         id++;
       }
 
-      tid = type_id(type_id::cat::ref, refs.size());
-      refs.push_back({
+      tid = type_id(type_id::cat::ref, base.refs.size());
+      base.refs.push_back({
           .node = context,
           .syms = {names.resolve(cur)->_symbol, 0},
       });
@@ -377,8 +294,9 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     type_id tid = resolve_type(tokens, ast, context, node.child);
 
     uint32_t id = 0;
-    for (const auto &derive : derives) {
-      if (derive.ty == Derive::Type::Pointer && derive.underlying == tid) {
+    for (const auto &derive : base.derives) {
+      if (derive.ty == types::Derive::Type::Pointer &&
+          derive.underlying == tid) {
         return type_id(type_id::cat::derive, id);
       }
 
@@ -386,9 +304,9 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     }
 
     type_id underlying{tid};
-    tid = type_id(type_id::cat::derive, derives.size());
-    derives.push_back({
-        .ty = Derive::Type::Pointer,
+    tid = type_id(type_id::cat::derive, base.derives.size());
+    base.derives.push_back({
+        .ty = types::Derive::Type::Pointer,
         .underlying = underlying,
     });
 
@@ -399,8 +317,8 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     type_id tid = resolve_type(tokens, ast, context, node.child);
 
     uint32_t id = 0;
-    for (const auto &derive : derives) {
-      if (derive.ty == Derive::Type::Slice && derive.underlying == tid) {
+    for (const auto &derive : base.derives) {
+      if (derive.ty == types::Derive::Type::Slice && derive.underlying == tid) {
         return type_id(type_id::cat::derive, id);
       }
 
@@ -408,27 +326,27 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
     }
 
     type_id underlying{tid};
-    tid = type_id(type_id::cat::derive, derives.size());
-    derives.push_back({
-        .ty = Derive::Type::Slice,
+    tid = type_id(type_id::cat::derive, base.derives.size());
+    base.derives.push_back({
+        .ty = types::Derive::Type::Slice,
         .underlying = underlying,
     });
     return tid;
   }
 
   if (node.type == Node::fn) {
-    Fn new_fn = gen_fn(context, cur);
+    types::Fn new_fn = gen_fn(context, cur);
 
     uint32_t id = 0;
-    for (const auto &fn : fns) {
+    for (const auto &fn : base.fns) {
       if (fn == new_fn) {
         return type_id(type_id::cat::fn, id);
       }
 
       id++;
     }
-    type_id tid = type_id(type_id::cat::fn, fns.size());
-    fns.push_back(new_fn);
+    type_id tid = type_id(type_id::cat::fn, base.fns.size());
+    base.fns.push_back(new_fn);
 
     return tid;
   }
@@ -438,7 +356,7 @@ type_id TypeDefPass::resolve_type(const Tokens &tokens, const Ast &ast,
 
 type_id TypeDefPass::resolve_primitive(symbol sym) {
   uint16_t id = 0;
-  for (const auto &prim : primitives) {
+  for (const auto &prim : base.primitives) {
     if (prim.sym == sym) {
       return type_id(type_id::cat::prim, id);
     }
@@ -449,7 +367,7 @@ type_id TypeDefPass::resolve_primitive(symbol sym) {
   return type_id(type_id::cat::meta, 0);
 }
 
-Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
+types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
   Ast::Node fn = ast[cur];
 
   Ast::Node args = ast[fn.child];
@@ -478,7 +396,7 @@ Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
     }
   }
 
-  return Fn{
+  return types::Fn{
       .params = params,
       .err = err,
       .ret = ret,

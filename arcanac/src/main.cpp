@@ -50,11 +50,14 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, name_pass.overlay};
+  arcana::types::Typebase base{syms};
+
+  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
+                                     name_pass.overlay};
   type_def.run();
 
   if (stops == 8) {
-    report::types(tokens, ast, name_pass.overlay, type_def);
+    report::types(tokens, ast, name_pass.overlay, base, type_def);
     return 0;
   }
 

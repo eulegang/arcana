@@ -1,0 +1,105 @@
+
+#include "types.h"
+namespace arcana {
+namespace types {
+
+Typebase::Typebase(SymbolTable &table)
+    : bitsets{}, enums{}, structs{}, primitives{}, table{table} {
+
+  const Primitive::Flags sign = 0x01;
+  const Primitive::Flags f = 0x02;
+
+#define prim(Ty, Size, Stride, Flags)                                          \
+  primitives.push_back({                                                       \
+      .sym = table.intern(#Ty),                                                \
+      .size = Size,                                                            \
+      .stride = Stride,                                                        \
+      .flags = Flags,                                                          \
+  })
+
+  prim(void, 0, 1, 0);
+  prim(bool, 1, 1, 0);
+  prim(u8, 1, 1, 0);
+  prim(i8, 1, 1, sign);
+  prim(u16, 2, 2, 0);
+  prim(i16, 2, 2, sign);
+  prim(u32, 4, 4, 0);
+  prim(i32, 4, 4, sign);
+  prim(u64, 8, 8, 0);
+  prim(i64, 8, 8, sign);
+  prim(f32, 4, 4, sign | f);
+  prim(f64, 8, 8, sign | f);
+
+#undef prim
+}
+
+#define intern(Type, Category, Collection)                                     \
+  template <> type_id Typebase::intern<Type>(Type arg) {                       \
+    type_id id = type_id(type_id::cat::Category, 0);                           \
+    for (const auto &record : Collection) {                                    \
+      if (arg == record) {                                                     \
+        return id;                                                             \
+      }                                                                        \
+                                                                               \
+      id++;                                                                    \
+    }                                                                          \
+                                                                               \
+    Collection.push_back(arg);                                                 \
+                                                                               \
+    return id;                                                                 \
+  }
+
+intern(Ref, ref, refs);
+intern(Fn, fn, fns);
+intern(Derive, derive, derives);
+
+#undef intern
+
+#define generate(Type, Category, Collection)                                   \
+  template <> Gen<Type> Typebase::generate<Type>() {                           \
+    Type value;                                                                \
+                                                                               \
+    type_id id = type_id(type_id::cat::Category, Collection.size());           \
+    Collection.push_back(value);                                               \
+                                                                               \
+    return {                                                                   \
+        .id = id,                                                              \
+        .value = value,                                                        \
+    };                                                                         \
+  }
+
+generate(Struct, st, structs);
+generate(BitSet, bs, bitsets);
+generate(Enumeration, en, enums);
+
+#undef generate
+
+bool Ref::operator==(const Ref &other) const {
+  if (node != other.node)
+    return false;
+
+  size_t i = 0;
+  while (true) {
+    if (syms[i] != other.syms[i])
+      return false;
+
+    if (syms[i] == 0) {
+      break;
+    }
+
+    i++;
+  }
+
+  return true;
+}
+
+bool Fn::operator==(const Fn &other) const {
+  return ret == other.ret && err == other.err && params == other.params;
+}
+
+bool Derive::operator==(const Derive &other) const {
+  return ty == other.ty && underlying == other.underlying;
+}
+
+} // namespace types
+} // namespace arcana
