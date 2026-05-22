@@ -29,16 +29,12 @@ struct TypeDefPass : Pass {
   void run() override;
 
 private:
-  void visit(const Tokens &, const Ast &, uint16_t cur);
-  void visit_bs(const Tokens &, const Ast &, uint16_t cur, types::BitSet &);
-  void visit_en(const Tokens &, const Ast &, uint16_t cur,
-                types::Enumeration &);
-  void visit_st(const Tokens &, const Ast &, uint16_t context, uint16_t cur,
-                types::Struct &);
+  void visit(uint16_t cur);
+  void visit_bs(uint16_t cur, types::BitSet &);
+  void visit_en(uint16_t cur, types::Enumeration &);
+  void visit_st(uint16_t context, uint16_t cur, types::Struct &);
 
-  types::type_id resolve_type(const Tokens &, const Ast &, uint16_t context,
-                              uint16_t cur);
-
+  types::type_id resolve_type(uint16_t context, uint16_t cur);
   types::type_id resolve_primitive(symbol sym);
 
   types::Fn gen_fn(uint16_t context, uint16_t cur);

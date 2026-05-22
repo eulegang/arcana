@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../arcana.h"
 #include "symbol.h"
 #include <stdexcept>
