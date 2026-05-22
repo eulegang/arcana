@@ -2,7 +2,6 @@
 
 #include "../arcana.h"
 #include "../arcana/types.h"
-#include "name.h"
 #include "symbol.h"
 #include <cstdint>
 #include <sigil.h>
@@ -10,6 +9,24 @@
 
 namespace arcana {
 namespace pass {
+struct NamePass : Pass {
+  struct Name {
+    symbol _symbol;
+    uint16_t _parent;
+  };
+
+  using Overlay = sigil::Overlay<Name>;
+
+  SymbolTable &symbol_table;
+  Overlay overlay;
+
+  NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &);
+
+  void run() override;
+
+private:
+  void scan(uint16_t space, uint16_t cur);
+};
 
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<types::type_id>;
@@ -17,14 +34,13 @@ struct TypeDefPass : Pass {
   SymbolTable &table;
   types::Typebase &base;
 
-  Overlay type_overlay;
+  Overlay overlay;
   const NamePass::Overlay &names;
 
   TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
               types::Typebase &base,
               const arcana::pass::NamePass::Overlay &names)
-      : Pass{tokens, ast}, table{table}, base{base}, type_overlay{},
-        names{names} {}
+      : Pass{tokens, ast}, table{table}, base{base}, overlay{}, names{names} {}
 
   void run() override;
 

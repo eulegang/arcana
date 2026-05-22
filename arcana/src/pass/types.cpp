@@ -1,4 +1,4 @@
-#include "types.h"
+#include "../arcana/pass.h"
 #include <cstdint>
 #include <sigil.h>
 #include <stdexcept>
@@ -47,7 +47,7 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
 }
 
 void TypeDefPass::run() {
-  type_overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
+  overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
   visit(0);
 }
 
@@ -57,7 +57,7 @@ void TypeDefPass::visit(uint16_t cur) {
   switch (node.type) {
   case Node::bs: {
     auto [id, set] = base.generate<types::BitSet>();
-    *type_overlay.alloc(cur) = id;
+    *overlay.alloc(cur) = id;
     set.node = cur;
 
     if (node.child != 0) {
@@ -68,7 +68,7 @@ void TypeDefPass::visit(uint16_t cur) {
 
   case Node::en: {
     auto [id, en] = base.generate<types::Enumeration>();
-    *type_overlay.alloc(cur) = id;
+    *overlay.alloc(cur) = id;
     en.node = cur;
 
     if (node.child != 0) {
@@ -79,7 +79,7 @@ void TypeDefPass::visit(uint16_t cur) {
 
   case Node::st: {
     auto [id, st] = base.generate<types::Struct>();
-    *type_overlay.alloc(cur) = id;
+    *overlay.alloc(cur) = id;
     st.node = cur;
 
     if (node.child) {
@@ -95,7 +95,7 @@ void TypeDefPass::visit(uint16_t cur) {
     type_id alias = type_id(type_id::cat::alias, base.aliases.size());
     base.aliases.push_back(tid);
 
-    *type_overlay.alloc(cur) = alias;
+    *overlay.alloc(cur) = alias;
   } break;
 
   default:
@@ -237,7 +237,7 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
       NamePass::Name *name = names.resolve(cur);
 
       type_id tid = resolve_type(context, node.child);
-      *type_overlay.alloc(node.child) = tid;
+      *overlay.alloc(node.child) = tid;
 
       st.fields.push_back({
           .sym = name->_symbol,

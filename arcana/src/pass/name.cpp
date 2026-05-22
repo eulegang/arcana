@@ -1,6 +1,5 @@
 #include "../arcana.h"
-
-#include "name.h"
+#include "../arcana/pass.h"
 #include "symbol.h"
 #include <cstdint>
 
