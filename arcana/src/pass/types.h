@@ -15,7 +15,7 @@ struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<types::type_id>;
 
   SymbolTable &table;
-  types::Typebase base;
+  types::Typebase &base;
 
   Overlay type_overlay;
   const NamePass::Overlay &names;

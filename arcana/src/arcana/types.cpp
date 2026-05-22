@@ -64,7 +64,7 @@ intern(Derive, derive, derives);
                                                                                \
     return {                                                                   \
         .id = id,                                                              \
-        .value = value,                                                        \
+        .value = Collection.back(),                                            \
     };                                                                         \
   }
 

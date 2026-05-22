@@ -146,9 +146,9 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
 
   id = 0;
   std::cout << chroma::purple << "  refs" << std::endl;
-  std::string ref_repr;
+  std::string buffer;
   for (const auto &ref : base.refs) {
-    ref_repr.clear();
+    buffer.clear();
     arcana::types::type_id tid(arcana::types::type_id::cat::ref, id++);
     auto name = scopes.resolve(ref.node);
     std::string fullname = resolve(scopes, pass.table, *name, "::");
@@ -160,13 +160,13 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
         continue;
 
       auto x = pass.table.resolve(c);
-      ref_repr += x;
-      ref_repr += "::";
+      buffer += x;
+      buffer += "::";
     }
 
-    if (ref_repr.size() > 0)
-      ref_repr.resize(ref_repr.size() - 2);
-    std::cout << "      " << chroma::cyan << ref_repr << std::endl;
+    if (buffer.size() > 0)
+      buffer.resize(buffer.size() - 2);
+    std::cout << "      " << chroma::cyan << buffer << std::endl;
   }
 
   id = 0;
@@ -194,7 +194,6 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
     arcana::types::type_id tid(arcana::types::type_id::cat::fn, id++);
 
     std::cout << "    " << chroma::clear << "(";
-
     for (const auto &param : fn.params) {
       std::cout << param << ", ";
     }

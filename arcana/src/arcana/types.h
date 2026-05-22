@@ -140,7 +140,7 @@ struct Fn {
 
 template <typename Value> struct Gen {
   type_id id;
-  Value value;
+  Value &value;
 };
 
 struct Typebase {
