@@ -1,4 +1,3 @@
-#include "pass/types.h"
 #include "../reports.h"
 #include "symbol.h"
 #include <chroma.h>
@@ -79,7 +78,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
       .out = out,
       .table = pass.table,
       .base = base,
-      .overlay = pass.type_overlay,
+      .overlay = pass.overlay,
   };
 
   ast.visit(&ctx, types_dump_nodes);

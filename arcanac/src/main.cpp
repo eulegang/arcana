@@ -10,8 +10,7 @@
 #include <sigil.h>
 
 #include "arcana.h"
-#include "pass/name.h"
-#include "pass/types.h"
+#include "generate.h"
 #include "symbol.h"
 
 #include "args.h"
@@ -58,6 +57,14 @@ int main(int argc, char **argv) {
 
   if (stops == 8) {
     report::types(tokens, ast, name_pass.overlay, base, type_def);
+    return 0;
+  }
+
+  gen::llvm g(tokens, ast, name_pass.output(), type_def.output());
+
+  if (stops == 16) {
+    g.generate(std::cout);
+
     return 0;
   }
 

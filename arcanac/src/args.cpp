@@ -11,18 +11,23 @@
 bool verbose = false;
 std::string_view path;
 uint16_t stops = 0;
+std::string_view output;
 
 void parse_args(int argc, char **argv) {
   static struct option long_options[] = {
-      {"verbose", no_argument, 0, 'v'},  {"help", no_argument, 0, 'h'},
-      {"tokenize", no_argument, 0, 't'}, {"ast", no_argument, 0, 'a'},
+      {"verbose", no_argument, 0, 'v'},
+      {"help", no_argument, 0, 'h'},
+      {"tokenize", no_argument, 0, 't'},
+      {"ast", no_argument, 0, 'a'},
       {"types", no_argument, 0, 'T'},
-
-      {"symbols", no_argument, 0, 's'},  {0, 0, 0, 0},
+      {"symbols", no_argument, 0, 's'},
+      {"llvm", required_argument, 0, 'l'},
+      {"output", required_argument, 0, 'o'},
+      {0, 0, 0, 0},
   };
 
   int c;
-  while ((c = getopt_long(argc, argv, "vhtasT", long_options, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "vhtasTo:l", long_options, NULL)) != -1) {
     switch (c) {
     case 'v':
       verbose = true;
@@ -42,6 +47,14 @@ void parse_args(int argc, char **argv) {
 
     case 'T':
       stops |= 8;
+      break;
+
+    case 'l':
+      stops |= 16;
+      break;
+
+    case 'o':
+      output = optarg;
       break;
 
     case 'h':

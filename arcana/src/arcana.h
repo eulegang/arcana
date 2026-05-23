@@ -147,10 +147,9 @@ using Tokens = sigil::Tokens<arcana::Token>;
 using Ast = sigil::Ast<arcana::Node>;
 using Pass = sigil::Pass<arcana::Token, arcana::Node>;
 
-struct Unit final {
-  sigil::Tokens<Token> tokens;
-  sigil::Ast<Node> ast;
-
-  Unit(std::string_view);
+template <typename Data, typename O> struct PassOutput {
+  Data &data;
+  sigil::Overlay<O> &overlay;
 };
+
 } // namespace arcana

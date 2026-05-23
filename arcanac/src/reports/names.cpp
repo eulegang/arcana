@@ -1,6 +1,5 @@
 #include "../reports.h"
 #include "arcana.h"
-#include "pass/name.h"
 #include "symbol.h"
 #include <chroma.h>
 #include <iostream>

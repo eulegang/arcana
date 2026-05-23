@@ -14,6 +14,13 @@ void NamePass::run() {
   scan(0xFFFF, 0);
 }
 
+NamePass::Output NamePass::output() {
+  return {
+      .data = symbol_table,
+      .overlay = overlay,
+  };
+}
+
 void NamePass::scan(uint16_t space, uint16_t cur) {
   auto node = ast[cur];
   uint16_t subspace = space;

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "arcana.h"
-#include "pass/name.h"
-#include "pass/types.h"
+#include "arcana/pass.h"
 #include "symbol.h"
 #include <sigil.h>
 

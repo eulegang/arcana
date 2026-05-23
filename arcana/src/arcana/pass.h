@@ -16,6 +16,7 @@ struct NamePass : Pass {
   };
 
   using Overlay = sigil::Overlay<Name>;
+  using Output = PassOutput<SymbolTable, Name>;
 
   SymbolTable &symbol_table;
   Overlay overlay;
@@ -24,12 +25,15 @@ struct NamePass : Pass {
 
   void run() override;
 
+  Output output();
+
 private:
   void scan(uint16_t space, uint16_t cur);
 };
 
 struct TypeDefPass : Pass {
   using Overlay = sigil::Overlay<types::type_id>;
+  using Output = PassOutput<types::Typebase, types::type_id>;
 
   SymbolTable &table;
   types::Typebase &base;
@@ -39,10 +43,10 @@ struct TypeDefPass : Pass {
 
   TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
               types::Typebase &base,
-              const arcana::pass::NamePass::Overlay &names)
-      : Pass{tokens, ast}, table{table}, base{base}, overlay{}, names{names} {}
+              const arcana::pass::NamePass::Overlay &names);
 
   void run() override;
+  Output output();
 
 private:
   void visit(uint16_t cur);
