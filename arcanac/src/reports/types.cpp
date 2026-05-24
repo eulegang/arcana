@@ -83,16 +83,31 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
 
   ast.visit(&ctx, types_dump_nodes);
 
+  auto lookup = [&scopes, &pass](arcana::types::type_id tid) -> std::string {
+    uint16_t node = 0xFFFF;
+    for (const auto &[n, t] : pass.ids) {
+      if (t == tid) {
+        node = n;
+        break;
+      }
+    }
+
+    if (node == 0xFFFF) {
+      return "!!!";
+    }
+
+    auto name = scopes.resolve(node);
+
+    return resolve(scopes, pass.table, *name, "::");
+  };
+
   std::cout << chroma::purple << "summary" << std::endl;
 
   uint16_t id = 0;
   std::cout << chroma::purple << "  bitsets" << std::endl;
   for (const auto &bitset : base.bitsets) {
     arcana::types::type_id tid(arcana::types::type_id::cat::bs, id++);
-
-    auto name = scopes.resolve(bitset.node);
-
-    std::string fullname = resolve(scopes, pass.table, *name, "::");
+    std::string fullname = lookup(tid);
 
     std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
               << chroma::yellow << bitset.size << chroma::clear << ") " << tid
@@ -110,9 +125,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
   std::cout << chroma::purple << "  enums" << std::endl;
   for (const auto &en : base.enums) {
     arcana::types::type_id tid(arcana::types::type_id::cat::en, id++);
-    auto name = scopes.resolve(en.node);
-
-    std::string fullname = resolve(scopes, pass.table, *name, "::");
+    std::string fullname = lookup(tid);
 
     std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
               << chroma::yellow << en.size << chroma::clear << ") " << tid
@@ -130,8 +143,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
   std::cout << chroma::purple << "  structs" << std::endl;
   for (const auto &st : base.structs) {
     arcana::types::type_id tid(arcana::types::type_id::cat::st, id++);
-    auto name = scopes.resolve(st.node);
-    std::string fullname = resolve(scopes, pass.table, *name, "::");
+    std::string fullname = lookup(tid);
 
     std::cout << "    " << chroma::green << fullname << " " << tid << std::endl;
 

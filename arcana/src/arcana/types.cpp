@@ -74,6 +74,20 @@ generate(Enumeration, en, enums);
 
 #undef generate
 
+#define lookup_impl(Type, Category, Collection)                                \
+  template <> Type &Typebase::lookup<Type>(type_id id) {                       \
+    if (id.category() != arcana::types::type_id::cat::Category)                \
+      throw std::logic_error("invalid type id category expected " #Category);  \
+                                                                               \
+    return Collection[id.id()];                                                \
+  }
+
+lookup_impl(BitSet, bs, bitsets);
+lookup_impl(Enumeration, en, enums);
+lookup_impl(Struct, st, structs);
+
+#undef lookup_impl
+
 bool Ref::operator==(const Ref &other) const {
   if (node != other.node)
     return false;

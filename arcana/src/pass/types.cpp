@@ -1,7 +1,9 @@
 #include "../arcana/pass.h"
+#include <charconv>
 #include <cstdint>
 #include <sigil.h>
 #include <stdexcept>
+#include <utility>
 
 namespace arcana {
 namespace pass {
@@ -69,8 +71,8 @@ void TypeDefPass::visit(uint16_t cur) {
   switch (node.type) {
   case Node::bs: {
     auto [id, set] = base.generate<types::BitSet>();
+    ids.push_back(std::make_pair(cur, id));
     *overlay.alloc(cur) = id;
-    set.node = cur;
 
     if (node.child != 0) {
       visit_bs(node.child, set);
@@ -80,8 +82,8 @@ void TypeDefPass::visit(uint16_t cur) {
 
   case Node::en: {
     auto [id, en] = base.generate<types::Enumeration>();
+    ids.push_back(std::make_pair(cur, id));
     *overlay.alloc(cur) = id;
-    en.node = cur;
 
     if (node.child != 0) {
       visit_en(node.child, en);
@@ -91,8 +93,8 @@ void TypeDefPass::visit(uint16_t cur) {
 
   case Node::st: {
     auto [id, st] = base.generate<types::Struct>();
+    ids.push_back(std::make_pair(cur, id));
     *overlay.alloc(cur) = id;
-    st.node = cur;
 
     if (node.child) {
       visit_st(cur, node.child, st);
@@ -161,7 +163,26 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     bitset_case.sym = table.intern(tokens.content(idx));
 
     if (node.child) {
-      bitset_case.bit = 0xFFFF;
+      Ast::Node lit = ast[node.child];
+
+      if (lit.type != Node::literal) {
+        throw std::runtime_error("invalid bitset case");
+      }
+
+      LiteralData *d = ast.data<LiteralData>(lit.offset);
+      if (d->prim != Primitive::integer) {
+        throw std::runtime_error("invalid bitset case");
+      }
+
+      auto content = tokens.content(d->token);
+      uint16_t val = 0;
+      auto [_, ec] =
+          std::from_chars(content.data(), content.data() + content.size(), val);
+
+      if (ec == std::errc()) {
+        bit = val;
+        bitset_case.bit = bit++;
+      }
     } else {
       bitset_case.bit = bit++;
     }
@@ -254,7 +275,6 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
       st.fields.push_back({
           .sym = name->_symbol,
           .ty = tid,
-          .node = cur,
       });
 
       cur = ast[cur].next;

@@ -37,6 +37,7 @@ struct TypeDefPass : Pass {
 
   SymbolTable &table;
   types::Typebase &base;
+  std::vector<std::pair<uint16_t, types::type_id>> ids;
 
   Overlay overlay;
   const NamePass::Overlay &names;

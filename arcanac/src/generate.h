@@ -11,12 +11,12 @@ namespace gen {
 struct generator {
   const arcana::Tokens &tokens;
   const arcana::Ast &ast;
-  const arcana::pass::NamePass::Output names;
-  const arcana::pass::TypeDefPass::Output types;
+  const arcana::pass::NamePass &names;
+  const arcana::pass::TypeDefPass &types;
 
   generator(const arcana::Tokens &tokens, const arcana::Ast &ast,
-            arcana::pass::NamePass::Output names,
-            arcana::pass::TypeDefPass::Output types)
+            const arcana::pass::NamePass &names,
+            const arcana::pass::TypeDefPass &types)
 
       : tokens{tokens}, ast{ast}, names{names}, types{types} {}
 
@@ -26,10 +26,15 @@ struct generator {
 struct llvm : generator {
   llvm(const arcana::Tokens &tokens, const arcana::Ast &ast,
 
-       const arcana::pass::NamePass::Output names,
-       const arcana::pass::TypeDefPass::Output types)
+       const arcana::pass::NamePass &names,
+       const arcana::pass::TypeDefPass &types)
       : generator{tokens, ast, names, types} {}
 
   void generate(std::ostream &out) override;
+
+private:
+  std::string name_of(uint16_t node);
+  void generate_bitsets(std::ostream &out);
+  void generate_enumerations(std::ostream &out);
 };
 } // namespace gen

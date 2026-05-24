@@ -1,4 +1,4 @@
-arcana :: namespace {
+sigil :: namespace {
   token_type :: alias u32;
 
   token :: struct {

@@ -70,11 +70,10 @@ struct BitSet {
     uint16_t bit;
   };
 
-  uint16_t node;
   uint16_t size;
   std::vector<Case> cases;
 
-  BitSet() : node{}, size{}, cases{} {}
+  BitSet() : size{}, cases{} {}
 };
 
 struct Enumeration {
@@ -83,25 +82,21 @@ struct Enumeration {
     uint64_t pattern;
   };
 
-  uint16_t node;
   uint16_t size;
 
   std::vector<Case> cases;
-  Enumeration() : node{}, size{}, cases{} {}
+  Enumeration() : size{}, cases{} {}
 };
 
 struct Struct {
   struct Field {
     symbol sym;
     type_id ty;
-    uint16_t node;
   };
-
-  uint16_t node;
 
   std::vector<Field> fields;
 
-  Struct() : node{}, fields{} {}
+  Struct() : fields{} {}
 };
 
 struct Primitive {
@@ -159,6 +154,7 @@ struct Typebase {
 
   template <typename T> type_id intern(T t);
   template <typename T> Gen<T> generate();
+  template <typename T> T &lookup(type_id id);
 
 private:
   SymbolTable &table;
