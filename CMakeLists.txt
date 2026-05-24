@@ -11,6 +11,6 @@ pkg_check_modules(MFILE REQUIRED IMPORTED_TARGET mfile)
 pkg_check_modules(CHROMA REQUIRED IMPORTED_TARGET chroma)
 
 add_subdirectory(symbol)
-add_subdirectory(arcana)
-add_subdirectory(arcanac)
+add_subdirectory(lang)
+add_subdirectory(compiler)
 

@@ -16,7 +16,7 @@ add_executable(
   src/generate/llvm.cpp
 )
 
-target_include_directories(arcanac PUBLIC ../arcana/src)
+target_include_directories(arcanac PUBLIC ../lang/src)
 target_link_libraries(arcanac arcana)
 target_link_libraries(arcanac PkgConfig::SIGIL)
 target_link_libraries(arcanac PkgConfig::MFILE)
