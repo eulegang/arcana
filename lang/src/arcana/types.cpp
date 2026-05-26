@@ -85,6 +85,9 @@ generate(Enumeration, en, enums);
 lookup_impl(BitSet, bs, bitsets);
 lookup_impl(Enumeration, en, enums);
 lookup_impl(Struct, st, structs);
+lookup_impl(Alias, alias, aliases);
+lookup_impl(Fn, fn, fns);
+lookup_impl(Derive, derive, derives);
 
 #undef lookup_impl
 

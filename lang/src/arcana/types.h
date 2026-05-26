@@ -58,6 +58,8 @@ struct type_id {
     return res;
   }
 
+  bool operator<(const type_id &other) const { return payload < other.payload; }
+
 private:
   uint32_t payload;
 
@@ -135,6 +137,10 @@ struct Fn {
   bool operator==(const Fn &other) const;
 };
 
+struct Alias {
+  type_id id;
+};
+
 template <typename Value> struct Gen {
   type_id id;
   Value &value;
@@ -148,7 +154,7 @@ struct Typebase {
   std::vector<Ref> refs;
   std::vector<Derive> derives;
   std::vector<Fn> fns;
-  std::vector<type_id> aliases;
+  std::vector<Alias> aliases;
 
   Typebase(SymbolTable &table);
 

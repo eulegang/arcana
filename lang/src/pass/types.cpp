@@ -105,9 +105,9 @@ void TypeDefPass::visit(uint16_t cur) {
 
   case Node::alias: {
     type_id tid = resolve_type(cur, node.child);
-
     type_id alias = type_id(type_id::cat::alias, base.aliases.size());
-    base.aliases.push_back(tid);
+    base.aliases.push_back({.id = tid});
+    ids.push_back(std::make_pair(cur, alias));
 
     *overlay.alloc(cur) = alias;
   } break;

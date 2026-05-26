@@ -1,6 +1,8 @@
 #pragma once
 
+#include <map>
 #include <ostream>
+#include <unordered_map>
 
 #include "arcana.h"
 #include "arcana/pass.h"
@@ -34,7 +36,23 @@ struct llvm : generator {
 
 private:
   std::string name_of(uint16_t node);
-  void generate_bitsets(std::ostream &out);
-  void generate_enumerations(std::ostream &out);
+
+  void gen(std::ostream &, uint16_t, arcana::types::type_id,
+           arcana::types::BitSet &);
+  void gen(std::ostream &, uint16_t, arcana::types::type_id,
+           arcana::types::Enumeration &);
+  void gen(std::ostream &, uint16_t, arcana::types::type_id,
+           arcana::types::Struct &);
+  void gen(std::ostream &, uint16_t, arcana::types::type_id,
+           arcana::types::Alias &);
+
+  std::string fn_name(arcana::types::Fn);
+  std::string type_name(arcana::types::type_id);
+
+  bool is_definable(arcana::types::type_id);
+
+  std::vector<std::pair<uint16_t, arcana::types::type_id>> pending;
+
+  std::map<arcana::types::type_id, std::string> alloc_names;
 };
 } // namespace gen

@@ -14,6 +14,7 @@ add_executable(
   src/reports/resolve.cpp
 
   src/generate/llvm.cpp
+  src/generate/llvm/types.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../lang/src)

@@ -218,7 +218,7 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
   for (const auto &alias : base.aliases) {
     arcana::types::type_id tid(arcana::types::type_id::cat::alias, id++);
 
-    std::cout << "    " << alias << " " << tid << std::endl;
+    std::cout << "    " << alias.id << " " << tid << std::endl;
   }
 
   std::cout << chroma::clear;
