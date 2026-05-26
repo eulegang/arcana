@@ -58,13 +58,6 @@ void TypeDefPass::run() {
   visit(0);
 }
 
-TypeDefPass::Output TypeDefPass::output() {
-  return {
-      .data = base,
-      .overlay = overlay,
-  };
-}
-
 void TypeDefPass::visit(uint16_t cur) {
   auto node = ast[cur];
 

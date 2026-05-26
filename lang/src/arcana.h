@@ -146,10 +146,4 @@ extern sigil_parser *parser;
 using Tokens = sigil::Tokens<arcana::Token>;
 using Ast = sigil::Ast<arcana::Node>;
 using Pass = sigil::Pass<arcana::Token, arcana::Node>;
-
-template <typename Data, typename O> struct PassOutput {
-  Data &data;
-  sigil::Overlay<O> &overlay;
-};
-
 } // namespace arcana
