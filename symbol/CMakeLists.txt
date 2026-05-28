@@ -3,6 +3,7 @@ add_library(
   symbol
 
   src/symbol.c
+  src/symtree.c
 )
 
 find_package(GTest REQUIRED)
@@ -11,6 +12,7 @@ add_executable(
   symbol-unit
 
   tests/symbol.cpp
+  tests/symtree.cpp
 )
 
 target_include_directories(symbol-unit PUBLIC ./src)
