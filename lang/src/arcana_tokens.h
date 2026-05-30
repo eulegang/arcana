@@ -15,6 +15,9 @@ enum class Token : sigil_token_type {
   func,
   opaque,
 
+  priv,
+  foreign,
+
   let,
   var,
   mut,

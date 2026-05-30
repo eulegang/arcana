@@ -171,6 +171,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     check_keyword("fn", fn);
     check_keyword("func", func);
     check_keyword("false", bool_f);
+    check_keyword("foreign", foreign);
     break;
 
   case 'l':
@@ -192,6 +193,10 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
   case 'o':
     check_keyword("opaque", opaque);
+    break;
+
+  case 'p':
+    check_keyword("priv", priv);
     break;
 
   case 'r':

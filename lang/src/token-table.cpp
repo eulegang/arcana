@@ -19,6 +19,9 @@ __attribute__((constructor)) void init_table() {
   push_str(func);
   push_str(opaque);
 
+  push_str(priv);
+  push_str(foreign);
+
   push_str(let);
   push_str(var);
   push_str(mut);

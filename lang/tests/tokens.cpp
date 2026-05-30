@@ -78,6 +78,47 @@ TEST(lexing, func_sample) {
                   token(ident), token(bang), token(mult), token(ident)));
 }
 
+TEST(lexing, func_foreign) {
+  std::string_view sv =
+      "priv foreign \"mmap\" func c_mmap(addr: *void, len: u64, prot: u32, "
+      "flags: u32, fd: i32, off: u64) -> *void;";
+
+  sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
+  EXPECT_THAT(testing::sigil_slices(tokens),
+              ::testing::ElementsAre(
+                  "priv", "foreign", "\"mmap\"", "func", "c_mmap", "(", "addr",
+                  ":", "*", "void", ",", "len", ":", "u64", ",", "prot", ":",
+                  "u32", ",", "flags", ":", "u32", ",", "fd", ":", "i32", ",",
+                  "off", ":", "u64", ")", "->", "*", "void", ";"));
+
+  EXPECT_THAT(
+      testing::sigil_token_types(tokens),
+      ::testing::ElementsAre(
+          token(priv), token(foreign), token(str), token(func), token(ident),
+          token(lparen),
+
+          // addr
+          token(ident), token(colon), token(mult), token(ident), token(comma),
+
+          // len
+          token(ident), token(colon), token(ident), token(comma),
+
+          // prot
+          token(ident), token(colon), token(ident), token(comma),
+
+          // flags
+          token(ident), token(colon), token(ident), token(comma),
+
+          // fd
+          token(ident), token(colon), token(ident), token(comma),
+
+          // off
+          token(ident), token(colon), token(ident),
+
+          // return
+          token(rparen), token(arrow), token(mult), token(ident), token(semi)));
+}
+
 TEST(lexing, const_sample) {
   std::string_view sv = "name : u32 = 42";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
