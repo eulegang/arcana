@@ -18,6 +18,11 @@ typedef uint16_t data_id;
     }                                                                          \
   }
 
+#define next_token()                                                           \
+  sigil_state_next(&state);                                                    \
+  if (state.status)                                                            \
+    return state;
+
 #define loop_terminal_token(T)                                                 \
   {                                                                            \
     sigil_token token = sigil_state_token(state);                              \
@@ -27,11 +32,28 @@ typedef uint16_t data_id;
     }                                                                          \
   }
 
+#define alloc_node(Type)                                                       \
+  uint16_t node = sigil_state_alloc_node(&state);                              \
+  sigil_node *root = sigil_state_node(state, node);                            \
+  *root = {                                                                    \
+      .child = 0,                                                              \
+      .next = 0,                                                               \
+      .offset = 0xFFFF,                                                        \
+      .type = node_code(Type),                                                 \
+  };
+
+#define run_subparser(node, subparser)                                         \
+  state = arcana::subparser(state);                                            \
+  if (state.status)                                                            \
+    return state;                                                              \
+  node->child = state.subroot;
+
 namespace arcana {
 sigil_state parse_bitset(sigil_state state);
 sigil_state parse_ident(sigil_state state);
 sigil_state parse_lit(sigil_state state);
 sigil_state parse_namespace(sigil_state state);
+sigil_state parse_module(sigil_state state);
 sigil_state parse_declaration(sigil_state state);
 sigil_state parse_enum(sigil_state state);
 sigil_state parse_struct(sigil_state state);

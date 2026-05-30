@@ -35,6 +35,8 @@ add_executable(
   arcana-unit 
 
   tests/tokens.cpp
+  tests/ast.cpp
+  tests/utils.cpp
   tests/token_table.cpp
 )
 

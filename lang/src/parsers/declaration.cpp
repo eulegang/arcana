@@ -2,10 +2,34 @@
 #include "../arcana.h"
 #include "parsers.h"
 #include <cstdint>
+#include <iostream>
 #include <sigil.h>
 
 namespace arcana {
 sigil_state parse_declaration(sigil_state state) {
+  sigil_state begin = state;
+  sigil_token token = sigil_state_token(state);
+
+  bool scanning = true;
+  while (scanning) {
+    switch ((Token)token.type) {
+    case Token::module:
+      state = parse_module(begin);
+      scanning = false;
+      break;
+
+      break;
+
+    default:
+      state.status |= 4;
+      return state;
+    }
+  }
+
+  return state;
+}
+
+sigil_state parse_declaration_(sigil_state state) {
   state = parse_ident(state);
   if (state.status)
     return state;

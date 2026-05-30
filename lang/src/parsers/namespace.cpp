@@ -3,6 +3,29 @@
 #include <sigil.h>
 
 namespace arcana {
+
+sigil_state parse_module(sigil_state state) {
+  check_token(module);
+  next_token();
+
+  alloc_node(ns);
+
+  run_subparser(root, parse_ident);
+
+  check_token(lbrace);
+  next_token();
+
+  sigil_node *cur = sigil_state_node(state, state.subroot);
+  while (true) {
+    loop_terminal_token(rbrace);
+    run_subparser(cur, parse_declaration);
+    cur = sigil_ast_nodes(state.ast) + cur->next;
+  }
+
+  state.subroot = node;
+  return state;
+}
+
 sigil_state parse_namespace(sigil_state state) {
   sigil_token token = sigil_state_token(state);
 
