@@ -49,7 +49,6 @@ Typebase::Typebase(SymbolTable &table)
     return id;                                                                 \
   }
 
-intern(Ref, ref, refs);
 intern(Fn, fn, fns);
 intern(Derive, derive, derives);
 
@@ -71,6 +70,7 @@ intern(Derive, derive, derives);
 generate(Struct, st, structs);
 generate(BitSet, bs, bitsets);
 generate(Enumeration, en, enums);
+generate(Alias, alias, aliases);
 
 #undef generate
 
@@ -90,25 +90,6 @@ lookup_impl(Fn, fn, fns);
 lookup_impl(Derive, derive, derives);
 
 #undef lookup_impl
-
-bool Ref::operator==(const Ref &other) const {
-  if (node != other.node)
-    return false;
-
-  size_t i = 0;
-  while (true) {
-    if (syms[i] != other.syms[i])
-      return false;
-
-    if (syms[i] == 0) {
-      break;
-    }
-
-    i++;
-  }
-
-  return true;
-}
 
 bool Fn::operator==(const Fn &other) const {
   return ret == other.ret && err == other.err && params == other.params;

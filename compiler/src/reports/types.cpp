@@ -31,9 +31,6 @@ std::ostream &operator<<(std::ostream &out, arcana::types::type_id tid) {
   case arcana::types::type_id::cat::prim:
     out << "primitive";
     break;
-  case arcana::types::type_id::cat::ref:
-    out << "ref";
-    break;
   case arcana::types::type_id::cat::derive:
     out << "derive";
     break;
@@ -153,31 +150,6 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
       std::cout << "      " << chroma::cyan << x << chroma::clear << ": "
                 << c.ty << std::endl;
     }
-  }
-
-  id = 0;
-  std::cout << chroma::purple << "  refs" << std::endl;
-  std::string buffer;
-  for (const auto &ref : base.refs) {
-    buffer.clear();
-    arcana::types::type_id tid(arcana::types::type_id::cat::ref, id++);
-    auto name = scopes.resolve(ref.node);
-    std::string fullname = resolve(scopes, pass.table, *name, "::");
-
-    std::cout << "    " << chroma::green << fullname << " " << tid << std::endl;
-
-    for (const auto &c : ref.syms) {
-      if (c == 0)
-        continue;
-
-      auto x = pass.table.resolve(c);
-      buffer += x;
-      buffer += "::";
-    }
-
-    if (buffer.size() > 0)
-      buffer.resize(buffer.size() - 2);
-    std::cout << "      " << chroma::cyan << buffer << std::endl;
   }
 
   id = 0;

@@ -5,6 +5,7 @@
 #include "symbol.h"
 #include <cstdint>
 #include <sigil.h>
+#include <stack>
 #include <vector>
 
 namespace arcana {
@@ -43,6 +44,17 @@ struct TypeDefPass : Pass {
               const arcana::pass::NamePass::Overlay &names);
 
   void run() override;
+
+  struct Patch {
+    types::type_id id;
+    symbol sym;
+
+    bool operator==(const Patch &other) const {
+      return id == other.id && sym == other.sym;
+    }
+  };
+
+  std::stack<std::vector<Patch>> patches;
 
 private:
   void visit(uint16_t cur);

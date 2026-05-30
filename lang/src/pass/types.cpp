@@ -1,4 +1,5 @@
 #include "../arcana/pass.h"
+#include <algorithm>
 #include <charconv>
 #include <cstdint>
 #include <sigil.h>
@@ -7,6 +8,12 @@
 
 namespace arcana {
 namespace pass {
+
+struct Scope {
+  TypeDefPass *pass;
+  Scope(TypeDefPass *pass) : pass{pass} { pass->patches.emplace(); }
+  ~Scope() { pass->patches.pop(); }
+};
 
 using type_id = types::type_id;
 
@@ -105,6 +112,21 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = alias;
   } break;
 
+  case Node::ns: {
+    Scope scope{this};
+
+    if (node.child) {
+      visit(node.child);
+    }
+
+    if (node.next) {
+      visit(node.next);
+    }
+
+    return;
+
+  } break;
+
   default:
     break;
   }
@@ -119,7 +141,7 @@ void TypeDefPass::visit(uint16_t cur) {
 }
 
 void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
-
+  Scope scope{this};
   Ast::Node node = ast[cur];
 
   bool infer = false;
@@ -181,6 +203,7 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     }
 
     bitset.cases.push_back(bitset_case);
+    patches.pop();
   }
 
   if (infer) {
@@ -193,6 +216,7 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
 }
 
 void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
+  Scope scope{this};
 
   Ast::Node node = ast[cur];
 
@@ -248,6 +272,7 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
 }
 
 void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
+  Scope scope{this};
   const Ast::Node fields = ast[cur];
 
   if (fields.type != Node::st_fields) {
@@ -293,19 +318,19 @@ type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
 
     if (!tid) {
       symbol sym = names.resolve(cur)->_symbol;
-      uint32_t id = 0;
-      for (const auto &ref : base.refs) {
-        if (ref.node == context && ref.syms[0] == sym) {
-          return type_id(type_id::cat::ref, id);
-        }
-        id++;
-      }
+      auto &scope = patches.top();
 
-      tid = type_id(type_id::cat::ref, base.refs.size());
-      base.refs.push_back({
-          .node = context,
-          .syms = {names.resolve(cur)->_symbol, 0},
-      });
+      auto [id, alias] = base.generate<types::Alias>();
+      alias.id = type_id();
+
+      Patch patch = {
+          .id = id,
+          .sym = sym,
+      };
+
+      if (std::find(scope.begin(), scope.end(), patch) == scope.end()) {
+        scope.push_back(patch);
+      }
     }
 
     return tid;

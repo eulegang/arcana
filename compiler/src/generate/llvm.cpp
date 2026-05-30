@@ -32,7 +32,6 @@ void llvm::generate(std::ostream &out) {
       break;
 
     case type_id::cat::prim:
-    case type_id::cat::ref:
     case type_id::cat::derive:
     case type_id::cat::fn:
       break;
@@ -119,7 +118,6 @@ void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
   case type_id::cat::bs:
   case type_id::cat::en:
   case type_id::cat::st:
-  case type_id::cat::ref:
   case type_id::cat::derive:
     return;
   case type_id::cat::fn:

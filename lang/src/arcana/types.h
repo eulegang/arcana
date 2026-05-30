@@ -14,7 +14,6 @@ struct type_id {
     en = 2,
     st = 3,
     prim = 4,
-    ref = 5,
     derive = 6,
     fn = 7,
     alias = 8,
@@ -110,13 +109,6 @@ struct Primitive {
   Flags flags;
 };
 
-struct Ref {
-  uint16_t node;
-  symbol syms[15];
-
-  bool operator==(const Ref &other) const;
-};
-
 struct Derive {
   enum class Type {
     Pointer,
@@ -151,7 +143,6 @@ struct Typebase {
   std::vector<Enumeration> enums;
   std::vector<Struct> structs;
   std::vector<Primitive> primitives;
-  std::vector<Ref> refs;
   std::vector<Derive> derives;
   std::vector<Fn> fns;
   std::vector<Alias> aliases;

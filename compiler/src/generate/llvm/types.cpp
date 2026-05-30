@@ -70,7 +70,6 @@ bool llvm::is_definable(type_id tid) {
   }
 
   case type_id::cat::alias:
-  case type_id::cat::ref:
     return false;
   }
 
@@ -85,9 +84,6 @@ std::string llvm::type_name(arcana::types::type_id tid) {
   case type_id::cat::en:
   case type_id::cat::st:
   case type_id::cat::alias:
-    break;
-
-  case type_id::cat::ref:
     break;
 
   case type_id::cat::derive: {
