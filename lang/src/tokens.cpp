@@ -192,6 +192,10 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     check_keyword("opaque", opaque);
     break;
 
+  case 'r':
+    check_keyword("record", record);
+    break;
+
   case 's':
     check_keyword("struct", strukt);
     break;

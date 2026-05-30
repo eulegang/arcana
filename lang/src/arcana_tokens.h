@@ -7,6 +7,7 @@ enum class Token : sigil_token_type {
   ns, // namespace
   module,
   strukt,
+  record,
   enumeration,
   bitset,
   alias,

@@ -21,19 +21,18 @@ TEST(lexing, namespace_sample) {
 }
 
 TEST(lexing, struct_sample) {
-  std::string_view sv = "slice :: struct { base: *u8, len: u64, }";
+  std::string_view sv = "record slice { base: *u8, len: u64, }";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("slice", "::", "struct", "{", "base", ":",
-                                     "*", "u8", ",", "len", ":", "u64", ",",
-                                     "}"));
+              ::testing::ElementsAre("record", "slice", "{", "base", ":", "*",
+                                     "u8", ",", "len", ":", "u64", ",", "}"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(ident), token(dcolon), token(strukt),
-                                     token(lbrace), token(ident), token(colon),
-                                     token(mult), token(ident), token(comma),
-                                     token(ident), token(colon), token(ident),
-                                     token(comma), token(rbrace)));
+              ::testing::ElementsAre(token(record), token(ident), token(lbrace),
+                                     token(ident), token(colon), token(mult),
+                                     token(ident), token(comma), token(ident),
+                                     token(colon), token(ident), token(comma),
+                                     token(rbrace)));
 }
 
 TEST(lexing, enum_sample) {
