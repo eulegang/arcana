@@ -18,6 +18,9 @@ sigil_state parse_declaration(sigil_state state) {
       scanning = false;
       break;
 
+    case Token::record:
+      state = parse_struct(begin);
+      scanning = false;
       break;
 
     default:

@@ -33,20 +33,35 @@ typedef uint16_t data_id;
   }
 
 #define alloc_node(Type)                                                       \
-  uint16_t node = sigil_state_alloc_node(&state);                              \
-  sigil_node *root = sigil_state_node(state, node);                            \
-  *root = {                                                                    \
-      .child = 0,                                                              \
-      .next = 0,                                                               \
-      .offset = 0xFFFF,                                                        \
-      .type = node_code(Type),                                                 \
-  };
+  [&state]() {                                                                 \
+    uint16_t id = sigil_state_alloc_node(&state);                              \
+    sigil_node *node = sigil_state_node(state, id);                            \
+    *node = {                                                                  \
+        .child = 0,                                                            \
+        .next = 0,                                                             \
+        .offset = 0xFFFF,                                                      \
+        .type = node_code(Type),                                               \
+    };                                                                         \
+    struct {                                                                   \
+      uint16_t id;                                                             \
+      sigil_node *node;                                                        \
+    } result = {.id = id, .node = node};                                       \
+    return result;                                                             \
+  }();
+
+#define alloc_data(Type)                                                       \
+  [&state]() {                                                                 \
+    uint16_t id = sigil_state_malloc(&state, sizeof(Type));                    \
+    *(Type *)sigil_state_data(state, data) = state.token_cursor;               \
+  }
 
 #define run_subparser(node, subparser)                                         \
   state = arcana::subparser(state);                                            \
   if (state.status)                                                            \
     return state;                                                              \
   node->child = state.subroot;
+
+#define swap_branch(node) std::swap(node->child, node->next)
 
 namespace arcana {
 sigil_state parse_bitset(sigil_state state);

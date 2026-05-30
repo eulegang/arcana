@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <iomanip>
 #include <ostream>
 
 std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
@@ -59,6 +60,8 @@ std::ostream &operator<<(std::ostream &out, const arcana::Ast::Node &node) {
 
 std::ostream &operator<<(std::ostream &out, const arcana::Ast &ast) {
   for (size_t i = 0; i < ast.node_count(); i++) {
+    out << "0x" << std::hex << std::setfill('0') << std::setw(5) << i
+        << std::dec << ": ";
     out << ast[i] << std::endl;
   }
 

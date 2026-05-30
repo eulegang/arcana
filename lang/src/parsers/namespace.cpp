@@ -8,7 +8,7 @@ sigil_state parse_module(sigil_state state) {
   check_token(module);
   next_token();
 
-  alloc_node(ns);
+  auto [id, root] = alloc_node(ns);
 
   run_subparser(root, parse_ident);
 
@@ -22,7 +22,7 @@ sigil_state parse_module(sigil_state state) {
     cur = sigil_ast_nodes(state.ast) + cur->next;
   }
 
-  state.subroot = node;
+  state.subroot = id;
   return state;
 }
 

@@ -4,6 +4,11 @@ project(arcana
   VERSION 0.1.0
   DESCRIPTION "a systems language"
 )
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_EXTENSIONS ON)
+
+# compile_options()
+# -Wno-gnu-statement-expression
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)
