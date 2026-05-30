@@ -36,68 +36,67 @@ TEST(lexing, struct_sample) {
 }
 
 TEST(lexing, enum_sample) {
-  std::string_view sv = "type :: enum { NORMAL, ABNORMAL }";
+  std::string_view sv = "enum type { NORMAL, ABNORMAL }";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("type", "::", "enum", "{", "NORMAL", ",",
+              ::testing::ElementsAre("enum", "type", "{", "NORMAL", ",",
                                      "ABNORMAL", "}"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(ident), token(dcolon),
-                                     token(enumeration), token(lbrace),
-                                     token(ident), token(comma), token(ident),
-                                     token(rbrace)));
-}
+              ::testing::ElementsAre(token(enumeration), token(ident),
 
-TEST(lexing, bitset_sample) {
-  std::string_view sv = "color :: bitset { ERR, ASYNC }";
-  sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
-  EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("color", "::", "bitset", "{", "ERR", ",",
-                                     "ASYNC", "}"));
-
-  EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(ident), token(dcolon), token(bitset),
                                      token(lbrace), token(ident), token(comma),
                                      token(ident), token(rbrace)));
 }
 
+TEST(lexing, bitset_sample) {
+  std::string_view sv = "bitset color { ERR, ASYNC }";
+  sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
+  EXPECT_THAT(
+      testing::sigil_slices(tokens),
+      ::testing::ElementsAre("bitset", "color", "{", "ERR", ",", "ASYNC", "}"));
+
+  EXPECT_THAT(testing::sigil_token_types(tokens),
+              ::testing::ElementsAre(token(bitset), token(ident), token(lbrace),
+                                     token(ident), token(comma), token(ident),
+                                     token(rbrace)));
+}
+
 TEST(lexing, func_sample) {
-  std::string_view sv = "do_thing :: (id: u32, premium: bool) -> err!*u32";
+  std::string_view sv = "func do_thing(id: u32, premium: bool) -> err!*u32";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("do_thing", "::", "(", "id", ":", "u32",
+              ::testing::ElementsAre("func", "do_thing", "(", "id", ":", "u32",
                                      ",", "premium", ":", "bool", ")", "->",
                                      "err", "!", "*", "u32"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
               ::testing::ElementsAre(
-                  token(ident), token(dcolon), token(lparen), token(ident),
+                  token(func), token(ident), token(lparen), token(ident),
                   token(colon), token(ident), token(comma), token(ident),
                   token(colon), token(ident), token(rparen), token(arrow),
                   token(ident), token(bang), token(mult), token(ident)));
 }
 
 TEST(lexing, const_sample) {
-  std::string_view sv = "let name: u32 = 42";
+  std::string_view sv = "name : u32 = 42";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("let", "name", ":", "u32", "=", "42"));
+              ::testing::ElementsAre("name", ":", "u32", "=", "42"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(let), token(ident), token(colon),
-                                     token(ident), token(assign),
-                                     token(integer)));
+              ::testing::ElementsAre(token(ident), token(colon), token(ident),
+                                     token(assign), token(integer)));
 }
 
 TEST(lexing, var_sample) {
-  std::string_view sv = "var name: u32 = 42";
+  std::string_view sv = "mut name: u32 = 42";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("var", "name", ":", "u32", "=", "42"));
+              ::testing::ElementsAre("mut", "name", ":", "u32", "=", "42"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(var), token(ident), token(colon),
+              ::testing::ElementsAre(token(mut), token(ident), token(colon),
                                      token(ident), token(assign),
                                      token(integer)));
 }

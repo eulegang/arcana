@@ -12,10 +12,12 @@ enum class Token : sigil_token_type {
   bitset,
   alias,
   fn,
+  func,
   opaque,
 
   let,
   var,
+  mut,
 
   integer,
   str,

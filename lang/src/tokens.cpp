@@ -169,6 +169,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
   case 'f':
     check_keyword("fn", fn);
+    check_keyword("func", func);
     check_keyword("false", bool_f);
     break;
 
@@ -182,6 +183,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
   case 'm':
     check_keyword("module", module);
+    check_keyword("mut", mut);
     break;
 
   case 'n':

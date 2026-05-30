@@ -16,10 +16,12 @@ __attribute__((constructor)) void init_table() {
   push_str(bitset);
   push_str(alias);
   push_str(fn);
+  push_str(func);
   push_str(opaque);
 
   push_str(let);
   push_str(var);
+  push_str(mut);
 
   push_str(integer);
   push_str(str);
