@@ -1,6 +1,12 @@
 #include "arcana.h"
 #include <sigil.h>
 
+#define check_keyword(Key, Token)                                              \
+  if ((inc = sigil_util_keyword(window, Key))) {                               \
+    *token_type = token(Token);                                                \
+    return inc;                                                                \
+  }
+
 namespace arcana {
 bool is_space(char ch) {
   return ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r';
@@ -99,43 +105,23 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
     return sigil_util_take_while(window, arcana::is_integer);
   case '=':
-    if ((inc = sigil_util_keyword(window, "=="))) {
-      *token_type = token(eq);
-      return inc;
-    }
-
+    check_keyword("==", eq);
     *token_type = token(assign);
     return 1;
 
   case '!':
-    if ((inc = sigil_util_keyword(window, "!="))) {
-      *token_type = token(ne);
-      return inc;
-    }
-
+    check_keyword("!=", ne);
     *token_type = token(bang);
     return 1;
 
   case '*':
-    if ((inc = sigil_util_keyword(window, "*="))) {
-      *token_type = token(mult_assign);
-      return inc;
-    }
-
+    check_keyword("*=", mult_assign);
     *token_type = token(mult);
     return 1;
 
   case '-':
-    if ((inc = sigil_util_keyword(window, "->"))) {
-      *token_type = token(arrow);
-      return inc;
-    }
-
-    if ((inc = sigil_util_keyword(window, "-="))) {
-      *token_type = token(minus_assign);
-      return inc;
-    }
-
+    check_keyword("->", arrow);
+    check_keyword("-=", minus_assign);
     *token_type = token(minus);
     return 1;
 
@@ -150,11 +136,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
                                        arcana::end_block_comment);
     }
 
-    if ((inc = sigil_util_keyword(window, "/="))) {
-      *token_type = token(div_assign);
-      return inc;
-    }
-
+    check_keyword("/=", div_assign);
     *token_type = token(div);
     return 1;
 
@@ -165,11 +147,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
   } break;
 
   case '%':
-    if ((inc = sigil_util_keyword(window, "%="))) {
-      *token_type = token(mod_assign);
-      return inc;
-    }
-
+    check_keyword("%=", mod_assign);
     *token_type = token(mod);
     return 1;
 
@@ -178,86 +156,52 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     return 1;
 
   case 'a':
-    if ((inc = sigil_util_keyword(window, "alias"))) {
-      *token_type = token(alias);
-      return inc;
-    }
+    check_keyword("alias", alias);
     break;
 
   case 'b':
-    if ((inc = sigil_util_keyword(window, "bitset"))) {
-      *token_type = token(bitset);
-      return inc;
-    }
+    check_keyword("bitset", bitset);
     break;
 
   case 'e':
-    if ((inc = sigil_util_keyword(window, "enum"))) {
-      *token_type = token(enumeration);
-      return inc;
-    }
+    check_keyword("enum", enumeration);
     break;
 
   case 'f':
-    if ((inc = sigil_util_keyword(window, "fn"))) {
-      *token_type = token(fn);
-      return inc;
-    }
-    if ((inc = sigil_util_keyword(window, "false"))) {
-      *token_type = token(bool_f);
-      return inc;
-    }
+    check_keyword("fn", fn);
+    check_keyword("false", bool_f);
     break;
 
   case 'l':
-    if ((inc = sigil_util_keyword(window, "let"))) {
-      *token_type = token(let);
-      return inc;
-    }
+    check_keyword("let", let);
     break;
 
   case 't':
-    if ((inc = sigil_util_keyword(window, "true"))) {
-      *token_type = token(bool_t);
-      return inc;
-    }
+    check_keyword("true", bool_t);
+    break;
 
+  case 'm':
+    check_keyword("module", module);
     break;
 
   case 'n':
-    if ((inc = sigil_util_keyword(window, "namespace"))) {
-      *token_type = token(ns);
-      return inc;
-    }
+    check_keyword("namespace", ns);
     break;
 
   case 'o':
-    if ((inc = sigil_util_keyword(window, "opaque"))) {
-      *token_type = token(opaque);
-      return inc;
-    }
+    check_keyword("opaque", opaque);
     break;
 
   case 's':
-    if ((inc = sigil_util_keyword(window, "struct"))) {
-      *token_type = token(strukt);
-      return inc;
-    }
+    check_keyword("struct", strukt);
     break;
 
   case 'v':
-    if ((inc = sigil_util_keyword(window, "var"))) {
-      *token_type = token(var);
-      return inc;
-    }
+    check_keyword("var", var);
     break;
 
   case ':':
-    if ((inc = sigil_util_keyword(window, "::"))) {
-      *token_type = token(dcolon);
-      return inc;
-    }
-
+    check_keyword("::", dcolon);
     *token_type = token(colon);
     return 1;
 
@@ -286,37 +230,17 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     return 1;
 
   case '&':
-    if ((inc = sigil_util_keyword(window, "&&="))) {
-      *token_type = token(bool_and_assign);
-      return inc;
-    }
-
-    if ((inc = sigil_util_keyword(window, "&&"))) {
-      *token_type = token(bool_and);
-      return inc;
-    }
-
+    check_keyword("&&=", bool_and_assign);
+    check_keyword("&&", bool_and);
     break;
 
   case '|':
-    if ((inc = sigil_util_keyword(window, "||="))) {
-      *token_type = token(bool_or_assign);
-      return inc;
-    }
-
-    if ((inc = sigil_util_keyword(window, "||"))) {
-      *token_type = token(bool_or);
-      return inc;
-    }
-
+    check_keyword("||=", bool_or_assign);
+    check_keyword("||", bool_or);
     break;
 
   case '+':
-    if ((inc = sigil_util_keyword(window, "+="))) {
-      *token_type = token(plus_assign);
-      return inc;
-    }
-
+    check_keyword("+=", plus_assign);
     *token_type = token(plus);
     return 1;
   }

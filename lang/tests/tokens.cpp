@@ -9,15 +9,15 @@
 #define token(T) arcana::Token::T
 
 TEST(lexing, namespace_sample) {
-  std::string_view sv = "sigil :: namespace {}";
+  std::string_view sv = "module sigil {}";
   sigil::Tokens<arcana::Token> tokens(sv, arcana::tokenizer);
 
   EXPECT_THAT(testing::sigil_slices(tokens),
-              ::testing::ElementsAre("sigil", "::", "namespace", "{", "}"));
+              ::testing::ElementsAre("module", "sigil", "{", "}"));
 
   EXPECT_THAT(testing::sigil_token_types(tokens),
-              ::testing::ElementsAre(token(ident), token(dcolon), token(ns),
-                                     token(lbrace), token(rbrace)));
+              ::testing::ElementsAre(token(module), token(ident), token(lbrace),
+                                     token(rbrace)));
 }
 
 TEST(lexing, struct_sample) {

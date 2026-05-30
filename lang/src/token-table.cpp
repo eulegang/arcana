@@ -9,6 +9,7 @@ __attribute__((constructor)) void init_table() {
 
   push_str(ident);
   push_str(ns);
+  push_str(module);
   sigil_table_push(&token_table, "struct"); // push_str(strukt);
   sigil_table_push(&token_table, "enum");   // push_str(enumeration);
   push_str(bitset);

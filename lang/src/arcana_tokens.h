@@ -5,6 +5,7 @@ namespace arcana {
 enum class Token : sigil_token_type {
   ident,
   ns, // namespace
+  module,
   strukt,
   enumeration,
   bitset,
