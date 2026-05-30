@@ -1,4 +1,4 @@
-status :: bitset (u32) {
+bitset status : u32 {
   invalid_token;
   token_overflow;
   invalid_branch;
