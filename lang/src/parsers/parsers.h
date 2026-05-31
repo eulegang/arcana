@@ -63,6 +63,8 @@ typedef uint16_t data_id;
 
 #define swap_branch(node) std::swap(node->child, node->next)
 
+#define if_token(Type) if ((Token)sigil_state_token(state).type == Token::Type)
+
 namespace arcana {
 sigil_state parse_bitset(sigil_state state);
 sigil_state parse_ident(sigil_state state);
