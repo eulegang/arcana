@@ -41,7 +41,7 @@ TEST(parsing, record) {
 }
 
 TEST(parsing, enumeration) {
-  std::string_view sv = "enum sigil : u32 { name; age; ssn; phone = 42; }";
+  std::string_view sv = "enum attr : u32 { name; age; ssn; phone = 42; }";
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 
@@ -59,4 +59,28 @@ TEST(parsing, enumeration) {
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::en_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+}
+
+TEST(parsing, bitset) {
+  std::string_view sv =
+      "bitset mflags : u32 {shared; private; droppable = 3; anon = 5 }";
+  arcana::Tokens tokens(sv, arcana::tokenizer);
+  arcana::Ast ast{arcana::parser, tokens};
+
+  ASSERT_EQ(ast.node_count(), 14);
+
+  uint16_t id = 1;
+  EXPECT_EQ(ast[id++].type, arcana::Node::bs);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+  EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
 }

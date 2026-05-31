@@ -2,151 +2,65 @@
 #include <sigil.h>
 
 namespace arcana {
-sigil_state parse_bitset_backing(sigil_state state) {
-  sigil_token token = sigil_state_token(state);
+sigil_state parse_bitset_case(sigil_state state);
 
-  if (token.type != token_code(lparen)) {
-    uint16_t node = sigil_state_alloc_node(&state);
-    *sigil_state_node(state, node) = {
-        .child = 0,
-        .next = 0,
-        .offset = 0xFFFF,
-        .type = node_code(infer_type),
-    };
+sigil_state parse_bitset(sigil_state state) {
+  check_token(bitset);
+  next_token();
 
-    state.subroot = node;
-    return state;
+  auto [id, root] = alloc_node(bs);
+
+  run_subparser(root, parse_ident);
+
+  sigil_node *ident = sigil_state_node(state, root->child);
+
+  sigil_node *cur;
+  if (token_is(colon)) {
+    next_token();
+    run_subparser(ident, parse_ident);
+    swap_branch(ident);
+    cur = sigil_state_node(state, ident->next);
+  } else {
+    auto [backing_id, backing] = alloc_node(infer_type);
+    ident->next = backing_id;
+    cur = backing;
   }
 
-  sigil_state_next(&state);
+  check_token(lbrace);
+  next_token();
 
-  state = parse_ident(state);
-  if (state.status) {
-    return state;
+  while (true) {
+    loop_terminal_token(rbrace);
+
+    run_subparser(cur, parse_bitset_case);
+    swap_branch(cur);
+    cur = sigil_state_node(state, cur->next);
+
+    loop_terminal_token(rbrace);
+
+    check_token(semi);
+    next_token();
   }
 
-  token = sigil_state_token(state);
-
-  if (token.type != token_code(rparen)) {
-    state.status |= 4;
-    return state;
-  }
-
-  sigil_state_next(&state);
-
+  state.subroot = id;
   return state;
 }
 
 sigil_state parse_bitset_case(sigil_state state) {
-  sigil_token token = sigil_state_token(state);
+  check_token(ident);
 
-  if (token.type != token_code(ident)) {
-    state.status |= 4;
-    return state;
+  auto [id, root] = alloc_node(bs_case);
+  run_subparser(root, parse_ident);
+
+  if (token_is(assign)) {
+    next_token();
+
+    sigil_node *ident = sigil_state_node(state, root->child);
+    run_subparser(ident, parse_lit);
+    swap_branch(ident);
   }
 
-  uint16_t data = sigil_state_malloc(&state, sizeof(uint16_t));
-  *(uint16_t *)sigil_state_data(state, data) = state.token_cursor;
-
-  uint16_t node = sigil_state_alloc_node(&state);
-  sigil_node *root = sigil_state_node(state, node);
-  *root = {
-      .child = 0,
-      .next = 0,
-      .offset = data,
-      .type = node_code(bs_case),
-  };
-
-  sigil_state_next(&state);
-  if (state.status) {
-    return state;
-  }
-
-  token = sigil_state_token(state);
-  if (token.type != token_code(assign)) {
-    state.subroot = node;
-    return state;
-  }
-
-  sigil_state_next(&state);
-  if (state.status) {
-    return state;
-  }
-
-  state = sigil_parser_parse_expr(parser, state, (size_t)Perc::LOWEST);
-
-  root->child = state.subroot;
-
-  state.subroot = node;
+  state.subroot = id;
   return state;
 }
-
-sigil_state parse_bitset(sigil_state state) {
-  sigil_token token = sigil_state_token(state);
-
-  if (token.type != token_code(bitset)) {
-    state.status |= 4;
-    return state;
-  }
-
-  uint16_t node = sigil_state_alloc_node(&state);
-  sigil_node *root = sigil_state_node(state, node);
-  *root = {
-      .child = 0,
-      .next = 0,
-      .offset = 0xFFFF,
-      .type = node_code(bs),
-  };
-  sigil_state_next(&state);
-  if (state.status)
-    return state;
-
-  state = parse_bitset_backing(state);
-
-  root->child = state.subroot;
-
-  token = sigil_state_token(state);
-  if (token.type != token_code(lbrace)) {
-    state.status |= 1;
-    return state;
-  }
-
-  sigil_state_next(&state);
-  if (state.status)
-    return state;
-
-  sigil_node *cur = sigil_ast_nodes(state.ast) + root->child;
-
-  while (true) {
-    token = sigil_state_token(state);
-    if (token.type == token_code(rbrace)) {
-      sigil_state_next(&state);
-      break;
-    }
-
-    state = parse_bitset_case(state);
-    if (state.status) {
-      return state;
-    }
-
-    cur->next = state.subroot;
-    cur = sigil_ast_nodes(state.ast) + cur->next;
-
-    token = sigil_state_token(state);
-    if (token.type == token_code(rbrace)) {
-      sigil_state_next(&state);
-      break;
-    }
-
-    if (token.type != token_code(semi)) {
-      state.status |= 4;
-      return state;
-    }
-
-    sigil_state_next(&state);
-  }
-
-  state.subroot = node;
-  return state;
-} // namespace sysltree
 } // namespace arcana

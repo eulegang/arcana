@@ -28,6 +28,11 @@ sigil_state parse_declaration(sigil_state state) {
       scanning = false;
       break;
 
+    case Token::bitset:
+      state = parse_bitset(begin);
+      scanning = false;
+      break;
+
     default:
       state.status |= 4;
       return state;
