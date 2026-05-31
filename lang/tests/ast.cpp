@@ -41,16 +41,20 @@ TEST(parsing, record) {
 }
 
 TEST(parsing, enumeration) {
-  std::string_view sv = "enum sigil { name; age; }";
+  std::string_view sv = "enum sigil : u32 { name; age; ssn; phone = 42; }";
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 
-  ASSERT_EQ(ast.node_count(), 8);
+  ASSERT_EQ(ast.node_count(), 13);
 
   uint16_t id = 1;
   EXPECT_EQ(ast[id++].type, arcana::Node::en);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  EXPECT_EQ(ast[id++].type, arcana::Node::infer_type);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::en_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::en_case);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::en_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::en_case);

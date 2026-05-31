@@ -54,8 +54,9 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
 }
 
 std::ostream &operator<<(std::ostream &out, const arcana::Ast::Node &node) {
-  return out << "{ " << node.type << ", " << std::hex << "0x" << node.offset
-             << ", 0x" << node.child << ", 0x" << node.next << " }" << std::dec;
+  return out << "{ " << node.type << ", " << std::hex << std::uppercase << "0x"
+             << node.offset << ", 0x" << node.child << ", 0x" << node.next
+             << " }" << std::dec;
 }
 
 std::ostream &operator<<(std::ostream &out, const arcana::Ast &ast) {
