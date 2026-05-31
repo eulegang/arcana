@@ -59,6 +59,4 @@ TEST(parsing, enumeration) {
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::en_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-
-  std::cout << ast;
 }
