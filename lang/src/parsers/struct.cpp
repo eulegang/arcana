@@ -58,38 +58,23 @@ sigil_state parse_struct_field(sigil_state state) {
 }
 
 sigil_state parse_alias(sigil_state state) {
-  sigil_token token = sigil_state_token(state);
+  check_token(alias);
+  next_token();
 
-  if (token.type != token_code(alias)) {
-    state.status |= 4;
-    return state;
-  }
-  uint16_t node = sigil_state_alloc_node(&state);
-  sigil_node *root = sigil_state_node(state, node);
-  *root = {
-      .child = 0,
-      .next = 0,
-      .offset = 0xFFFF,
-      .type = node_code(alias),
-  };
+  auto [id, root] = alloc_node(alias);
+  run_subparser(root, parse_ident);
 
-  sigil_state_next(&state);
+  check_token(assign);
+  next_token();
 
-  state = parse_type(state);
-  if (state.status)
-    return state;
+  sigil_node *ident = sigil_state_node(state, id);
+  run_subparser(ident, parse_type);
+  swap_branch(ident);
 
-  token = sigil_state_token(state);
-  if (token.type != token_code(semi)) {
-    state.status |= 4;
-    return state;
-  }
+  check_token(semi);
+  next_token();
 
-  sigil_state_next(&state);
-
-  root->child = state.subroot;
-
-  state.subroot = node;
+  state.subroot = id;
   return state;
 }
 
