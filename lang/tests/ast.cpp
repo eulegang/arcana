@@ -83,8 +83,6 @@ TEST(parsing, bitset) {
   EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::literal);
-
-  std::cout << ast;
 }
 
 TEST(parsing, alias) {
