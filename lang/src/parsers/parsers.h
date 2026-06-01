@@ -55,13 +55,11 @@ typedef uint16_t data_id;
     *(Type *)sigil_state_data(state, data) = state.token_cursor;               \
   }
 
-#define run_subparser(node, subparser)                                         \
+#define run_subparser(node, subparser, slot)                                   \
   state = arcana::subparser(state);                                            \
   if (state.status)                                                            \
     return state;                                                              \
-  node->child = state.subroot;
-
-#define swap_branch(node) std::swap(node->child, node->next)
+  node->slot = state.subroot;
 
 #define token_is(Type) (Token) sigil_state_token(state).type == Token::Type
 

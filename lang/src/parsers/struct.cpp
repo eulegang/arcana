@@ -11,7 +11,7 @@ sigil_state parse_struct(sigil_state state) {
 
   auto [id, root] = alloc_node(st);
 
-  run_subparser(root, parse_ident);
+  run_subparser(root, parse_ident, child);
   check_token(lbrace);
   next_token();
 
@@ -44,14 +44,13 @@ sigil_state parse_struct(sigil_state state) {
 sigil_state parse_struct_field(sigil_state state) {
   check_token(ident);
   auto [id, root] = alloc_node(st_field);
-  run_subparser(root, parse_ident);
+  run_subparser(root, parse_ident, child);
 
   check_token(colon);
   next_token();
 
   sigil_node *ident_node = sigil_state_node(state, root->child);
-  run_subparser(ident_node, parse_type);
-  swap_branch(ident_node);
+  run_subparser(ident_node, parse_type, next);
 
   state.subroot = id;
   return state;
@@ -62,14 +61,13 @@ sigil_state parse_alias(sigil_state state) {
   next_token();
 
   auto [id, root] = alloc_node(alias);
-  run_subparser(root, parse_ident);
+  run_subparser(root, parse_ident, child);
 
   check_token(assign);
   next_token();
 
   sigil_node *ident = sigil_state_node(state, id);
-  run_subparser(ident, parse_type);
-  swap_branch(ident);
+  run_subparser(ident, parse_type, next);
 
   check_token(semi);
   next_token();

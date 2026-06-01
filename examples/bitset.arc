@@ -1,7 +1,6 @@
-bitset status : u32 {
-  invalid_token;
-  token_overflow;
-  invalid_branch;
-
-  spurious = 6;
+bitset mflags : u32 {
+  shared;
+  private;
+  droppable = 3;
+  anon = 5
 }

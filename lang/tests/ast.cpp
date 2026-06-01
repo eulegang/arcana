@@ -83,6 +83,8 @@ TEST(parsing, bitset) {
   EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+
+  std::cout << ast;
 }
 
 TEST(parsing, alias) {
@@ -90,22 +92,11 @@ TEST(parsing, alias) {
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 
-  // ASSERT_EQ(ast.node_count(), 14);
+  ASSERT_EQ(ast.node_count(), 5);
 
-  // uint16_t id = 1;
-  // EXPECT_EQ(ast[id++].type, arcana::Node::bs);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::literal);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  // EXPECT_EQ(ast[id++].type, arcana::Node::literal);
-
-  std::cout << ast;
+  uint16_t id = 1;
+  EXPECT_EQ(ast[id++].type, arcana::Node::alias);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ty);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
 }

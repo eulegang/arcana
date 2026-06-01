@@ -31,11 +31,16 @@ chroma::basic_t token_color(arcana::Token type) {
     return chroma::cyan;
   case arcana::Token::ns:
   case arcana::Token::strukt:
+  case arcana::Token::record:
   case arcana::Token::enumeration:
   case arcana::Token::bitset:
   case arcana::Token::alias:
   case arcana::Token::fn:
+  case arcana::Token::func:
   case arcana::Token::opaque:
+  case arcana::Token::module:
+  case arcana::Token::priv:
+  case arcana::Token::foreign:
     return chroma::purple;
 
   case arcana::Token::cond:
@@ -43,6 +48,7 @@ chroma::basic_t token_color(arcana::Token type) {
   case arcana::Token::ret:
   case arcana::Token::let:
   case arcana::Token::var:
+  case arcana::Token::mut:
     return chroma::purple;
 
   case arcana::Token::integer:

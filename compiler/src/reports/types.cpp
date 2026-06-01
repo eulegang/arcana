@@ -66,7 +66,7 @@ void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
 }
 
 void report::types(const arcana::Tokens &, const arcana::Ast &ast,
-                   const arcana::pass::NamePass::Overlay &scopes,
+                   const arcana::pass::NamePass::Overlay &,
                    const arcana::types::Typebase &base,
                    const arcana::pass::TypeDefPass &pass) {
 
@@ -80,35 +80,15 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
 
   ast.visit(&ctx, types_dump_nodes);
 
-  auto lookup = [&scopes, &pass](arcana::types::type_id tid) -> std::string {
-    uint16_t node = 0xFFFF;
-    for (const auto &[n, t] : pass.ids) {
-      if (t == tid) {
-        node = n;
-        break;
-      }
-    }
-
-    if (node == 0xFFFF) {
-      return "!!!";
-    }
-
-    auto name = scopes.resolve(node);
-
-    return resolve(scopes, pass.table, *name, "::");
-  };
-
   std::cout << chroma::purple << "summary" << std::endl;
 
   uint16_t id = 0;
   std::cout << chroma::purple << "  bitsets" << std::endl;
   for (const auto &bitset : base.bitsets) {
     arcana::types::type_id tid(arcana::types::type_id::cat::bs, id++);
-    std::string fullname = lookup(tid);
 
-    std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
-              << chroma::yellow << bitset.size << chroma::clear << ") " << tid
-              << std::endl;
+    std::cout << "    size: " << chroma::yellow << bitset.size << chroma::clear
+              << tid << std::endl;
 
     for (const auto &c : bitset.cases) {
       auto x = pass.table.resolve(c.sym);
@@ -122,11 +102,9 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
   std::cout << chroma::purple << "  enums" << std::endl;
   for (const auto &en : base.enums) {
     arcana::types::type_id tid(arcana::types::type_id::cat::en, id++);
-    std::string fullname = lookup(tid);
 
-    std::cout << "    " << chroma::green << fullname << chroma::clear << " ("
-              << chroma::yellow << en.size << chroma::clear << ") " << tid
-              << std::endl;
+    std::cout << "    size: " << chroma::yellow << en.size << chroma::clear
+              << tid << std::endl;
 
     for (const auto &c : en.cases) {
       auto x = pass.table.resolve(c.sym);
@@ -140,9 +118,8 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
   std::cout << chroma::purple << "  structs" << std::endl;
   for (const auto &st : base.structs) {
     arcana::types::type_id tid(arcana::types::type_id::cat::st, id++);
-    std::string fullname = lookup(tid);
 
-    std::cout << "    " << chroma::green << fullname << " " << tid << std::endl;
+    std::cout << "    " << tid << std::endl;
 
     for (const auto &c : st.fields) {
       auto x = pass.table.resolve(c.sym);

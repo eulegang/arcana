@@ -10,15 +10,14 @@ sigil_state parse_bitset(sigil_state state) {
 
   auto [id, root] = alloc_node(bs);
 
-  run_subparser(root, parse_ident);
+  run_subparser(root, parse_ident, child);
 
   sigil_node *ident = sigil_state_node(state, root->child);
 
   sigil_node *cur;
   if (token_is(colon)) {
     next_token();
-    run_subparser(ident, parse_ident);
-    swap_branch(ident);
+    run_subparser(ident, parse_ident, next);
     cur = sigil_state_node(state, ident->next);
   } else {
     auto [backing_id, backing] = alloc_node(infer_type);
@@ -32,8 +31,7 @@ sigil_state parse_bitset(sigil_state state) {
   while (true) {
     loop_terminal_token(rbrace);
 
-    run_subparser(cur, parse_bitset_case);
-    swap_branch(cur);
+    run_subparser(cur, parse_bitset_case, next);
     cur = sigil_state_node(state, cur->next);
 
     loop_terminal_token(rbrace);
@@ -50,14 +48,13 @@ sigil_state parse_bitset_case(sigil_state state) {
   check_token(ident);
 
   auto [id, root] = alloc_node(bs_case);
-  run_subparser(root, parse_ident);
+  run_subparser(root, parse_ident, child);
 
   if (token_is(assign)) {
     next_token();
 
     sigil_node *ident = sigil_state_node(state, root->child);
-    run_subparser(ident, parse_lit);
-    swap_branch(ident);
+    run_subparser(ident, parse_lit, next);
   }
 
   state.subroot = id;

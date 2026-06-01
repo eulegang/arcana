@@ -33,40 +33,11 @@ void dump_nodes(uint16_t, sigil::Ast<arcana::Node>::Node node, void *data,
   out << ty;
 
   if (verbose) {
-    uint16_t idx, meta;
+    uint16_t idx;
     std::string_view ident;
 
     switch (ty) {
     case arcana::Node::ident:
-      idx = *(uint16_t *)data;
-      ident = ctx->tokens.content(idx);
-
-      out << " " << chroma::cyan << ident;
-      break;
-
-    case arcana::Node::st: {
-      meta = *(uint16_t *)data;
-
-      if ((meta & arcana::ACCESS_OPAQUE) != 0) {
-        out << " " << chroma::blue << "opaque";
-      }
-    } break;
-
-    case arcana::Node::st_field:
-      idx = *(uint16_t *)data;
-      ident = ctx->tokens.content(idx);
-
-      out << " " << chroma::cyan << ident;
-      break;
-
-    case arcana::Node::en_case:
-      idx = *(uint16_t *)data;
-      ident = ctx->tokens.content(idx);
-
-      out << " " << chroma::cyan << ident;
-      break;
-
-    case arcana::Node::bs_case:
       idx = *(uint16_t *)data;
       ident = ctx->tokens.content(idx);
 
