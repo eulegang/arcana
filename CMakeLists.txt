@@ -7,9 +7,6 @@ project(arcana
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
-# compile_options()
-# -Wno-gnu-statement-expression
-
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)
 pkg_check_modules(MFILE REQUIRED IMPORTED_TARGET mfile)
