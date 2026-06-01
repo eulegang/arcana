@@ -1,3 +1,4 @@
+#include <mfile.h>
 #include <sigil.h>
 
 #include <gmock/gmock.h>
@@ -19,7 +20,8 @@ TEST(parsing, mod) {
 }
 
 TEST(parsing, record) {
-  std::string_view sv = "record sigil { name: []u8; age: u64; }";
+  mfile file{"corpus/record.arc"};
+  std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 
@@ -41,7 +43,8 @@ TEST(parsing, record) {
 }
 
 TEST(parsing, enumeration) {
-  std::string_view sv = "enum attr : u32 { name; age; ssn; phone = 42; }";
+  mfile file{"corpus/enum.arc"};
+  std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 
@@ -62,8 +65,8 @@ TEST(parsing, enumeration) {
 }
 
 TEST(parsing, bitset) {
-  std::string_view sv =
-      "bitset mflags : u32 {shared; private; droppable = 3; anon = 5 }";
+  mfile file{"corpus/bitset.arc"};
+  std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
 

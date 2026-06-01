@@ -45,6 +45,7 @@ add_executable(
 target_include_directories(arcana-unit PUBLIC ./src)
 target_link_libraries(arcana-unit PkgConfig::SIGIL)
 target_link_libraries(arcana-unit GTest::gtest_main)
+target_link_libraries(arcana-unit PkgConfig::MFILE)
 target_link_libraries(arcana-unit arcana)
 
 add_test(
