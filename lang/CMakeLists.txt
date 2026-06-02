@@ -43,6 +43,7 @@ add_executable(
   tests/ast.cpp
   tests/utils.cpp
   tests/token_table.cpp
+  tests/symbols.cpp
 )
 
 target_include_directories(arcana-unit PUBLIC ./src)
