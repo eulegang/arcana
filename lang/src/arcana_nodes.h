@@ -39,5 +39,11 @@ enum class Node : uint16_t {
   array,
   pointer,
 
+  block,
+  ret,
+
+  expr,
 };
-}
+
+const char *node_name(const Node &);
+} // namespace arcana

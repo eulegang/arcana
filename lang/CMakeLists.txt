@@ -4,6 +4,7 @@ add_library(
   src/token-table.cpp
   src/tokens.cpp
   src/tree.cpp
+  src/node.cpp
 
   src/parsers/bitset.cpp
   src/parsers/ident.cpp
@@ -14,6 +15,8 @@ add_library(
   src/parsers/struct.cpp
   src/parsers/types.cpp
   src/parsers/func.cpp
+  src/parsers/statement.cpp
+  src/parsers/expr.cpp
 
   src/pass/name.cpp
   src/pass/types.cpp

@@ -200,6 +200,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     break;
 
   case 'r':
+    check_keyword("return", ret);
     check_keyword("record", record);
     break;
 

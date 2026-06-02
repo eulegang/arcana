@@ -106,7 +106,6 @@ sigil_state parse_type(sigil_state state) {
       .next = 0,
       .offset = 0xFFFF,
       .type = node_code(ty),
-
   };
 
   state =
@@ -148,7 +147,7 @@ void init_type_parser(void) {
   };
 
   sigil_parser_slots(type_parser)[(uint16_t)Token::fn] = {
-      .prefix = parse_func_sig,
+      .prefix = parse_func_type,
       .postfix = 0,
       .infix = 0,
       .perc = 0,

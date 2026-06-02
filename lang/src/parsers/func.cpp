@@ -3,124 +3,98 @@
 #include <sigil.h>
 
 namespace arcana {
-sigil_state parse_func_sig_arg(sigil_state state) {
-  check_token(ident);
+sigil_state parse_func_sig_ret(sigil_state state);
 
-  node_id id = sigil_state_alloc_node(&state);
-  sigil_node *root = sigil_state_node(state, id);
+sigil_state parse_func(sigil_state state) {
+  check_token(func);
+  next_token();
 
-  data_id data_id = sigil_state_malloc(&state, sizeof(uint16_t));
-  uint16_t *ident_slot = (uint16_t *)sigil_state_data(state, data_id);
+  auto [id, root] = alloc_node(fn);
 
-  *ident_slot = state.token_cursor;
+  run_subparser(root, parse_ident, child);
+  sigil_node *ident = sigil_state_node(state, root->child);
 
-  *root = {
-      .child = 0,
-      .next = 0,
-      .offset = data_id,
-      .type = node_code(fn_param),
-  };
+  auto [params_id, params] = alloc_node(fn_params);
+  ident->next = params_id;
 
-  sigil_state_next(&state);
-  check_token(colon);
-  sigil_state_next(&state);
+  check_token(lparen);
+  next_token();
 
-  state = sigil_parser_parse_expr(type_parser, state, (size_t)Perc::LOWEST);
+  sigil_node *cur = params;
+  while (true) {
+    loop_terminal_token(rparen);
 
-  root->child = state.subroot;
+    check_token(ident);
+
+    auto [param_id, param] = alloc_node(fn_param);
+    if (cur == params) {
+      cur->child = param_id;
+    } else {
+      cur->next = param_id;
+    }
+
+    cur = param;
+
+    run_subparser(param, parse_ident, child);
+
+    check_token(colon);
+    next_token();
+
+    ident = sigil_state_node(state, param->child);
+
+    run_subparser(ident, parse_type, next);
+
+    if (token_is(comma)) {
+      next_token();
+    } else {
+      check_token(rparen);
+    }
+  }
+
+  run_subparser(params, parse_func_sig_ret, next);
+
+  sigil_node *next =
+      state.subroot ? sigil_state_node(state, state.subroot) : params;
+
+  run_subparser(next, parse_block, next);
+
   state.subroot = id;
+  return state;
+}
 
+sigil_state parse_func_type(sigil_state state) {
+  check_token(func);
+  next_token();
+
+  auto [id, root] = alloc_node(fn);
+
+  state.subroot = id;
   return state;
 }
 
 sigil_state parse_func_sig_ret(sigil_state state) {
-  if (sigil_state_token(state).type != token_code(arrow)) {
+  if (!token_is(arrow)) {
     state.subroot = 0;
     return state;
   }
+  next_token();
 
-  sigil_state_next(&state);
+  auto [id, root] = alloc_node(fn_ret);
 
-  state = sigil_parser_parse_expr(type_parser, state, (size_t)Perc::LOWEST);
+  run_subparser(root, parse_type, child);
 
-  if (sigil_state_token(state).type != token_code(bang)) {
+  if (!token_is(bang)) {
+    state.subroot = id;
     return state;
   }
+  next_token();
 
-  sigil_state_next(&state);
+  sigil_node *ty = sigil_state_node(state, root->child);
 
-  node_id err_type_id = state.subroot;
-
-  state = sigil_parser_parse_expr(type_parser, state, (size_t)Perc::LOWEST);
-
-  sigil_state_node(state, state.subroot)->next = err_type_id;
-
-  return state;
-}
-
-sigil_state parse_func_sig(sigil_state state) {
-  check_token(fn);
-  sigil_state_next(&state);
-
-  node_id id = sigil_state_alloc_node(&state);
-  sigil_node *root = sigil_state_node(state, id);
-
-  node_id params_id = sigil_state_alloc_node(&state);
-  sigil_node *params_node = sigil_state_node(state, params_id);
-
-  node_id return_id = sigil_state_alloc_node(&state);
-  sigil_node *return_node = sigil_state_node(state, return_id);
-
-  *root = {
-      .child = params_id,
-      .next = 0,
-      .offset = 0xFFFF,
-      .type = node_code(fn),
-  };
-
-  *params_node = {
-      .child = 0,
-      .next = return_id,
-      .offset = 0xFFFF,
-      .type = node_code(fn_params),
-  };
-
-  *return_node = {
-      .child = 0,
-      .next = 0,
-      .offset = 0xFFFF,
-      .type = node_code(fn_ret),
-  };
-
-  check_token(lparen);
-  sigil_state_next(&state);
-
-  sigil_node *params_cur = params_node;
-  while (true) {
-    loop_terminal_token(rparen);
-    state = parse_func_sig_arg(state);
-
-    if (params_cur == params_node) {
-      params_cur->child = state.subroot;
-      params_cur = sigil_state_node(state, state.subroot);
-    } else {
-      params_cur->next = state.subroot;
-      params_cur = sigil_state_node(state, state.subroot);
-    }
-
-    loop_terminal_token(rparen);
-
-    check_token(comma);
-    sigil_state_next(&state);
-
-    loop_terminal_token(rparen);
-  }
-
-  state = parse_func_sig_ret(state);
-
-  return_node->child = state.subroot;
+  run_subparser(ty, parse_type, next);
 
   state.subroot = id;
   return state;
 }
+
 } // namespace arcana

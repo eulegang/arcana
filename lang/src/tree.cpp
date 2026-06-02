@@ -13,9 +13,15 @@ bool terminal(sigil_token_type type) {
 sigil_state init(sigil_state state) {
 
   uint16_t last = 0xFFFF;
+  sigil_state cache;
 
   while (!sigil_state_done(state)) {
+    cache = state;
     state = parse_declaration(state);
+    if (cache.token_cursor == state.token_cursor) {
+      state.status |= 8;
+      return state;
+    }
 
     if (last != 0xFFFF) {
       sigil_node *node = sigil_ast_nodes(state.ast) + last;

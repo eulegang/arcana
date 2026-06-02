@@ -101,3 +101,29 @@ TEST(parsing, alias) {
   EXPECT_EQ(ast[id++].type, arcana::Node::ty);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
 }
+
+TEST(parsing, func) {
+  mfile file{"corpus/func.arc"};
+  std::string_view sv = file;
+  arcana::Tokens tokens(sv, arcana::tokenizer);
+  arcana::Ast ast{arcana::parser, tokens};
+
+  ASSERT_EQ(ast.node_count(), 16);
+
+  uint16_t id = 1;
+  EXPECT_EQ(ast[id++].type, arcana::Node::fn);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::fn_params);
+  EXPECT_EQ(ast[id++].type, arcana::Node::fn_param);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ty);
+  EXPECT_EQ(ast[id++].type, arcana::Node::slice);
+  EXPECT_EQ(ast[id++].type, arcana::Node::pointer);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::fn_ret);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ty);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ident);
+  EXPECT_EQ(ast[id++].type, arcana::Node::block);
+  EXPECT_EQ(ast[id++].type, arcana::Node::ret);
+  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+}

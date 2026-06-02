@@ -44,14 +44,6 @@ void dump_nodes(uint16_t, sigil::Ast<arcana::Node>::Node node, void *data,
       out << " " << chroma::cyan << ident;
       break;
 
-    case arcana::Node::fn_param:
-      idx = *(uint16_t *)data;
-      ident = ctx->tokens.content(idx);
-
-      out << " " << chroma::cyan << ident;
-
-      break;
-
     case arcana::Node::literal: {
       arcana::LiteralData lit = *(arcana::LiteralData *)data;
 

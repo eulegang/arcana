@@ -61,7 +61,7 @@ typedef uint16_t data_id;
     return state;                                                              \
   node->slot = state.subroot;
 
-#define token_is(Type) (Token) sigil_state_token(state).type == Token::Type
+#define token_is(Type) ((Token)sigil_state_token(state).type == Token::Type)
 
 namespace arcana {
 sigil_state parse_bitset(sigil_state state);
@@ -74,12 +74,20 @@ sigil_state parse_enum(sigil_state state);
 sigil_state parse_struct(sigil_state state);
 sigil_state parse_alias(sigil_state state);
 
-sigil_state parse_func_sig(sigil_state state);
+sigil_state parse_func(sigil_state state);
+sigil_state parse_func_type(sigil_state state);
+
+sigil_state parse_block(sigil_state state);
+sigil_state parse_statement(sigil_state state);
+sigil_state parse_expr(sigil_state state);
 
 sigil_state parse_type(sigil_state state);
 
 extern sigil_parser *type_parser;
+extern sigil_parser *expr_parser;
 
 void init_type_parser(void) __attribute__((constructor));
 void deinit_type_parser(void) __attribute__((destructor));
+void init_expr_parser(void) __attribute__((constructor));
+void deinit_expr_parser(void) __attribute__((destructor));
 } // namespace arcana
