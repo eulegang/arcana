@@ -54,8 +54,6 @@ struct TypeDefPass : Pass {
     }
   };
 
-  std::stack<std::vector<Patch>> patches;
-
 private:
   void visit(uint16_t cur);
   void visit_bs(uint16_t cur, types::BitSet &);

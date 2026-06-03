@@ -1,19 +1,16 @@
 #include "../arcana/pass.h"
+#include "symbol.h"
 #include <algorithm>
 #include <charconv>
 #include <cstdint>
 #include <sigil.h>
 #include <stdexcept>
+#include <string>
+#include <sys/stat.h>
 #include <utility>
 
 namespace arcana {
 namespace pass {
-
-struct Scope {
-  TypeDefPass *pass;
-  Scope(TypeDefPass *pass) : pass{pass} { pass->patches.emplace(); }
-  ~Scope() { pass->patches.pop(); }
-};
 
 using type_id = types::type_id;
 
@@ -113,7 +110,6 @@ void TypeDefPass::visit(uint16_t cur) {
   } break;
 
   case Node::ns: {
-    Scope scope{this};
 
     if (node.child) {
       visit(node.child);
@@ -141,8 +137,8 @@ void TypeDefPass::visit(uint16_t cur) {
 }
 
 void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
-  Scope scope{this};
-  Ast::Node node = ast[cur];
+  Ast::Node root_ident = ast[cur];
+  Ast::Node node = ast[root_ident.next];
 
   bool infer = false;
 
@@ -172,13 +168,15 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
       break;
     }
 
-    uint16_t idx = *ast.data<uint16_t>(node.offset);
+    Ast::Node ident = ast[node.child];
+
+    uint16_t idx = *ast.data<uint16_t>(ident.offset);
 
     types::BitSet::Case bitset_case;
     bitset_case.sym = table.intern(tokens.content(idx));
 
-    if (node.child) {
-      Ast::Node lit = ast[node.child];
+    if (ident.next) {
+      Ast::Node lit = ast[ident.next];
 
       if (lit.type != Node::literal) {
         throw std::runtime_error("invalid bitset case");
@@ -203,7 +201,6 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     }
 
     bitset.cases.push_back(bitset_case);
-    patches.pop();
   }
 
   if (infer) {
@@ -216,9 +213,9 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
 }
 
 void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
-  Scope scope{this};
 
-  Ast::Node node = ast[cur];
+  Ast::Node root_ident = ast[cur];
+  Ast::Node node = ast[root_ident.next];
 
   bool infer = false;
 
@@ -248,13 +245,34 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
       break;
     }
 
-    uint16_t idx = *ast.data<uint16_t>(node.offset);
+    Ast::Node ident = ast[node.child];
+
+    uint16_t idx = *ast.data<uint16_t>(ident.offset);
 
     types::Enumeration::Case var;
     var.sym = table.intern(tokens.content(idx));
 
-    if (node.child) {
-      var.pattern = 0xFFFFFFFFFFFFFFFF;
+    if (ident.next) {
+      Ast::Node lit = ast[ident.next];
+
+      if (lit.type != Node::literal) {
+        throw std::runtime_error("need diagnostic");
+      }
+
+      LiteralData *data = ast.data<LiteralData>(lit.offset);
+
+      if (data->prim != Primitive::integer) {
+        throw std::runtime_error("need diagnostic");
+      }
+
+      auto str = tokens.content(data->token);
+      int num = 0;
+      // Takes a pointer range: [start, end)
+      auto [ptr, ec] =
+          std::from_chars(str.data(), str.data() + str.size(), num);
+
+      pattern = num;
+      var.pattern = pattern++;
     } else {
       var.pattern = pattern++;
     }
@@ -272,8 +290,8 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
 }
 
 void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
-  Scope scope{this};
-  const Ast::Node fields = ast[cur];
+  const Ast::Node root_ident = ast[cur];
+  const Ast::Node fields = ast[root_ident.next];
 
   if (fields.type != Node::st_fields) {
     visit(cur);
@@ -283,12 +301,13 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
     cur = fields.child;
 
     while (cur) {
-      Ast::Node node = ast[cur];
+      Ast::Node field = ast[cur];
+      Ast::Node ident = ast[field.child];
 
-      NamePass::Name *name = names.resolve(cur);
+      NamePass::Name *name = names.resolve(field.child);
 
-      type_id tid = resolve_type(context, node.child);
-      *overlay.alloc(node.child) = tid;
+      type_id tid = resolve_type(context, ident.next);
+      *overlay.alloc(ident.next) = tid;
 
       st.fields.push_back({
           .sym = name->_symbol,
@@ -318,19 +337,9 @@ type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
 
     if (!tid) {
       symbol sym = names.resolve(cur)->_symbol;
-      auto &scope = patches.top();
 
       auto [id, alias] = base.generate<types::Alias>();
       alias.id = type_id();
-
-      Patch patch = {
-          .id = id,
-          .sym = sym,
-      };
-
-      if (std::find(scope.begin(), scope.end(), patch) == scope.end()) {
-        scope.push_back(patch);
-      }
     }
 
     return tid;
