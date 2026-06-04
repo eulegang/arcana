@@ -22,15 +22,15 @@ void report::ast(const sigil::Tokens<arcana::Token> &tokens,
   tree.visit(&ctx, dump_nodes);
 }
 
-void dump_nodes(uint16_t, sigil::Ast<arcana::Node>::Node node, void *data,
+void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *data,
                 size_t level, ctx *ctx) {
 
   auto &out = *ctx->out;
 
   auto ty = node.type;
   out << std::string(2 * level, ' ');
-
   out << ty;
+  out << chroma::clear << " (" << chroma::blue << id << chroma::clear << ")";
 
   if (verbose) {
     uint16_t idx;
