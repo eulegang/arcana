@@ -30,7 +30,7 @@ struct type_id {
 
   cat category() const { return (cat)((MASK & payload) >> 28); }
   uint16_t id() const { return (~MASK & payload); }
-  operator bool() { return payload != 0; }
+  operator bool() const { return payload != 0; }
 
   bool operator==(const type_id &other) const {
     return payload == other.payload;

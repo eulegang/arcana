@@ -1,3 +1,4 @@
+#include "arcana/types.h"
 #include "../reports.h"
 #include "symbol.h"
 #include <chroma.h>
@@ -158,8 +159,26 @@ void report::types(const arcana::Tokens &, const arcana::Ast &ast,
       std::cout << param << ", ";
     }
 
-    std::cout << chroma::clear << ") -> " << fn.err << "!" << fn.ret
-              << std::endl;
+    std::cout << chroma::clear << ") -> ";
+
+    if (fn.err) {
+      std::cout << fn.err << "!";
+
+      if (fn.ret) {
+        std::cout << fn.ret;
+      } else {
+        std::cout << arcana::types::type_id(arcana::types::type_id::cat::prim,
+                                            0);
+      }
+    } else {
+      if (fn.ret) {
+        std::cout << fn.ret;
+      } else {
+        std::cout << arcana::types::type_id(arcana::types::type_id::cat::prim,
+                                            0);
+      }
+    }
+    std::cout << std::endl;
   }
 
   id = 0;
