@@ -133,6 +133,10 @@ struct Alias {
   type_id id;
 };
 
+struct FuncBody {
+  uint16_t id;
+};
+
 template <typename Value> struct Gen {
   type_id id;
   Value &value;
@@ -146,6 +150,7 @@ struct Typebase {
   std::vector<Derive> derives;
   std::vector<Fn> fns;
   std::vector<Alias> aliases;
+  std::vector<FuncBody> func_bodies;
 
   Typebase(SymbolTable &table);
 

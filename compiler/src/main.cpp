@@ -60,10 +60,10 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  gen::llvm g(tokens, ast, name_pass, type_def);
+  gen::llvm g(std::cout, tokens, ast, name_pass, type_def);
 
   if (stops == 16) {
-    g.generate(std::cout);
+    g.generate();
 
     return 0;
   }

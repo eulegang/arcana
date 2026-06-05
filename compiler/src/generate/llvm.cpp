@@ -10,25 +10,32 @@
 using namespace arcana::types;
 
 namespace gen {
-void llvm::generate(std::ostream &out) {
 
+using arcana::Ast;
+
+void llvm::generate() {
+  gen_types();
+  gen_fns();
+}
+
+void llvm::gen_types() {
   for (const auto &[node_id, tid] : types.ids) {
     switch (tid.category()) {
     case type_id::cat::meta:
     case type_id::cat::bs:
-      gen(out, node_id, tid, types.base.lookup<BitSet>(tid));
+      gen(node_id, tid, types.base.lookup<BitSet>(tid));
       break;
 
     case type_id::cat::en:
-      gen(out, node_id, tid, types.base.lookup<Enumeration>(tid));
+      gen(node_id, tid, types.base.lookup<Enumeration>(tid));
       break;
 
     case type_id::cat::st:
-      gen(out, node_id, tid, types.base.lookup<Struct>(tid));
+      gen(node_id, tid, types.base.lookup<Struct>(tid));
       break;
 
     case type_id::cat::alias:
-      gen(out, node_id, tid, types.base.lookup<Alias>(tid));
+      gen(node_id, tid, types.base.lookup<Alias>(tid));
       break;
 
     case type_id::cat::prim:
@@ -45,9 +52,20 @@ void llvm::generate(std::ostream &out) {
   }
 }
 
-void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
+void llvm::gen_fns() {
+  for (const auto &f : types.base.func_bodies) {
+    gen_func(f.id);
+  }
+}
+
+void llvm::gen_func(uint16_t) {
+  // out << "define" << (int)node << std::endl;
+}
+
+void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
                arcana::types::BitSet &bs) {
-  std::string tname = std::format("$arcana.{}", name_of(node_id));
+  Ast::Node bs_node = ast[node_id];
+  std::string tname = std::format("$arcana.{}", name_of(bs_node.child));
 
   alloc_names.insert({tid, tname});
 
@@ -62,9 +80,10 @@ void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
   }
 }
 
-void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
+void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
                arcana::types::Enumeration &en) {
-  std::string tname = std::format("$arcana.{}", name_of(node_id));
+  Ast::Node en_node = ast[node_id];
+  std::string tname = std::format("$arcana.{}", name_of(en_node.child));
 
   alloc_names.insert({tid, tname});
 
@@ -73,21 +92,21 @@ void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
   for (const auto &c : en.cases) {
     const char *var = names.symbol_table.resolve(c.sym);
 
-    out << "@" << tname << "_" << var << " = internal constant "
+    out << "@" << tname << "." << var << " = internal constant "
         << "%" << tname << " { i" << en.size << " " << c.pattern << " }"
         << std::endl;
   }
 }
 
-void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
+void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
                arcana::types::Struct &st) {
-
   if (!is_definable(tid)) {
     pending.push_back(std::make_pair(node_id, tid));
     return;
   }
 
-  std::string tname = std::format("$arcana.{}", name_of(node_id));
+  Ast::Node st_node = ast[node_id];
+  std::string tname = std::format("$arcana.{}", name_of(st_node.child));
 
   out << "%" << tname << " = type { ";
 
@@ -104,7 +123,7 @@ void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
   out << " }" << std::endl;
 }
 
-void llvm::gen(std::ostream &out, uint16_t node_id, arcana::types::type_id tid,
+void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
                arcana::types::Alias &alias) {
   if (!is_definable(alias.id)) {
     pending.push_back(std::make_pair(node_id, tid));

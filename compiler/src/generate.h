@@ -11,40 +11,41 @@
 
 namespace gen {
 struct generator {
+  std::ostream &out;
   const arcana::Tokens &tokens;
   const arcana::Ast &ast;
   const arcana::pass::NamePass &names;
   const arcana::pass::TypeDefPass &types;
 
-  generator(const arcana::Tokens &tokens, const arcana::Ast &ast,
-            const arcana::pass::NamePass &names,
+  generator(std::ostream &out, const arcana::Tokens &tokens,
+            const arcana::Ast &ast, const arcana::pass::NamePass &names,
             const arcana::pass::TypeDefPass &types)
 
-      : tokens{tokens}, ast{ast}, names{names}, types{types} {}
+      : out{out}, tokens{tokens}, ast{ast}, names{names}, types{types} {}
 
-  virtual void generate(std::ostream &out) = 0;
+  virtual void generate() = 0;
 };
 
 struct llvm : generator {
-  llvm(const arcana::Tokens &tokens, const arcana::Ast &ast,
+  llvm(std::ostream &out, const arcana::Tokens &tokens, const arcana::Ast &ast,
 
        const arcana::pass::NamePass &names,
        const arcana::pass::TypeDefPass &types)
-      : generator{tokens, ast, names, types} {}
+      : generator{out, tokens, ast, names, types} {}
 
-  void generate(std::ostream &out) override;
+  void generate() override;
 
 private:
   std::string name_of(uint16_t node);
 
-  void gen(std::ostream &, uint16_t, arcana::types::type_id,
-           arcana::types::BitSet &);
-  void gen(std::ostream &, uint16_t, arcana::types::type_id,
-           arcana::types::Enumeration &);
-  void gen(std::ostream &, uint16_t, arcana::types::type_id,
-           arcana::types::Struct &);
-  void gen(std::ostream &, uint16_t, arcana::types::type_id,
-           arcana::types::Alias &);
+  void gen_types();
+  void gen_fns();
+  void gen(uint16_t, arcana::types::type_id, arcana::types::BitSet &);
+  void gen(uint16_t, arcana::types::type_id, arcana::types::Enumeration &);
+  void gen(uint16_t, arcana::types::type_id, arcana::types::Struct &);
+  void gen(uint16_t, arcana::types::type_id, arcana::types::Alias &);
+
+  void gen_func(uint16_t);
 
   std::string fn_name(arcana::types::Fn);
   std::string type_name(arcana::types::type_id);
