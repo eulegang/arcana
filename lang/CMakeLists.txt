@@ -37,13 +37,14 @@ target_link_libraries(arcana PUBLIC symbol)
 find_package(GTest REQUIRED)
 enable_testing()
 add_executable(
-  arcana-unit 
+  arcana-unit
 
   tests/tokens.cpp
   tests/ast.cpp
   tests/utils.cpp
   tests/token_table.cpp
   tests/symbols.cpp
+  tests/types.cpp
 )
 
 target_include_directories(arcana-unit PUBLIC ./src)
@@ -53,7 +54,7 @@ target_link_libraries(arcana-unit PkgConfig::MFILE)
 target_link_libraries(arcana-unit arcana)
 
 add_test(
-  NAME arcana-unit-tests 
+  NAME arcana-unit-tests
   COMMAND arcana-unit
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

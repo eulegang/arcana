@@ -22,3 +22,33 @@ std::ostream &operator<<(std::ostream &out, const arcana::Ast &ast) {
 
   return out;
 }
+
+std::ostream &operator<<(std::ostream &out,
+                         const arcana::types::type_id &node) {
+  return out << "(" << node.category() << ")" << node.id();
+}
+
+std::ostream &operator<<(std::ostream &out,
+                         const arcana::types::type_id::cat &cat) {
+  switch (cat) {
+  case arcana::types::type_id::cat::meta:
+    return out << "meta";
+  case arcana::types::type_id::cat::bs:
+    return out << "bs";
+  case arcana::types::type_id::cat::en:
+    return out << "en";
+  case arcana::types::type_id::cat::st:
+    return out << "st";
+  case arcana::types::type_id::cat::prim:
+    return out << "prim";
+  case arcana::types::type_id::cat::derive:
+    return out << "derive";
+  case arcana::types::type_id::cat::fn:
+    return out << "fn";
+  case arcana::types::type_id::cat::alias:
+    return out << "alias";
+
+  default:
+    return out << "!!!";
+  }
+}

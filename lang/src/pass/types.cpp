@@ -437,7 +437,9 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
       ty = ast[ty.next];
     }
 
-    params.push_back(resolve_type(context, id));
+    type_id param_tid = resolve_type(context, id);
+    params.push_back(param_tid);
+    *overlay.alloc(id) = param_tid;
 
     param_id = param.next;
   }
@@ -445,10 +447,12 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
   if (args.next) {
     Ast::Node ret_node = ast[args.next];
     ret = resolve_type(context, ret_node.child);
+    *overlay.alloc(ret_node.child) = ret;
 
     Ast::Node ret_id_node = ast[ret_node.child];
     if (ret_id_node.next) {
       err = resolve_type(context, ret_id_node.next);
+      *overlay.alloc(ret_id_node.next) = err;
     }
   }
 
