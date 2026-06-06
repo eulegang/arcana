@@ -35,7 +35,6 @@ struct llvm : generator {
 
   void generate() override;
 
-private:
   std::string name_of(uint16_t node);
 
   void gen_types();

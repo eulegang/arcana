@@ -37,6 +37,3 @@ std::vector<T> sigil_token_types(const sigil::Tokens<T> &tokens) {
 std::ostream &operator<<(std::ostream &out, const arcana::Node &node);
 std::ostream &operator<<(std::ostream &out, const arcana::Ast::Node &node);
 std::ostream &operator<<(std::ostream &out, const arcana::Ast &ast);
-std::ostream &operator<<(std::ostream &out, const arcana::types::type_id &node);
-std::ostream &operator<<(std::ostream &out,
-                         const arcana::types::type_id::cat &cat);

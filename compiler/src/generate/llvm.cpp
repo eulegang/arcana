@@ -1,5 +1,6 @@
 #include "../generate.h"
 #include "arcana/types.h"
+#include "arcana_nodes.h"
 #include "symbol.h"
 #include <algorithm>
 #include <format>
@@ -45,7 +46,6 @@ void llvm::gen_types() {
     }
   }
 
-  out << "; pending" << std::endl;
   for (const auto &[node_id, tid] : pending) {
     std::string tname = std::format("$arcana.{}", name_of(node_id));
     out << "; " << tname << ", " << tid.id() << std::endl;
@@ -56,10 +56,6 @@ void llvm::gen_fns() {
   for (const auto &f : types.base.func_bodies) {
     gen_func(f.id);
   }
-}
-
-void llvm::gen_func(uint16_t) {
-  // out << "define" << (int)node << std::endl;
 }
 
 void llvm::gen(uint16_t node_id, arcana::types::type_id tid,

@@ -3,6 +3,30 @@
 namespace arcana {
 namespace types {
 
+std::ostream &operator<<(std::ostream &out, const type_id &id) {
+  switch (id.category()) {
+  case arcana::types::type_id::cat::meta:
+    return out << "(meta)" << id.id();
+  case arcana::types::type_id::cat::bs:
+    return out << "(bs)" << id.id();
+  case arcana::types::type_id::cat::en:
+    return out << "(en)" << id.id();
+  case arcana::types::type_id::cat::st:
+    return out << "(st)" << id.id();
+  case arcana::types::type_id::cat::prim:
+    return out << "(prim)" << id.id();
+  case arcana::types::type_id::cat::derive:
+    return out << "(derive)" << id.id();
+  case arcana::types::type_id::cat::fn:
+    return out << "(fn)" << id.id();
+  case arcana::types::type_id::cat::alias:
+    return out << "(alias)" << id.id();
+
+  default:
+    return out << "!!!";
+  }
+}
+
 Typebase::Typebase(SymbolTable &table)
     : bitsets{}, enums{}, structs{}, primitives{}, table{table} {
 

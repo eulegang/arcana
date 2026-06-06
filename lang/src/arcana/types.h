@@ -65,6 +65,8 @@ private:
 #undef MASK
 };
 
+std::ostream &operator<<(std::ostream &, const type_id &);
+
 struct BitSet {
   struct Case {
     symbol sym;

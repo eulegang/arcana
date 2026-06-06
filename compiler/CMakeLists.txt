@@ -15,6 +15,7 @@ add_executable(
 
   src/generate/llvm.cpp
   src/generate/llvm/types.cpp
+  src/generate/llvm/gen_func.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../lang/src)

@@ -13,43 +13,6 @@ struct ctx {
   const arcana::pass::TypeDefPass::Overlay &overlay;
 };
 
-std::ostream &operator<<(std::ostream &out, arcana::types::type_id tid) {
-  if (!tid) {
-    return out << chroma::purple << "null";
-  }
-
-  out << chroma::clear << "(" << chroma::purple;
-  switch (tid.category()) {
-  case arcana::types::type_id::cat::bs:
-    out << "bitset";
-    break;
-  case arcana::types::type_id::cat::en:
-    out << "enum";
-    break;
-  case arcana::types::type_id::cat::st:
-    out << "struct";
-    break;
-  case arcana::types::type_id::cat::prim:
-    out << "primitive";
-    break;
-  case arcana::types::type_id::cat::derive:
-    out << "derive";
-    break;
-  case arcana::types::type_id::cat::fn:
-    out << "fn";
-    break;
-  case arcana::types::type_id::cat::alias:
-    out << "alias";
-    break;
-
-  default:
-    out << chroma::red << "oh no!";
-    break;
-  }
-
-  return out << chroma::clear << ")" << chroma::yellow << tid.id();
-}
-
 void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
                       size_t level, ctx *ctx) {
 
