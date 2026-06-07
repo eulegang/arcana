@@ -17,6 +17,10 @@ using arcana::Ast;
 void llvm::generate() {
   gen_types();
   gen_fns();
+
+  if (has_main()) {
+    gen_main();
+  }
 }
 
 void llvm::gen_types() {
@@ -146,4 +150,38 @@ void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
     break;
   }
 }
+
+bool llvm::has_main() {
+  symbol s = names.symbol_table.intern("main");
+  for (const auto &fn : types.base.func_bodies) {
+    uint16_t i = ast[fn.id].child;
+
+    auto name = names.overlay.resolve(i);
+
+    if (name->_symbol == s) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+void llvm::gen_main() {
+  out << "define i32 @main(i64 %argc, ptr %argv) {" << std::endl;
+  out << "  %1 = alloca {ptr, i64}" << std::endl;
+  out << "  %2 = getelementptr {ptr, i64}, {ptr, i64}* %1, i32 0, i32 0"
+      << std::endl;
+
+  out << "  store ptr %argv, ptr %2" << std::endl;
+
+  out << "  %3 = getelementptr {ptr, i64}, {ptr, i64}* %1, i32 0, i32 0"
+      << std::endl;
+
+  out << "  store i64 %argc, ptr %3" << std::endl;
+
+  out << "  %4 = call i32 @arcana.main({ptr, i64}* %1)" << std::endl;
+  out << "  ret i32 %4" << std::endl;
+  out << "}" << std::endl;
+}
+
 } // namespace gen

@@ -37,6 +37,9 @@ struct llvm : generator {
 
   std::string name_of(uint16_t node);
 
+  bool has_main();
+  void gen_main();
+
   void gen_types();
   void gen_fns();
   void gen(uint16_t, arcana::types::type_id, arcana::types::BitSet &);
