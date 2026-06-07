@@ -82,10 +82,10 @@ TEST(parsing, bitset) {
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+  EXPECT_EQ(ast[id++].type, arcana::Node::integer);
   EXPECT_EQ(ast[id++].type, arcana::Node::bs_case);
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
-  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+  EXPECT_EQ(ast[id++].type, arcana::Node::integer);
 }
 
 TEST(parsing, alias) {
@@ -125,5 +125,5 @@ TEST(parsing, func) {
   EXPECT_EQ(ast[id++].type, arcana::Node::ident);
   EXPECT_EQ(ast[id++].type, arcana::Node::block);
   EXPECT_EQ(ast[id++].type, arcana::Node::ret);
-  EXPECT_EQ(ast[id++].type, arcana::Node::literal);
+  EXPECT_EQ(ast[id++].type, arcana::Node::integer);
 }

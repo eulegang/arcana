@@ -32,6 +32,7 @@ enum class Node : uint16_t {
   fn_ret,
 
   literal,
+  integer,
 
   ty, // a type slot
 

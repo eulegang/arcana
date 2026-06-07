@@ -55,6 +55,9 @@ const char *node_name(const Node &node) {
   case arcana::Node::literal:
     return "literal";
 
+  case arcana::Node::integer:
+    return "integer";
+
   case arcana::Node::infer_type:
     return "infer";
 

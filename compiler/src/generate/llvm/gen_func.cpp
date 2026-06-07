@@ -88,7 +88,7 @@ void GenFunc::gen_stmt(Ast::Node expr) {
     if (expr.child) {
       Ast::Node sub = _llvm.ast[expr.child];
 
-      if (sub.type == arcana::Node::literal) {
+      if (sub.type == arcana::Node::integer) {
 
         arcana::LiteralData lit =
             *_llvm.ast.data<arcana::LiteralData>(sub.offset);

@@ -35,6 +35,7 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
     break;
 
   case arcana::Node::literal:
+  case arcana::Node::integer:
   case arcana::Node::array:
     out << chroma::blue;
     break;

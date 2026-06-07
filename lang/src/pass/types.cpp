@@ -172,16 +172,11 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     if (ident.next) {
       Ast::Node lit = ast[ident.next];
 
-      if (lit.type != Node::literal) {
+      if (lit.type != Node::integer) {
         throw std::runtime_error("invalid bitset case");
       }
 
-      LiteralData *d = ast.data<LiteralData>(lit.offset);
-      if (d->prim != Primitive::integer) {
-        throw std::runtime_error("invalid bitset case");
-      }
-
-      auto content = tokens.content(d->token);
+      auto content = tokens.content(*ast.data<uint16_t>(lit.offset));
       uint16_t val = 0;
       auto [_, ec] =
           std::from_chars(content.data(), content.data() + content.size(), val);
@@ -249,17 +244,11 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
     if (ident.next) {
       Ast::Node lit = ast[ident.next];
 
-      if (lit.type != Node::literal) {
+      if (lit.type != Node::integer) {
         throw std::runtime_error("need diagnostic");
       }
 
-      LiteralData *data = ast.data<LiteralData>(lit.offset);
-
-      if (data->prim != Primitive::integer) {
-        throw std::runtime_error("need diagnostic");
-      }
-
-      auto str = tokens.content(data->token);
+      auto str = tokens.content(*ast.data<uint16_t>(lit.offset));
       int num = 0;
       // Takes a pointer range: [start, end)
       auto [ptr, ec] =
