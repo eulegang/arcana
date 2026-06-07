@@ -4,6 +4,7 @@ add_executable(
   src/main.cpp
   src/args.cpp
   src/ast.cpp
+  src/assemble.cpp
 
   src/reports/tokenize.cpp
   src/reports/ast.cpp

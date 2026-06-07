@@ -12,6 +12,7 @@ bool verbose = false;
 std::string_view path;
 uint16_t stops = 0;
 std::string_view output;
+std::string output_backing;
 
 void parse_args(int argc, char **argv) {
   static struct option long_options[] = {
@@ -79,6 +80,17 @@ void validate_args() {
   if (path.empty()) {
     std::cerr << chroma::red << "file not specified" << std::endl;
     exit(1);
+  }
+
+  if (!path.ends_with(".arc")) {
+    std::cerr << chroma::red << "file does not container arcana" << std::endl;
+    exit(1);
+  }
+
+  if (output.empty()) {
+    output_backing = path.substr(0, path.length() - 4);
+    output_backing += ".o";
+    output = output_backing;
   }
 }
 

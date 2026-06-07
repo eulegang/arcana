@@ -3,6 +3,7 @@
 #include <getopt.h>
 
 #include <iostream>
+#include <sstream>
 #include <string_view>
 
 #include <chroma.h>
@@ -10,6 +11,7 @@
 #include <sigil.h>
 
 #include "arcana.h"
+#include "assemble.h"
 #include "generate.h"
 #include "symbol.h"
 
@@ -60,13 +62,18 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  gen::llvm g(std::cout, tokens, ast, name_pass, type_def);
-
   if (stops == 16) {
+    gen::llvm g(std::cout, tokens, ast, name_pass, type_def);
     g.generate();
 
     return 0;
   }
+
+  std::stringstream buf;
+  gen::llvm g(buf, tokens, ast, name_pass, type_def);
+  g.generate();
+
+  assemble(buf.str(), output);
 
   return 0;
 }
