@@ -51,27 +51,6 @@ void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *data,
       out << " " << chroma::cyan << ident;
       break;
 
-    case arcana::Node::literal: {
-      arcana::LiteralData lit = *(arcana::LiteralData *)data;
-
-      switch (lit.prim) {
-      case arcana::Primitive::integer:
-        out << " integer";
-        break;
-      case arcana::Primitive::floating:
-        out << " float";
-        break;
-      case arcana::Primitive::boolean:
-        out << " bool";
-        break;
-      }
-
-      ident = ctx->tokens.content(lit.token);
-      out << " " << chroma::yellow << ident;
-
-      break;
-    }
-
     case arcana::Node::array:
       idx = *(uint16_t *)data;
       ident = ctx->tokens.content(idx);

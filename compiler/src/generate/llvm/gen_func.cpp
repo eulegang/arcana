@@ -90,11 +90,10 @@ void GenFunc::gen_stmt(Ast::Node expr) {
 
       if (sub.type == arcana::Node::integer) {
 
-        arcana::LiteralData lit =
-            *_llvm.ast.data<arcana::LiteralData>(sub.offset);
+        uint16_t token = *_llvm.ast.data<uint16_t>(sub.offset);
 
         _llvm.out << "  " << "ret " << _llvm.type_name(ret) << " "
-                  << _llvm.tokens.content(lit.token) << std::endl;
+                  << _llvm.tokens.content(token) << std::endl;
 
         generated = true;
       }
