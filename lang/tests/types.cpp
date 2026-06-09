@@ -19,12 +19,13 @@ TEST(type_pass, func) {
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::Diagnostics diagnostics;
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
-                                     name_pass.overlay};
+  arcana::pass::TypeDefPass type_def{
+      tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
   ASSERT_NE(type_def.overlay.resolve(0), nullptr);
@@ -42,13 +43,14 @@ TEST(type_pass, record) {
   std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
+  arcana::Diagnostics diagnostics;
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
-                                     name_pass.overlay};
+  arcana::pass::TypeDefPass type_def{
+      tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
   ASSERT_NE(type_def.overlay.resolve(0), nullptr);
@@ -67,12 +69,13 @@ TEST(type_pass, bitset) {
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::Diagnostics diagnostics;
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
-                                     name_pass.overlay};
+  arcana::pass::TypeDefPass type_def{
+      tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
   ASSERT_NE(type_def.overlay.resolve(0), nullptr);
@@ -86,12 +89,13 @@ TEST(type_pass, enum) {
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::Diagnostics diagnostics;
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
-                                     name_pass.overlay};
+  arcana::pass::TypeDefPass type_def{
+      tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
   ASSERT_NE(type_def.overlay.resolve(0), nullptr);

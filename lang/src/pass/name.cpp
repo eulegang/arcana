@@ -5,9 +5,6 @@
 
 namespace arcana {
 namespace pass {
-NamePass::NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table)
-    : Pass{tokens, ast}, symbol_table{table} {}
-
 void NamePass::run() {
   overlay = sigil::Overlay<Name>(ast.ptr.get(), 4);
 

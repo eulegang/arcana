@@ -23,6 +23,8 @@ sigil_state arcana::parse_ident(sigil_state state) {
       .type = node_code(ident),
   };
 
+  sigil_state_span(state, node, {state.token_cursor, state.token_cursor});
+
   *data_ptr = state.token_cursor;
 
   sigil_state_next(&state);

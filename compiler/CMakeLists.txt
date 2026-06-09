@@ -12,6 +12,7 @@ add_executable(
   src/reports/types.cpp
   src/reports/names.cpp
   src/reports/op.cpp
+  src/reports/diagnostics.cpp
   src/reports/resolve.cpp
 
   src/generate/llvm.cpp

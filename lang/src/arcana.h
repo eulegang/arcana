@@ -1,23 +1,36 @@
 #pragma once
 
 #include "sigil.h"
-
-namespace sigil {
-template <typename T, typename N> struct Pass {
-  const sigil::Tokens<T> &tokens;
-  const sigil::Ast<N> &ast;
-
-  Pass(const sigil::Tokens<T> &tokens, const sigil::Ast<N> &ast)
-      : tokens{tokens}, ast{ast} {}
-
-  virtual void run() = 0;
-};
-} // namespace sigil
+#include <type_traits>
+#include <vector>
 
 #include "arcana_nodes.h"
 #include "arcana_tokens.h"
 
 namespace arcana {
+
+class Diagnostics {
+  struct Diag {
+    std::string message;
+    sigil_span span;
+    uint16_t flags;
+  };
+
+  std::vector<Diag> diagnostics;
+
+public:
+  Diagnostics() : diagnostics{} {}
+
+  operator bool() const;
+  bool has_errors() const;
+  bool has_warnings() const;
+
+  void add_warning(std::string, sigil_span);
+  void add_error(std::string, sigil_span);
+
+  decltype(diagnostics.begin()) begin() { return diagnostics.begin(); }
+  decltype(diagnostics.end()) end() { return diagnostics.end(); }
+};
 
 ssize_t tokenizer(size_t, sigil_slice, Token *);
 

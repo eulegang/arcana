@@ -40,12 +40,22 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::Diagnostics diagnostics;
 
+  SymbolTable syms{4096, 16};
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
 
+  if (diagnostics.has_errors()) {
+    report::diagnostics(path, tokens, diagnostics);
+    return 2;
+  }
+
   if (stops == 4) {
+    if (diagnostics) {
+      report::diagnostics(path, tokens, diagnostics);
+    }
+
     report::symbols(syms);
     report::names(ast, syms, name_pass.overlay);
     return 0;
@@ -53,16 +63,29 @@ int main(int argc, char **argv) {
 
   arcana::types::Typebase base{syms};
 
-  arcana::pass::TypeDefPass type_def{tokens, ast, syms, base,
-                                     name_pass.overlay};
+  arcana::pass::TypeDefPass type_def{
+      tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
+  if (diagnostics.has_errors()) {
+    report::diagnostics(path, tokens, diagnostics);
+    return 2;
+  }
+
   if (stops == 8) {
+    if (diagnostics) {
+      report::diagnostics(path, tokens, diagnostics);
+    }
+
     report::types(tokens, ast, name_pass.overlay, base, type_def);
     return 0;
   }
 
   if (stops == 16) {
+    if (diagnostics) {
+      report::diagnostics(path, tokens, diagnostics);
+    }
+
     gen::llvm g(std::cout, tokens, ast, name_pass, type_def);
     g.generate();
 
@@ -74,6 +97,10 @@ int main(int argc, char **argv) {
   g.generate();
 
   assemble(buf.str(), output);
+
+  if (diagnostics) {
+    report::diagnostics(path, tokens, diagnostics);
+  }
 
   return 0;
 }

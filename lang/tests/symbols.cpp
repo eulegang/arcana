@@ -16,8 +16,11 @@ TEST(symbol, func) {
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
   SymbolTable syms{4096, 16};
-  arcana::pass::NamePass name_pass{tokens, ast, syms};
+  arcana::Diagnostics diagnostics;
+  arcana::pass::NamePass name_pass{tokens, ast, syms, diagnostics};
   name_pass.run();
+
+  ASSERT_FALSE(diagnostics);
 
   EXPECT_EQ(name_pass.overlay.resolve(2)->_parent, 0);
   EXPECT_EQ(name_pass.overlay.resolve(2)->_symbol, syms.intern("main"));

@@ -5,6 +5,7 @@ add_library(
   src/tokens.cpp
   src/tree.cpp
   src/node.cpp
+  src/diagnostics.cpp
 
   src/parsers/bitset.cpp
   src/parsers/ident.cpp

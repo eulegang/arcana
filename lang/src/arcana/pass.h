@@ -20,8 +20,11 @@ struct NamePass : Pass {
 
   SymbolTable &symbol_table;
   Overlay overlay;
+  Diagnostics &diagnostics;
 
-  NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &);
+  NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
+           Diagnostics &diagnostics)
+      : Pass{tokens, ast}, symbol_table{table}, diagnostics{diagnostics} {}
 
   void run() override;
 
@@ -38,10 +41,14 @@ struct TypeDefPass : Pass {
 
   Overlay overlay;
   const NamePass::Overlay &names;
+  Diagnostics &diagnostics;
 
   TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
               types::Typebase &base,
-              const arcana::pass::NamePass::Overlay &names);
+              const arcana::pass::NamePass::Overlay &names,
+              Diagnostics &diagnostics)
+      : Pass{tokens, ast}, table{table}, base{base}, overlay{}, names{names},
+        diagnostics{diagnostics} {}
 
   void run() override;
 

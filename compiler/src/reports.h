@@ -23,6 +23,9 @@ void types(const arcana::Tokens &, const arcana::Ast &,
            const arcana::pass::NamePass::Overlay &,
            const arcana::types::Typebase &, const arcana::pass::TypeDefPass &);
 
+void diagnostics(std::string_view, const arcana::Tokens &tokens,
+                 arcana::Diagnostics &diagnostics);
+
 std::string resolve(const arcana::pass::NamePass::Overlay &scopes,
                     const SymbolTable &table, arcana::pass::NamePass::Name name,
                     std::string_view join);

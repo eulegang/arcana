@@ -52,11 +52,6 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
   return false;
 }
 
-TypeDefPass::TypeDefPass(const Tokens &tokens, const Ast &ast,
-                         SymbolTable &table, types::Typebase &base,
-                         const arcana::pass::NamePass::Overlay &names)
-    : Pass{tokens, ast}, table{table}, base{base}, overlay{}, names{names} {}
-
 void TypeDefPass::run() {
   overlay = sigil::Overlay<type_id>(ast.ptr.get(), 4);
   visit(0);
