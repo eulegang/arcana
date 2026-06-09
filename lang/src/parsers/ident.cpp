@@ -12,20 +12,16 @@ sigil_state arcana::parse_ident(sigil_state state) {
   }
 
   uint16_t node = sigil_state_alloc_node(&state);
-  uint16_t data = sigil_state_malloc(&state, sizeof(uint16_t));
-  uint16_t *data_ptr = (uint16_t *)sigil_state_data(state, data);
 
   state.subroot = node;
   *sigil_state_node(state, node) = {
       .child = 0,
       .next = 0,
-      .offset = data,
+      .offset = 0xFFFF,
       .type = node_code(ident),
   };
 
   sigil_state_span(state, node, {state.token_cursor, state.token_cursor});
-
-  *data_ptr = state.token_cursor;
 
   sigil_state_next(&state);
   if (state.status) {

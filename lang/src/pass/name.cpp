@@ -16,8 +16,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
   uint16_t subspace = space;
 
   if (node.type == Node::ident) {
-    uint16_t token = *ast.data<uint16_t>(node.offset);
-    std::string_view view = tokens.content(token);
+    std::string_view view = tokens.content(ast.span(cur).start);
 
     symbol sym = symbol_table.intern(view);
     Name *name = overlay.alloc(cur);

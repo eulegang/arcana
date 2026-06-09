@@ -35,8 +35,7 @@ sigil_state parse_slice(sigil_state state) {
     break;
   case Token::integer: // eventually should be an expr
   {
-    uint16_t data = sigil_state_malloc(&state, sizeof(uint16_t));
-    *(uint16_t *)sigil_state_data(state, data) = state.token_cursor;
+    sigil_state_span(state, id, {state.token_cursor, state.token_cursor});
 
     sigil_state_next(&state);
 
@@ -51,7 +50,7 @@ sigil_state parse_slice(sigil_state state) {
     *root = {
         .child = 0,
         .next = 0,
-        .offset = data,
+        .offset = 0xFFFF,
         .type = node_code(array),
     };
   } break;

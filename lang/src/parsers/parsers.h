@@ -49,12 +49,6 @@ typedef uint16_t data_id;
     return result;                                                             \
   }();
 
-#define alloc_data(Type)                                                       \
-  [&state]() {                                                                 \
-    uint16_t id = sigil_state_malloc(&state, sizeof(Type));                    \
-    *(Type *)sigil_state_data(state, data) = state.token_cursor;               \
-  }
-
 #define run_subparser(node, subparser, slot)                                   \
   state = arcana::subparser(state);                                            \
   if (state.status)                                                            \

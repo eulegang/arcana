@@ -14,14 +14,15 @@ namespace pass {
 
 using type_id = types::type_id;
 
-bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Node node,
+bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Idx id,
                        uint16_t &size) {
 
-  if (node.offset == 0xFFFF)
+  Ast::Node node = ast[id];
+  if (node.type != Node::ident || node.offset == 0xFFFF)
     return false;
 
-  uint16_t id = *ast.data<uint16_t>(node.offset);
-  std::string_view content = tokens.content(id);
+  sigil_span span = ast.span(id);
+  std::string_view content = tokens.content(span.start);
 
   if (content == "u8") {
     size = 8;
@@ -138,7 +139,7 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     break;
 
   case Node::ident:
-    if (!primitive_bitsize(tokens, ast, node, bitset.size)) {
+    if (!primitive_bitsize(tokens, ast, cur, bitset.size)) {
       bitset.size = 0xFFFF;
     }
 
@@ -159,10 +160,10 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
 
     Ast::Node ident = ast[node.child];
 
-    uint16_t idx = *ast.data<uint16_t>(ident.offset);
+    sigil_span span = ast.span(node.child);
 
     types::BitSet::Case bitset_case;
-    bitset_case.sym = table.intern(tokens.content(idx));
+    bitset_case.sym = table.intern(tokens.content(span.start));
 
     if (ident.next) {
       Ast::Node lit = ast[ident.next];
@@ -171,7 +172,8 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
         throw std::runtime_error("invalid bitset case");
       }
 
-      auto content = tokens.content(*ast.data<uint16_t>(lit.offset));
+      sigil_span span = ast.span(ident.next);
+      auto content = tokens.content(span.start);
       uint16_t val = 0;
       auto [_, ec] =
           std::from_chars(content.data(), content.data() + content.size(), val);
@@ -210,7 +212,7 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
     break;
 
   case Node::ident:
-    if (!primitive_bitsize(tokens, ast, node, en.size)) {
+    if (!primitive_bitsize(tokens, ast, cur, en.size)) {
       en.size = 0xFFFF;
     }
 
@@ -231,10 +233,10 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
 
     Ast::Node ident = ast[node.child];
 
-    uint16_t idx = *ast.data<uint16_t>(ident.offset);
+    sigil_span span = ast.span(node.child);
 
     types::Enumeration::Case var;
-    var.sym = table.intern(tokens.content(idx));
+    var.sym = table.intern(tokens.content(span.start));
 
     if (ident.next) {
       Ast::Node lit = ast[ident.next];
@@ -243,11 +245,10 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
         throw std::runtime_error("need diagnostic");
       }
 
-      auto str = tokens.content(*ast.data<uint16_t>(lit.offset));
+      sigil_span span = ast.span(ident.next);
+      auto str = tokens.content(span.start);
       int num = 0;
-      // Takes a pointer range: [start, end)
-      auto [ptr, ec] =
-          std::from_chars(str.data(), str.data() + str.size(), num);
+      std::from_chars(str.data(), str.data() + str.size(), num);
 
       pattern = num;
       var.pattern = pattern++;
@@ -314,8 +315,6 @@ type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
     type_id tid = resolve_primitive(names.resolve(cur)->_symbol);
 
     if (!tid) {
-      symbol sym = names.resolve(cur)->_symbol;
-
       auto [id, alias] = base.generate<types::Alias>();
       alias.id = type_id();
     }
