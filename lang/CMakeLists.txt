@@ -21,6 +21,7 @@ add_library(
 
   src/pass/name.cpp
   src/pass/types.cpp
+  src/pass/entries.cpp
 
   src/arcana/types.cpp
 )

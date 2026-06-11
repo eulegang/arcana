@@ -57,7 +57,7 @@ void llvm::gen_types() {
 }
 
 void llvm::gen_fns() {
-  for (const auto &f : types.base.func_bodies) {
+  for (const auto &f : entries.bodies) {
     gen_func(f.id);
   }
 }
@@ -153,7 +153,7 @@ void llvm::gen(uint16_t node_id, arcana::types::type_id tid,
 
 bool llvm::has_main() {
   symbol s = names.symbol_table.intern("main");
-  for (const auto &fn : types.base.func_bodies) {
+  for (const auto &fn : entries.bodies) {
     uint16_t i = ast[fn.id].child;
 
     auto name = names.overlay.resolve(i);

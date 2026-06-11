@@ -108,9 +108,6 @@ void TypeDefPass::visit(uint16_t cur) {
   case Node::fn: {
     type_id tid = resolve_type(0, cur);
     *overlay.alloc(cur) = tid;
-
-    types::FuncBody func_body{cur};
-    base.func_bodies.push_back(func_body);
   } break;
 
   default:

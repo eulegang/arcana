@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "arcana.h"
+#include "arcana/entries.h"
 #include "arcana/pass.h"
 #include "arcana/types.h"
 #include "symbol.h"
@@ -16,22 +17,25 @@ struct generator {
   const arcana::Ast &ast;
   const arcana::pass::NamePass &names;
   const arcana::pass::TypeDefPass &types;
+  const arcana::entry::Entries &entries;
 
   generator(std::ostream &out, const arcana::Tokens &tokens,
             const arcana::Ast &ast, const arcana::pass::NamePass &names,
-            const arcana::pass::TypeDefPass &types)
+            const arcana::pass::TypeDefPass &types,
+            const arcana::entry::Entries &entries)
 
-      : out{out}, tokens{tokens}, ast{ast}, names{names}, types{types} {}
+      : out{out}, tokens{tokens}, ast{ast}, names{names}, types{types},
+        entries{entries} {}
 
   virtual void generate() = 0;
 };
 
 struct llvm : generator {
   llvm(std::ostream &out, const arcana::Tokens &tokens, const arcana::Ast &ast,
-
        const arcana::pass::NamePass &names,
-       const arcana::pass::TypeDefPass &types)
-      : generator{out, tokens, ast, names, types} {}
+       const arcana::pass::TypeDefPass &types,
+       const arcana::entry::Entries &entries)
+      : generator{out, tokens, ast, names, types, entries} {}
 
   void generate() override;
 

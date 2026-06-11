@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../arcana.h"
+#include "../arcana/entries.h"
 #include "../arcana/types.h"
 #include "symbol.h"
 #include <cstdint>
@@ -30,6 +31,18 @@ struct NamePass : Pass {
 
 private:
   void scan(uint16_t space, uint16_t cur);
+};
+
+class EntryPass : Pass {
+  void visit(sigil_node_id id);
+
+public:
+  entry::Entries &entries;
+
+  EntryPass(const Tokens &tokens, const Ast &ast, entry::Entries &entries)
+      : Pass{tokens, ast}, entries{entries} {}
+
+  void run() override;
 };
 
 struct TypeDefPass : Pass {

@@ -11,6 +11,8 @@
 #include <sigil.h>
 
 #include "arcana.h"
+#include "arcana/entries.h"
+#include "arcana/pass.h"
 #include "assemble.h"
 #include "generate.h"
 #include "symbol.h"
@@ -62,10 +64,14 @@ int main(int argc, char **argv) {
   }
 
   arcana::types::Typebase base{syms};
+  arcana::entry::Entries entries;
 
   arcana::pass::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
+
+  arcana::pass::EntryPass entry_pass{tokens, ast, entries};
+  entry_pass.run();
 
   if (diagnostics.has_errors()) {
     report::diagnostics(path, tokens, diagnostics);
@@ -86,14 +92,14 @@ int main(int argc, char **argv) {
       report::diagnostics(path, tokens, diagnostics);
     }
 
-    gen::llvm g(std::cout, tokens, ast, name_pass, type_def);
+    gen::llvm g(std::cout, tokens, ast, name_pass, type_def, entries);
     g.generate();
 
     return 0;
   }
 
   std::stringstream buf;
-  gen::llvm g(buf, tokens, ast, name_pass, type_def);
+  gen::llvm g(buf, tokens, ast, name_pass, type_def, entries);
   g.generate();
 
   assemble(buf.str(), output);

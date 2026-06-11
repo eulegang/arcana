@@ -90,7 +90,7 @@ void GenFunc::gen_stmt(Ast::Node expr) {
 
       if (sub.type == arcana::Node::integer) {
 
-        uint16_t token = *_llvm.ast.data<uint16_t>(sub.offset);
+        uint16_t token = _llvm.ast.span(expr.child).start;
 
         _llvm.out << "  " << "ret " << _llvm.type_name(ret) << " "
                   << _llvm.tokens.content(token) << std::endl;
