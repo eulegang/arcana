@@ -23,6 +23,21 @@ sigil_state parse_lit(sigil_state state) {
     state.subroot = idx;
   } break;
 
+  case Token::str: {
+    uint16_t idx = sigil_state_alloc_node(&state);
+    sigil_state_span(state, idx, {state.token_cursor, state.token_cursor});
+    *sigil_state_node(state, idx) = {
+        .child = 0,
+        .next = 0,
+        .offset = 0xFFFF,
+        .type = (uint16_t)Node::str,
+    };
+
+    sigil_state_next(&state);
+
+    state.subroot = idx;
+  } break;
+
   default:
     state.status |= 1;
     return state;

@@ -119,10 +119,11 @@ sigil_state parse_type(sigil_state state) {
 sigil_parser *type_parser;
 
 bool terminal(sigil_token_type type);
-sigil_state init(sigil_state);
+sigil_state parse_init(sigil_state);
 
 void init_type_parser(void) {
-  type_parser = sigil_parser_init((uint16_t)Token::END + 1, terminal, init);
+  type_parser =
+      sigil_parser_init((uint16_t)Token::END + 1, terminal, parse_init);
 
   sigil_parser_slots(type_parser)[(uint16_t)Token::ident] = {
       .prefix = parse_ident,

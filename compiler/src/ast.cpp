@@ -47,8 +47,8 @@ sigil::Ast<arcana::Node> parse_ast(const sigil::Tokens<arcana::Token> &tokens) {
 
     auto [pre, cur, post] = extract_line(tokens.content(), token);
 
-    std::cerr << "invalid token found at " << meta.line << ":" << meta.column
-              << std::endl;
+    std::cerr << err.status << " invalid token found at " << meta.line << ":"
+              << meta.column << std::endl;
     std::cerr << chroma::clear << pre << chroma::red << cur << chroma::clear
               << post << std::endl;
 

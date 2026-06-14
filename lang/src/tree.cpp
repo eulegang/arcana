@@ -10,7 +10,7 @@ bool terminal(sigil_token_type type) {
   return type == (sigil_token_type)Token::semi;
 }
 
-sigil_state init(sigil_state state) {
+sigil_state parse_init(sigil_state state) {
 
   uint16_t last = 0xFFFF;
   sigil_state cache;
@@ -26,13 +26,12 @@ sigil_state init(sigil_state state) {
     if (last != 0xFFFF) {
       sigil_node *node = sigil_ast_nodes(state.ast) + last;
       node->next = state.subroot;
+      last = state.subroot;
     } else {
       sigil_node *node = sigil_ast_nodes(state.ast);
       node[0] = node[state.subroot];
       last = 0;
     }
-
-    last = state.subroot;
 
     if (state.status) {
       return state;
@@ -45,7 +44,7 @@ sigil_state init(sigil_state state) {
 }
 
 __attribute__((constructor)) void init_parser(void) {
-  parser = sigil_parser_init((uint16_t)Token::END + 1, terminal, init);
+  parser = sigil_parser_init((uint16_t)Token::END + 1, terminal, parse_init);
 
   sigil_parser_slots(parser)[(uint16_t)Token::integer] = {
       .prefix = parse_lit,

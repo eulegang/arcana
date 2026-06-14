@@ -104,11 +104,19 @@ sigil_state parse_statement(sigil_state state) {
     next_token();
     return state;
 
-  case Token::ident:
-    state = parse_binding(state);
-    check_token(semi);
-    next_token();
-    return state;
+  case Token::ident: {
+    if (sigil_state_peek(state, 1).type == (uint16_t)Token::colon) {
+      state = parse_binding(state);
+      check_token(semi);
+      next_token();
+      return state;
+    } else {
+      state = parse_expr(state);
+      check_token(semi);
+      next_token();
+      return state;
+    }
+  }
 
   case Token::cond_if:
     return parse_cond(state);

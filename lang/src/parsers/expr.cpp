@@ -38,6 +38,13 @@ void init_expr_parser(void) {
       .perc = 0,
   };
 
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::str] = {
+      .prefix = parse_lit,
+      .postfix = 0,
+      .infix = 0,
+      .perc = 0,
+  };
+
   sigil_parser_slots(expr_parser)[(uint16_t)Token::dot] = {
       .prefix = 0,
       .postfix = 0,
