@@ -32,6 +32,14 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
   case arcana::Node::pointer:
   case arcana::Node::ty:
   case arcana::Node::slice:
+  case arcana::Node::var:
+  case arcana::Node::konst:
+  case arcana::Node::cond:
+  case arcana::Node::cond_if:
+  case arcana::Node::cond_else:
+  case arcana::Node::cond_else_if:
+  case arcana::Node::ret:
+  case arcana::Node::ret_err:
     out << chroma::purple;
     break;
 
@@ -43,7 +51,12 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
     break;
 
   case arcana::Node::block:
-  case arcana::Node::ret:
+  case arcana::Node::fn_call:
+  case arcana::Node::expr:
+  case arcana::Node::member:
+  case arcana::Node::eq:
+  case arcana::Node::ne:
+  case arcana::Node::neg:
     out << chroma::green;
     break;
 

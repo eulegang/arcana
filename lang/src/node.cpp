@@ -84,8 +84,45 @@ const char *node_name(const Node &node) {
 
   case arcana::Node::block:
     return "block";
+
   case arcana::Node::ret:
     return "return";
+
+  case arcana::Node::ret_err:
+    return "throw";
+
+  case arcana::Node::var:
+    return "var";
+
+  case arcana::Node::konst:
+    return "const";
+
+  case Node::cond:
+    return "cond";
+
+  case Node::cond_if:
+    return "if";
+
+  case Node::cond_else:
+    return "else";
+
+  case Node::cond_else_if:
+    return "elif";
+
+  case Node::expr:
+    return "expr";
+
+  case Node::member:
+    return "member";
+
+  case Node::eq:
+    return "eq";
+
+  case Node::ne:
+    return "ne";
+
+  case Node::neg:
+    return "neg";
 
   default:
     return "!!!";

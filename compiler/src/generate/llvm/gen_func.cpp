@@ -72,9 +72,16 @@ void GenFunc::gen_body(Ast::Node body) {
 
   if (body.child) {
     Ast::Node expr = _llvm.ast[body.child];
-    do {
+
+    while (true) {
       gen_stmt(expr);
-    } while (expr.next);
+
+      if (!expr.next) {
+        break;
+      }
+
+      expr = _llvm.ast[expr.next];
+    }
   }
 
   _llvm.out << "}" << std::endl;
