@@ -183,10 +183,6 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     check_keyword("let", let);
     break;
 
-  case 't':
-    check_keyword("true", bool_t);
-    break;
-
   case 'm':
     check_keyword("module", module);
     check_keyword("mut", mut);
@@ -211,6 +207,11 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
   case 's':
     check_keyword("struct", strukt);
+    break;
+
+  case 't':
+    check_keyword("true", bool_t);
+    check_keyword("throw", ret_err);
     break;
 
   case 'v':

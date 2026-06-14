@@ -69,6 +69,7 @@ __attribute__((constructor)) void init_table() {
   sigil_table_push(&token_table, "if");   // push_str(cond);      // if
   sigil_table_push(&token_table, "else"); // push_str(otherwise); // else
   push_str(ret);
+  push_str(ret_err);
 
   push_str(dot);
 

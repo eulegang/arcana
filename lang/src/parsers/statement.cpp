@@ -20,12 +20,26 @@ sigil_state parse_block(sigil_state state) {
       cur = sigil_state_node(state, cur->next);
     }
 
-    if (token_is(semi)) {
-      next_token();
-    } else {
-      check_token(rbrace);
-      next_token();
-    }
+    // if (token_is(semi)) {
+    //   next_token();
+    // } else {
+    //   check_token(rbrace);
+    //   next_token();
+    // }
+  }
+
+  state.subroot = id;
+  return state;
+}
+
+sigil_state parse_ret_err(sigil_state state) {
+  check_token(ret_err);
+  next_token();
+
+  auto [id, root] = alloc_node(ret_err);
+
+  if (!token_is(semi)) {
+    run_subparser(root, parse_expr, child);
   }
 
   state.subroot = id;
@@ -38,7 +52,9 @@ sigil_state parse_ret(sigil_state state) {
 
   auto [id, root] = alloc_node(ret);
 
-  run_subparser(root, parse_expr, child);
+  if (!token_is(semi)) {
+    run_subparser(root, parse_expr, child);
+  }
 
   state.subroot = id;
   return state;
@@ -77,10 +93,22 @@ sigil_state parse_statement(sigil_state state) {
 
   switch ((Token)token.type) {
   case Token::ret:
-    return parse_ret(state);
+    state = parse_ret(state);
+    check_token(semi);
+    next_token();
+    return state;
+
+  case Token::ret_err:
+    state = parse_ret_err(state);
+    check_token(semi);
+    next_token();
+    return state;
 
   case Token::ident:
-    return parse_binding(state);
+    state = parse_binding(state);
+    check_token(semi);
+    next_token();
+    return state;
 
   case Token::cond_if:
     return parse_cond(state);

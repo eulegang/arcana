@@ -64,6 +64,7 @@ enum class Token : sigil_token_type {
   cond,      // if
   otherwise, // else
   ret,
+  ret_err,
 
   dot,
 

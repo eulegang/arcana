@@ -45,6 +45,7 @@ enum class Node : uint16_t {
 
   block,
   ret,
+  ret_err,
   var,
   konst,
 

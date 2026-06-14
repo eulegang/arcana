@@ -16,12 +16,6 @@ sigil_state parse_cond(sigil_state state) {
 
   run_subparser(expr, parse_block, next);
 
-  // if (!token_is(cond_else)) {
-  //   state.subroot = id;
-  //   return state;
-  // }
-  //
-
   sigil_node *cur = if_node;
   while (token_is(cond_else)) {
     next_token();
