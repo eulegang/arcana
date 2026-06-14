@@ -26,6 +26,9 @@ __attribute__((constructor)) void init_table() {
   push_str(var);
   push_str(mut);
 
+  push_str(cond_if);
+  push_str(cond_else);
+
   push_str(integer);
   push_str(str);
 
@@ -66,6 +69,8 @@ __attribute__((constructor)) void init_table() {
   sigil_table_push(&token_table, "if");   // push_str(cond);      // if
   sigil_table_push(&token_table, "else"); // push_str(otherwise); // else
   push_str(ret);
+
+  push_str(dot);
 
   push_str(bool_t);
   push_str(bool_f);

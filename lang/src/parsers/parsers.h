@@ -58,6 +58,15 @@ typedef uint16_t data_id;
 #define token_is(Type) ((Token)sigil_state_token(state).type == Token::Type)
 
 namespace arcana {
+enum class expr_perc : size_t {
+  LOWEST,
+
+  dot,
+  call,
+
+  HIGHEST,
+};
+
 sigil_state parse_bitset(sigil_state state);
 sigil_state parse_ident(sigil_state state);
 sigil_state parse_lit(sigil_state state);
@@ -69,11 +78,17 @@ sigil_state parse_struct(sigil_state state);
 sigil_state parse_alias(sigil_state state);
 
 sigil_state parse_func(sigil_state state);
+sigil_state parse_foreign(sigil_state state);
 sigil_state parse_func_type(sigil_state state);
 
 sigil_state parse_block(sigil_state state);
 sigil_state parse_statement(sigil_state state);
+sigil_state parse_cond(sigil_state state);
+
 sigil_state parse_expr(sigil_state state);
+sigil_state parse_group(sigil_state state);
+sigil_state parse_func_call(sigil_state state, sigil_node_id);
+sigil_state parse_member(sigil_state state, sigil_node_id);
 
 sigil_state parse_type(sigil_state state);
 

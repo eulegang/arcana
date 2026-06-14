@@ -1,4 +1,5 @@
 #include "../arcana.h"
+#include "../parsers/parsers.h"
 #include <cstdint>
 #include <sigil.h>
 
@@ -27,6 +28,18 @@ sigil_state parse_lit(sigil_state state) {
     return state;
     break;
   }
+
+  return state;
+}
+
+sigil_state parse_group(sigil_state state) {
+  check_token(lparen);
+  next_token();
+
+  state = parse_expr(state);
+
+  check_token(rparen);
+  next_token();
 
   return state;
 }

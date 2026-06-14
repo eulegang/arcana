@@ -30,9 +30,12 @@ enum class Node : uint16_t {
   fn_params,
   fn_param,
   fn_ret,
+  foreign,
+  fn_call,
 
   literal,
   integer,
+  str,
 
   ty, // a type slot
 
@@ -42,8 +45,16 @@ enum class Node : uint16_t {
 
   block,
   ret,
+  var,
+  konst,
+
+  cond,
+  cond_if,
+  cond_else,
+  cond_else_if,
 
   expr,
+  member,
 };
 
 const char *node_name(const Node &);

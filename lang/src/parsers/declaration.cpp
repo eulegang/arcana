@@ -43,6 +43,11 @@ sigil_state parse_declaration(sigil_state state) {
       scanning = false;
       break;
 
+    case Token::foreign:
+      state = parse_foreign(begin);
+      scanning = false;
+      break;
+
     default:
       state.status |= 4;
       return state;

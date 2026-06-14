@@ -169,18 +169,17 @@ bool llvm::has_main() {
 void llvm::gen_main() {
   out << "define i32 @main(i64 %argc, ptr %argv) {" << std::endl;
   out << "  %1 = alloca {ptr, i64}" << std::endl;
-  out << "  %2 = getelementptr {ptr, i64}, {ptr, i64}* %1, i32 0, i32 0"
-      << std::endl;
 
+  out << "  %2 = getelementptr {ptr, i64}, ptr %1, i32 0, i32 0" << std::endl;
   out << "  store ptr %argv, ptr %2" << std::endl;
 
-  out << "  %3 = getelementptr {ptr, i64}, {ptr, i64}* %1, i32 0, i32 0"
-      << std::endl;
-
+  out << "  %3 = getelementptr {ptr, i64}, ptr %1, i32 0, i32 1" << std::endl;
   out << "  store i64 %argc, ptr %3" << std::endl;
 
-  out << "  %4 = call i32 @arcana.main({ptr, i64}* %1)" << std::endl;
-  out << "  ret i32 %4" << std::endl;
+  out << "  %4 = load {ptr, i64}, ptr %1" << std::endl;
+
+  out << "  %5 = call i32 @arcana.main({ptr, i64} %4)" << std::endl;
+  out << "  ret i32 %5" << std::endl;
   out << "}" << std::endl;
 }
 

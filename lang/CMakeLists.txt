@@ -18,6 +18,8 @@ add_library(
   src/parsers/func.cpp
   src/parsers/statement.cpp
   src/parsers/expr.cpp
+  src/parsers/member.cpp
+  src/parsers/cond.cpp
 
   src/pass/name.cpp
   src/pass/types.cpp

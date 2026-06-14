@@ -2,12 +2,6 @@
 #include <sigil.h>
 
 namespace arcana {
-enum class expr_perc : size_t {
-  LOWEST,
-
-  HIGHEST,
-};
-
 sigil_parser *expr_parser;
 
 sigil_state parse_expr(sigil_state state) {
@@ -42,6 +36,20 @@ void init_expr_parser(void) {
       .postfix = 0,
       .infix = 0,
       .perc = 0,
+  };
+
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::dot] = {
+      .prefix = 0,
+      .postfix = 0,
+      .infix = parse_member,
+      .perc = (size_t)expr_perc::dot,
+  };
+
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::lparen] = {
+      .prefix = parse_group,
+      .postfix = 0,
+      .infix = parse_func_call,
+      .perc = (size_t)expr_perc::call,
   };
 }
 

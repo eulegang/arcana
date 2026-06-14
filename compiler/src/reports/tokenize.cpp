@@ -10,9 +10,9 @@ void report::tokens(const sigil::Tokens<arcana::Token> &tokens) {
 
   for (size_t i = 0; i < len; i++) {
     arcana::Token type = tokens[i].type;
-    std::string_view text = tokens.content(i);
 
     if (verbose) {
+      std::string_view text = tokens.content(i);
       sigil_linemeta meta = tokens.linemeta(i);
       std::cout << chroma::cyan << i << "\t";
       std::cout << token_color(type) << type << "\t";
@@ -41,6 +41,7 @@ chroma::basic_t token_color(arcana::Token type) {
   case arcana::Token::module:
   case arcana::Token::priv:
   case arcana::Token::foreign:
+  case arcana::Token::dot:
     return chroma::purple;
 
   case arcana::Token::cond:

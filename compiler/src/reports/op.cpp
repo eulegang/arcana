@@ -24,6 +24,7 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
   case arcana::Node::bs:
   case arcana::Node::bs_case:
   case arcana::Node::fn:
+  case arcana::Node::foreign:
   case arcana::Node::fn_params:
   case arcana::Node::fn_param:
   case arcana::Node::fn_ret:
@@ -36,6 +37,7 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
 
   case arcana::Node::literal:
   case arcana::Node::integer:
+  case arcana::Node::str:
   case arcana::Node::array:
     out << chroma::blue;
     break;

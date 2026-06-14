@@ -1,4 +1,5 @@
 #include "parsers.h"
+#include <sigil.h>
 
 namespace arcana {
 sigil_state parse_block(sigil_state state) {
@@ -43,12 +44,46 @@ sigil_state parse_ret(sigil_state state) {
   return state;
 }
 
+sigil_state parse_binding(sigil_state state) {
+  check_token(ident);
+  next_token();
+
+  check_token(colon);
+  next_token();
+
+  auto [id, root] = alloc_node(konst);
+
+  if (!token_is(colon) && !token_is(assign)) {
+    run_subparser(root, parse_type, child);
+  } else {
+    auto [x, infer_node] = alloc_node(infer_type);
+    root->child = x;
+  }
+
+  if (token_is(assign)) {
+    root->type = node_code(var);
+  }
+  next_token();
+
+  sigil_node *type_node = sigil_state_node(state, root->child);
+  run_subparser(type_node, parse_expr, next);
+
+  state.subroot = id;
+  return state;
+}
+
 sigil_state parse_statement(sigil_state state) {
   sigil_token token = sigil_state_token(state);
 
   switch ((Token)token.type) {
   case Token::ret:
     return parse_ret(state);
+
+  case Token::ident:
+    return parse_binding(state);
+
+  case Token::cond_if:
+    return parse_cond(state);
 
   default:
     state.status |= 4;

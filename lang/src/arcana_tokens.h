@@ -22,6 +22,9 @@ enum class Token : sigil_token_type {
   var,
   mut,
 
+  cond_if,
+  cond_else,
+
   integer,
   str,
 
@@ -61,6 +64,8 @@ enum class Token : sigil_token_type {
   cond,      // if
   otherwise, // else
   ret,
+
+  dot,
 
   bool_t,
   bool_f,

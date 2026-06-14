@@ -165,6 +165,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
 
   case 'e':
     check_keyword("enum", enumeration);
+    check_keyword("else", cond_else);
     break;
 
   case 'f':
@@ -172,6 +173,10 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     check_keyword("func", func);
     check_keyword("false", bool_f);
     check_keyword("foreign", foreign);
+    break;
+
+  case 'i':
+    check_keyword("if", cond_if);
     break;
 
   case 'l':
@@ -254,6 +259,10 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
   case '+':
     check_keyword("+=", plus_assign);
     *token_type = token(plus);
+    return 1;
+
+  case '.':
+    *token_type = token(dot);
     return 1;
   }
 

@@ -43,6 +43,12 @@ const char *node_name(const Node &node) {
   case arcana::Node::fn:
     return "func";
 
+  case arcana::Node::foreign:
+    return "foreign";
+
+  case arcana::Node::fn_call:
+    return "call";
+
   case arcana::Node::fn_params:
     return "params";
 
@@ -57,6 +63,9 @@ const char *node_name(const Node &node) {
 
   case arcana::Node::integer:
     return "integer";
+
+  case arcana::Node::str:
+    return "str";
 
   case arcana::Node::infer_type:
     return "infer";

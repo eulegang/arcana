@@ -6,6 +6,7 @@
 struct ctx {
   std::ostream *out;
   const sigil::Tokens<arcana::Token> &tokens;
+  const arcana::Ast &ast;
 };
 
 void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *data,
@@ -17,12 +18,13 @@ void report::ast(const sigil::Tokens<arcana::Token> &tokens,
   ctx ctx = {
       .out = out,
       .tokens = tokens,
+      .ast = tree,
   };
 
   tree.visit(&ctx, dump_nodes);
 }
 
-void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *data,
+void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
                 size_t level, ctx *ctx) {
 
   auto &out = *ctx->out;
@@ -38,21 +40,28 @@ void dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *data,
 
     switch (ty) {
     case arcana::Node::ident:
-      idx = *(uint16_t *)data;
+      idx = ctx->ast.span(id).start;
       ident = ctx->tokens.content(idx);
 
       out << " " << chroma::cyan << ident;
       break;
 
     case arcana::Node::integer:
-      idx = *(uint16_t *)data;
+      idx = ctx->ast.span(id).start;
+      ident = ctx->tokens.content(idx);
+
+      out << " " << chroma::cyan << ident;
+      break;
+
+    case arcana::Node::str:
+      idx = ctx->ast.span(id).start;
       ident = ctx->tokens.content(idx);
 
       out << " " << chroma::cyan << ident;
       break;
 
     case arcana::Node::array:
-      idx = *(uint16_t *)data;
+      idx = ctx->ast.span(id).start;
       ident = ctx->tokens.content(idx);
 
       out << " " << chroma::cyan << ident;
