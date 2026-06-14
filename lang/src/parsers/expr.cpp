@@ -45,6 +45,27 @@ void init_expr_parser(void) {
       .perc = (size_t)expr_perc::dot,
   };
 
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::eq] = {
+      .prefix = 0,
+      .postfix = 0,
+      .infix = parse_binop,
+      .perc = (size_t)expr_perc::cmp,
+  };
+
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::ne] = {
+      .prefix = 0,
+      .postfix = 0,
+      .infix = parse_binop,
+      .perc = (size_t)expr_perc::cmp,
+  };
+
+  sigil_parser_slots(expr_parser)[(uint16_t)Token::minus] = {
+      .prefix = parse_preop,
+      .postfix = 0,
+      .infix = 0,
+      .perc = (size_t)expr_perc::addsub,
+  };
+
   sigil_parser_slots(expr_parser)[(uint16_t)Token::lparen] = {
       .prefix = parse_group,
       .postfix = 0,

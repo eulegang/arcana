@@ -64,6 +64,10 @@ enum class expr_perc : size_t {
   dot,
   call,
 
+  cmp,
+
+  addsub,
+
   HIGHEST,
 };
 
@@ -89,6 +93,8 @@ sigil_state parse_expr(sigil_state state);
 sigil_state parse_group(sigil_state state);
 sigil_state parse_func_call(sigil_state state, sigil_node_id);
 sigil_state parse_member(sigil_state state, sigil_node_id);
+sigil_state parse_binop(sigil_state state, sigil_node_id);
+sigil_state parse_preop(sigil_state state);
 
 sigil_state parse_type(sigil_state state);
 

@@ -55,6 +55,11 @@ enum class Node : uint16_t {
 
   expr,
   member,
+
+  eq,
+  ne,
+  neg,
+
 };
 
 const char *node_name(const Node &);

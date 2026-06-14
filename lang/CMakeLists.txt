@@ -20,6 +20,7 @@ add_library(
   src/parsers/expr.cpp
   src/parsers/member.cpp
   src/parsers/cond.cpp
+  src/parsers/binop.cpp
 
   src/pass/name.cpp
   src/pass/types.cpp
