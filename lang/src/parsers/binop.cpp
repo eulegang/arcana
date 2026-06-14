@@ -28,13 +28,14 @@ sigil_state parse_binop(sigil_state state, sigil_node_id priv) {
 
   state = sigil_parser_parse_expr(expr_parser, state, (size_t)perc);
 
+  sigil_state_node(state, root->child)->next = state.subroot;
+
   state.subroot = id;
   return state;
 }
 
 sigil_state parse_preop(sigil_state state) {
   auto [id, root] = alloc_node(ident);
-  // sigil_state_node(state, priv)->next = id;
 
   expr_perc perc = expr_perc::LOWEST;
   switch ((Token)sigil_state_token(state).type) {

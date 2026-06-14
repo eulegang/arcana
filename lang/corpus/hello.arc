@@ -1,7 +1,7 @@
 foreign "write" func cwrite(u32, *u8, u64) -> i64;
 
 func write(fd: u32, slice: []u8) -> void!i64{
-  n := cwrite(fd, slice.data, slice.ptr);
+  n := cwrite(fd, slice.data, slice.len);
   if n == -1 {
     throw;
   }

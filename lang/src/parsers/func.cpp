@@ -119,11 +119,11 @@ sigil_state parse_foreign(sigil_state state) {
   root->child = cname_id;
   if (c_ident) {
     cname_node->type = node_code(str);
-    sigil_state_span(state, cname_id, {state.token_cursor, state.token_cursor});
+    sigil_state_span(state, cname_id, {c_ident, c_ident});
   }
 
   run_subparser(cname_node, parse_ident, next);
-  sigil_node *ident = sigil_state_node(state, root->child);
+  sigil_node *ident = sigil_state_node(state, cname_node->next);
 
   auto [params_id, params] = alloc_node(fn_params);
   ident->next = params_id;
