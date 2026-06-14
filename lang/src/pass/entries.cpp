@@ -9,8 +9,19 @@ void arcana::pass::EntryPass::visit(sigil_node_id cur) {
   switch (node.type) {
   case Node::fn:
     entries.bodies.push_back(entry::Body{cur});
+    break;
+
+  case Node::foreign:
+    entries.foreigns.push_back(entry::Foreign{cur});
+    break;
 
   default:
     break;
   }
+
+  if (node.child)
+    visit(node.child);
+
+  if (node.next)
+    visit(node.next);
 }
