@@ -16,6 +16,8 @@ add_executable(
   src/reports/resolve.cpp
 
   src/generate/llvm.cpp
+  src/generate/emitter.cpp
+  src/generate/def-emitter.cpp
   src/generate/llvm/types.cpp
   src/generate/llvm/gen_func.cpp
 )
