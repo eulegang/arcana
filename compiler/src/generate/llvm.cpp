@@ -16,6 +16,7 @@ using arcana::Ast;
 
 void llvm::generate() {
   gen_types();
+  gen_foreigns();
   gen_fns();
 
   if (has_main()) {
@@ -59,6 +60,12 @@ void llvm::gen_types() {
 void llvm::gen_fns() {
   for (const auto &f : entries.bodies) {
     gen_func(f.id);
+  }
+}
+
+void llvm::gen_foreigns() {
+  for (const auto &f : entries.foreigns) {
+    gen_foreign(f.id);
   }
 }
 
@@ -188,5 +195,4 @@ void llvm::gen_main() {
 
   sub.ret({"i32", res});
 }
-
 } // namespace gen

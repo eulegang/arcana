@@ -39,10 +39,16 @@ template <typename T> struct Typed {
   T value;
 };
 
+struct Declaration {
+  std::string ret;
+  std::string name;
+  std::vector<std::string> args;
+};
+
 struct Definition {
   std::string ret;
   std::string name;
-  std::vector<std::pair<std::string, std::string>> args;
+  std::vector<Typed<Reg>> args;
 
   class Emitter {
     std::ostream &out;
@@ -67,6 +73,7 @@ struct Emitter {
   Emitter(std::ostream &out) : out{out} {}
 
   Definition::Emitter define(const Definition &def);
+  void declare(const Declaration &declare);
 };
 
 struct generator {
@@ -105,12 +112,15 @@ struct llvm : generator {
 
   void gen_types();
   void gen_fns();
+  void gen_foreigns();
+
   void gen(uint16_t, arcana::types::type_id, arcana::types::BitSet &);
   void gen(uint16_t, arcana::types::type_id, arcana::types::Enumeration &);
   void gen(uint16_t, arcana::types::type_id, arcana::types::Struct &);
   void gen(uint16_t, arcana::types::type_id, arcana::types::Alias &);
 
   void gen_func(uint16_t);
+  void gen_foreign(sigil_node_id);
 
   std::string fn_name(arcana::types::Fn);
   std::string type_name(arcana::types::type_id);

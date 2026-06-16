@@ -20,6 +20,7 @@ add_executable(
   src/generate/def-emitter.cpp
   src/generate/llvm/types.cpp
   src/generate/llvm/gen_func.cpp
+  src/generate/llvm/gen_foreign.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../lang/src)

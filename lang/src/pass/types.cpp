@@ -105,6 +105,7 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = alias;
   } break;
 
+  case Node::foreign:
   case Node::fn: {
     type_id tid = resolve_type(0, cur);
     *overlay.alloc(cur) = tid;
@@ -380,6 +381,23 @@ type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
     return tid;
   }
 
+  if (node.type == Node::foreign) {
+    types::Fn new_fn = gen_fn(context, cur);
+
+    uint32_t id = 0;
+    for (const auto &fn : base.fns) {
+      if (fn == new_fn) {
+        return type_id(type_id::cat::fn, id);
+      }
+
+      id++;
+    }
+    type_id tid = type_id(type_id::cat::fn, base.fns.size());
+    base.fns.push_back(new_fn);
+
+    return tid;
+  }
+
   return type_id();
 }
 
@@ -400,6 +418,9 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
   Ast::Node fn = ast[cur];
 
   Ast::Node args = ast[fn.child];
+  if (args.type == Node::str)
+    args = ast[args.next];
+
   if (args.type == Node::ident)
     args = ast[args.next];
 

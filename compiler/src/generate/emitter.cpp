@@ -4,25 +4,35 @@ namespace gen {
 Definition::Emitter Emitter::define(const Definition &def) {
   out << "define " << def.ret << " @" << def.name << "(";
 
-  auto x = def.args.begin();
+  auto it = def.args.begin();
 
-  if (x != def.args.end()) {
-    auto [type, name] = *x;
-    out << type << " %" << name;
+  if (it != def.args.end()) {
+    out << *it++;
   }
 
-  while (x != def.args.end()) {
-    out << ", ";
-
-    auto [type, name] = *x;
-    out << type << " %" << name;
-
-    x++;
+  while (it != def.args.end()) {
+    out << ", " << *it++;
   }
 
   out << ") {" << std::endl;
 
   return Definition::Emitter{out};
+}
+
+void Emitter::declare(const Declaration &declare) {
+  out << "declare " << declare.ret << " @" << declare.name << "(";
+
+  auto it = declare.args.begin();
+
+  if (it != declare.args.end()) {
+    out << *it++;
+  }
+
+  while (it != declare.args.end()) {
+    out << ", " << *it++;
+  }
+
+  out << ")" << std::endl;
 }
 
 } // namespace gen
