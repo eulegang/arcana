@@ -70,10 +70,10 @@ sigil_state parse_binding(sigil_state state) {
   next_token();
 
   if (!token_is(colon) && !token_is(assign)) {
-    run_subparser(ident, parse_type, child);
+    run_subparser(ident, parse_type, next);
   } else {
     auto [x, infer_node] = alloc_node(infer_type);
-    ident->child = x;
+    ident->next = x;
   }
 
   if (token_is(assign)) {
@@ -81,7 +81,7 @@ sigil_state parse_binding(sigil_state state) {
   }
   next_token();
 
-  sigil_node *type_node = sigil_state_node(state, root->child);
+  sigil_node *type_node = sigil_state_node(state, ident->next);
   run_subparser(type_node, parse_expr, next);
 
   state.subroot = id;
