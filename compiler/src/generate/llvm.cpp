@@ -17,6 +17,7 @@ using arcana::Ast;
 void llvm::generate() {
   gen_types();
   gen_foreigns();
+  gen_constvars();
   gen_fns();
 
   if (has_main()) {
@@ -66,6 +67,12 @@ void llvm::gen_fns() {
 void llvm::gen_foreigns() {
   for (const auto &f : entries.foreigns) {
     gen_foreign(f.id);
+  }
+}
+
+void llvm::gen_constvars() {
+  for (const auto &f : entries.constvar) {
+    gen_constvar(f.id);
   }
 }
 

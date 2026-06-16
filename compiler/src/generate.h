@@ -74,6 +74,8 @@ struct Emitter {
 
   Definition::Emitter define(const Definition &def);
   void declare(const Declaration &declare);
+
+  void global(std::string name, Typed<Lit> lit);
 };
 
 struct generator {
@@ -113,6 +115,7 @@ struct llvm : generator {
   void gen_types();
   void gen_fns();
   void gen_foreigns();
+  void gen_constvars();
 
   void gen(uint16_t, arcana::types::type_id, arcana::types::BitSet &);
   void gen(uint16_t, arcana::types::type_id, arcana::types::Enumeration &);
@@ -120,6 +123,7 @@ struct llvm : generator {
   void gen(uint16_t, arcana::types::type_id, arcana::types::Alias &);
 
   void gen_func(uint16_t);
+  void gen_constvar(uint16_t);
   void gen_foreign(sigil_node_id);
 
   std::string fn_name(arcana::types::Fn);

@@ -35,4 +35,8 @@ void Emitter::declare(const Declaration &declare) {
   out << ")" << std::endl;
 }
 
+void Emitter::global(std::string name, Typed<Lit> lit) {
+  out << "@" << name << " = " << lit << std::endl;
+}
+
 } // namespace gen

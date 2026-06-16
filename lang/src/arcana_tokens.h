@@ -58,7 +58,7 @@ enum class Token : sigil_token_type {
   rbracket,
 
   arrow,
-  dcolon,
+  // dcolon,
   colon,
 
   cond,      // if

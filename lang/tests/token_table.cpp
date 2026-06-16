@@ -71,7 +71,7 @@ TEST(token_table, exact_match) {
   check(rbracket);
 
   check(arrow);
-  check(dcolon);
+  // check(dcolon);
   check(colon);
 
   ss.str("");

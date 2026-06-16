@@ -91,7 +91,7 @@ chroma::basic_t token_color(arcana::Token type) {
   case arcana::Token::lbracket:
   case arcana::Token::rbracket:
   case arcana::Token::arrow:
-  case arcana::Token::dcolon:
+  // case arcana::Token::dcolon:
   case arcana::Token::colon:
     return chroma::yellow;
   }

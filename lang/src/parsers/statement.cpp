@@ -62,18 +62,18 @@ sigil_state parse_ret(sigil_state state) {
 
 sigil_state parse_binding(sigil_state state) {
   check_token(ident);
-  next_token();
+  auto [id, root] = alloc_node(konst);
+  run_subparser(root, parse_ident, child);
+  sigil_node *ident = sigil_state_node(state, root->child);
 
   check_token(colon);
   next_token();
 
-  auto [id, root] = alloc_node(konst);
-
   if (!token_is(colon) && !token_is(assign)) {
-    run_subparser(root, parse_type, child);
+    run_subparser(ident, parse_type, child);
   } else {
     auto [x, infer_node] = alloc_node(infer_type);
-    root->child = x;
+    ident->child = x;
   }
 
   if (token_is(assign)) {

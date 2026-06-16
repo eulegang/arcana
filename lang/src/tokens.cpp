@@ -219,7 +219,7 @@ ssize_t tokenizer(size_t cur, sigil_slice content, arcana::Token *token_type) {
     break;
 
   case ':':
-    check_keyword("::", dcolon);
+    // check_keyword("::", dcolon);
     *token_type = token(colon);
     return 1;
 

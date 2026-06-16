@@ -14,13 +14,14 @@ struct Body {
   sigil_node_id id;
 };
 
-struct Const {
+struct ConstVar {
   sigil_node_id id;
 };
 
 struct Entries {
   std::vector<Foreign> foreigns;
   std::vector<Body> bodies;
+  std::vector<ConstVar> constvar;
 };
 } // namespace entry
 } // namespace arcana

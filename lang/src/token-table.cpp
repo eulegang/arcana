@@ -63,7 +63,7 @@ __attribute__((constructor)) void init_table() {
   push_str(rbracket);
 
   push_str(arrow);
-  push_str(dcolon);
+  // push_str(dcolon);
   push_str(colon);
 
   sigil_table_push(&token_table, "if");   // push_str(cond);      // if

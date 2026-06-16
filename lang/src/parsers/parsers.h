@@ -89,6 +89,7 @@ sigil_state parse_block(sigil_state state);
 sigil_state parse_statement(sigil_state state);
 sigil_state parse_cond(sigil_state state);
 
+sigil_state parse_binding(sigil_state state);
 sigil_state parse_expr(sigil_state state);
 sigil_state parse_group(sigil_state state);
 sigil_state parse_func_call(sigil_state state, sigil_node_id);

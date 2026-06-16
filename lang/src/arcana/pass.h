@@ -34,13 +34,14 @@ private:
 };
 
 class EntryPass : Pass {
+  bool in_func;
   void visit(sigil_node_id id);
 
 public:
   entry::Entries &entries;
 
   EntryPass(const Tokens &tokens, const Ast &ast, entry::Entries &entries)
-      : Pass{tokens, ast}, entries{entries} {}
+      : Pass{tokens, ast}, in_func{false}, entries{entries} {}
 
   void run() override;
 };
