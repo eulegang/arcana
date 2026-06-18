@@ -1,6 +1,8 @@
 #include "arcana/types.h"
 #include "../generate.h"
 
+#include <sstream>
+
 using namespace arcana::types;
 using Ast = arcana::Ast;
 
@@ -84,6 +86,45 @@ void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
 }
 
 void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
-                              const arcana::types::Struct &bs) {}
+                              const arcana::types::Struct &st) {
+  Ast::Node st_node = unit.ast[node];
+  std::string tname = std::format("$arcana.{}", name_of(unit, st_node.child));
+
+  std::stringstream out;
+  out << "{ ";
+
+  // out << "%" << tname << " = type { ";
+
+  auto it = st.fields.begin();
+
+  if (it != st.fields.end()) {
+    out << type_name(unit, (*it++).ty);
+  }
+
+  while (it != st.fields.end()) {
+    out << ", " << type_name(unit, (*it++).ty);
+  }
+
+  out << " }";
+
+  emitter.type(tname, out.str());
+}
 void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
-                              const arcana::types::Alias &bs) {}
+                              const arcana::types::Alias &alias) {
+
+  std::string tname = std::format("$arcana.{}", name_of(unit, node));
+
+  switch (alias.id.category()) {
+  case type_id::cat::meta:
+  case type_id::cat::bs:
+  case type_id::cat::en:
+  case type_id::cat::st:
+  case type_id::cat::derive:
+    return;
+  case type_id::cat::fn:
+  case type_id::cat::alias:
+  case type_id::cat::prim:
+    emitter.type(tname, type_name(unit, alias.id));
+    break;
+  }
+}
