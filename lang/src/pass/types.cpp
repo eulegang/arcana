@@ -88,21 +88,24 @@ void TypeDefPass::visit(uint16_t cur) {
     auto [id, st] = base.generate<types::Struct>();
     ids.push_back(std::make_pair(cur, id));
     *overlay.alloc(cur) = id;
-
-    if (node.child) {
-      visit_st(cur, node.child, st);
-    }
+    visit_st(cur, cur, st);
 
     return;
   } break;
 
   case Node::alias: {
-    type_id tid = resolve_type(cur, node.child);
+    Ast::Node ident = ast[node.child];
+    type_id tid = resolve_type(cur, ident.next);
     type_id alias = type_id(type_id::cat::alias, base.aliases.size());
     base.aliases.push_back({.id = tid});
     ids.push_back(std::make_pair(cur, alias));
 
     *overlay.alloc(cur) = alias;
+    *overlay.alloc(ident.next) = tid;
+
+    if (node.next)
+      visit(node.next);
+    return;
   } break;
 
   case Node::foreign:
@@ -277,11 +280,13 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
 }
 
 void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
-  const Ast::Node root_ident = ast[cur];
-  const Ast::Node fields = ast[root_ident.next];
+  const Ast::Node root = ast[cur];
+  const Ast::Node ident = ast[root.child];
+  const Ast::Node fields = ast[ident.next];
 
   if (fields.type != Node::st_fields) {
-    visit(cur);
+    return;
+    // visit(cur);
   }
 
   if (fields.child) {
@@ -305,11 +310,8 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
     }
   }
 
-  if (fields.next)
-    visit(fields.next);
-
-  if (fields.child)
-    visit(fields.child);
+  if (root.next)
+    visit(root.next);
 }
 
 type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {

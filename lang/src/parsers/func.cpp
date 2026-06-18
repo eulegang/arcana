@@ -70,6 +70,47 @@ sigil_state parse_func_type(sigil_state state) {
 
   auto [id, root] = alloc_node(fn);
 
+  auto [params_id, params] = alloc_node(fn_params);
+  root->child = params_id;
+  check_token(lparen);
+  next_token();
+
+  sigil_node *cur = params;
+  while (true) {
+    loop_terminal_token(rparen);
+
+    check_token(ident);
+
+    auto [param_id, param] = alloc_node(fn_param);
+    if (cur == params) {
+      cur->child = param_id;
+    } else {
+      cur->next = param_id;
+    }
+
+    cur = param;
+
+    if (token_is(ident)) {
+      run_subparser(param, parse_ident, child);
+
+      check_token(colon);
+      next_token();
+      sigil_node *ident = sigil_state_node(state, param->child);
+
+      run_subparser(ident, parse_type, next);
+    } else {
+      run_subparser(param, parse_type, next);
+    }
+
+    if (token_is(comma)) {
+      next_token();
+    } else {
+      check_token(rparen);
+    }
+  }
+
+  run_subparser(params, parse_func_sig_ret, next);
+
   state.subroot = id;
   return state;
 }

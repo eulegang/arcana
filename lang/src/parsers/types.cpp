@@ -146,6 +146,13 @@ void init_type_parser(void) {
       .perc = 0,
   };
 
+  sigil_parser_slots(type_parser)[(uint16_t)Token::func] = {
+      .prefix = parse_func_type,
+      .postfix = 0,
+      .infix = 0,
+      .perc = 0,
+  };
+
   sigil_parser_slots(type_parser)[(uint16_t)Token::fn] = {
       .prefix = parse_func_type,
       .postfix = 0,

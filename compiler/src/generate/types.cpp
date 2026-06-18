@@ -11,36 +11,41 @@ void gen::TypesComponent::generate() { visit(0); }
 void gen::TypesComponent::visit(sigil_node_id cur) {
   Ast::Node node = unit.ast[cur];
 
+  bool stop = false;
   auto data = unit.overlays.types.resolve(cur);
 
   if (data) {
     auto tid = *data;
     switch (tid.category()) {
-    case type_id::cat::meta:
     case type_id::cat::bs:
       gen(cur, tid, unit.types.lookup<BitSet>(tid));
+      stop = true;
       break;
 
     case type_id::cat::en:
       gen(cur, tid, unit.types.lookup<Enumeration>(tid));
+      stop = true;
       break;
 
     case type_id::cat::st:
       gen(cur, tid, unit.types.lookup<Struct>(tid));
+      stop = true;
       break;
 
     case type_id::cat::alias:
       gen(cur, tid, unit.types.lookup<Alias>(tid));
+      stop = true;
       break;
 
     case type_id::cat::prim:
     case type_id::cat::derive:
+    case type_id::cat::meta:
     case type_id::cat::fn:
       break;
     }
   }
 
-  if (node.child) {
+  if (!stop && node.child) {
     visit(node.child);
   }
 
@@ -93,8 +98,6 @@ void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
   std::stringstream out;
   out << "{ ";
 
-  // out << "%" << tname << " = type { ";
-
   auto it = st.fields.begin();
 
   if (it != st.fields.end()) {
@@ -111,8 +114,9 @@ void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
 }
 void gen::TypesComponent::gen(sigil_node_id node, arcana::types::type_id,
                               const arcana::types::Alias &alias) {
+  Ast::Node root = unit.ast[node];
 
-  std::string tname = std::format("$arcana.{}", name_of(unit, node));
+  std::string tname = std::format("$arcana.{}", name_of(unit, root.child));
 
   switch (alias.id.category()) {
   case type_id::cat::meta:

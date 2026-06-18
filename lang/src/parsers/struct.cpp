@@ -66,7 +66,7 @@ sigil_state parse_alias(sigil_state state) {
   check_token(assign);
   next_token();
 
-  sigil_node *ident = sigil_state_node(state, id);
+  sigil_node *ident = sigil_state_node(state, root->child);
   run_subparser(ident, parse_type, next);
 
   check_token(semi);
