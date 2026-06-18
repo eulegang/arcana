@@ -1,6 +1,6 @@
 #include "../generate.h"
 
-namespace gen {
+namespace lir {
 Definition::Emitter Emitter::define(const Definition &def) {
   out << "define " << def.ret << " @" << def.name << "(";
 
@@ -39,4 +39,8 @@ void Emitter::global(std::string name, Typed<Lit> lit) {
   out << "@" << name << " = " << lit << std::endl;
 }
 
-} // namespace gen
+void Emitter::type(std::string name, std::string type) {
+  out << "%" << name << " = type " << type << std::endl;
+}
+
+} // namespace lir

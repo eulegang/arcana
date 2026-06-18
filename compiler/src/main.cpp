@@ -3,6 +3,7 @@
 #include <getopt.h>
 
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string_view>
 
@@ -87,21 +88,37 @@ int main(int argc, char **argv) {
     return 0;
   }
 
+  gen::Unit unit{
+      tokens,
+      ast,
+      {
+          name_pass.overlay,
+          type_def.overlay,
+      },
+      syms,
+      base,
+      entries,
+  };
+
   if (stops == 16) {
     if (diagnostics) {
       report::diagnostics(path, tokens, diagnostics);
     }
 
-    gen::llvm g(std::cout, tokens, ast, name_pass, type_def, entries);
+    lir::Emitter emitter{std::cout};
+
+    gen::Generator g(emitter, unit);
     g.generate();
 
     return 0;
   }
 
   std::stringstream buf;
-  gen::llvm g(buf, tokens, ast, name_pass, type_def, entries);
-  g.generate();
+  lir::Emitter emitter{buf};
 
+  gen::Generator g(emitter, unit);
+
+  g.generate();
   assemble(buf.str(), output);
 
   if (diagnostics) {

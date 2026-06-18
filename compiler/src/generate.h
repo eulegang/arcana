@@ -8,79 +8,84 @@
 #include "arcana/entries.h"
 #include "arcana/pass.h"
 #include "arcana/types.h"
+#include "emitter.h"
 #include "symbol.h"
 
 namespace gen {
 
-struct Reg {
-  std::string name;
-
-  Reg(uint16_t reg) : name{std::format("%{}", reg)} {}
-  Reg(std::string reg) : name{std::format("%{}", reg)} {}
-  Reg(const char *reg) : name{std::format("%{}", reg)} {}
-};
-
-struct Global {
-  std::string name;
-
-  Global(std::string reg) : name{std::format("@{}", reg)} {}
-  Global(const char *reg) : name{std::format("@{}", reg)} {}
-};
-
-struct Lit {
-  std::string name;
-
-  Lit(uint16_t reg) : name{std::format("{}", reg)} {}
-  Lit(std::string reg) : name{std::format("{}", reg)} {}
-};
-
-template <typename T> struct Typed {
-  std::string type;
-  T value;
-};
-
-struct Declaration {
-  std::string ret;
-  std::string name;
-  std::vector<std::string> args;
-};
-
-struct Definition {
-  std::string ret;
-  std::string name;
-  std::vector<Typed<Reg>> args;
-
-  class Emitter {
-    std::ostream &out;
-    uint16_t cur_inst;
-
-  public:
-    Emitter(std::ostream &out) : out{out}, cur_inst{1} {}
-    ~Emitter();
-
-    Reg stack(std::string type);
-    Reg gep(std::string type, Reg ptr, uint32_t field);
-    void store(Reg dst, Typed<Reg> src);
-    Reg load(Typed<Reg> reg);
-    Reg call(Typed<Global> func, std::vector<Typed<Reg>> args);
-    void ret(Typed<Reg> ret);
+struct Unit {
+  struct Overlays {
+    const arcana::pass::NamePass::Overlay &names;
+    const arcana::pass::TypeDefPass::Overlay &types;
   };
+
+  const arcana::Tokens &tokens;
+  const arcana::Ast &ast;
+  const Overlays overlays;
+  const SymbolTable &symbols;
+  const arcana::types::Typebase &types;
+  const arcana::entry::Entries &entries;
 };
 
-struct Emitter {
-  std::ostream &out;
+struct GenComponent {
+  lir::Emitter &emitter;
+  Unit &unit;
 
-  Emitter(std::ostream &out) : out{out} {}
+  GenComponent(lir::Emitter &emitter, Unit &unit)
+      : emitter{emitter}, unit{unit} {}
 
-  Definition::Emitter define(const Definition &def);
-  void declare(const Declaration &declare);
-
-  void global(std::string name, Typed<Lit> lit);
+  virtual void generate() = 0;
 };
+
+struct EntryComponent : GenComponent {
+  bool has_main();
+  void gen_main();
+
+  void generate() override;
+  EntryComponent(lir::Emitter &emitter, Unit &unit)
+      : GenComponent{emitter, unit} {}
+};
+
+struct TypesComponent : GenComponent {
+  void generate() override;
+  TypesComponent(lir::Emitter &emitter, Unit &unit)
+      : GenComponent{emitter, unit} {}
+
+private:
+  void visit(sigil_node_id);
+  void gen(sigil_node_id, arcana::types::type_id,
+           const arcana::types::BitSet &);
+  void gen(sigil_node_id, arcana::types::type_id,
+           const arcana::types::Enumeration &);
+  void gen(sigil_node_id, arcana::types::type_id,
+           const arcana::types::Struct &);
+  void gen(sigil_node_id, arcana::types::type_id, const arcana::types::Alias &);
+};
+
+struct EntriesComponent : GenComponent {
+  void generate() override;
+  EntriesComponent(lir::Emitter &emitter, Unit &unit)
+      : GenComponent{emitter, unit} {}
+};
+
+struct ForeignComponent : GenComponent {
+  void generate() override;
+  ForeignComponent(lir::Emitter &emitter, Unit &unit)
+      : GenComponent{emitter, unit} {}
+};
+
+struct Generator : GenComponent {
+  void generate() override;
+  Generator(lir::Emitter &emitter, Unit &unit) : GenComponent{emitter, unit} {}
+};
+
+std::string name_of(Unit &unit, uint16_t node);
+std::string type_name(Unit &unit, arcana::types::type_id tid);
+const char *prim_name(uint32_t id);
 
 struct generator {
   std::ostream &out;
-  Emitter emitter;
+  lir::Emitter emitter;
   const arcana::Tokens &tokens;
   const arcana::Ast &ast;
   const arcana::pass::NamePass &names;
@@ -136,12 +141,3 @@ struct llvm : generator {
   std::map<arcana::types::type_id, std::string> alloc_names;
 };
 } // namespace gen
-//
-std::ostream &operator<<(std::ostream &, const gen::Reg &);
-std::ostream &operator<<(std::ostream &, const gen::Global &);
-std::ostream &operator<<(std::ostream &, const gen::Lit &);
-
-template <typename T>
-std::ostream &operator<<(std::ostream &out, const gen::Typed<T> &ty) {
-  return out << ty.type << " " << ty.value;
-}

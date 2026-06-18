@@ -104,6 +104,12 @@ generate(Alias, alias, aliases);
       throw std::logic_error("invalid type id category expected " #Category);  \
                                                                                \
     return Collection[id.id()];                                                \
+  }                                                                            \
+  template <> const Type &Typebase::lookup<Type>(type_id id) const {           \
+    if (id.category() != arcana::types::type_id::cat::Category)                \
+      throw std::logic_error("invalid type id category expected " #Category);  \
+                                                                               \
+    return Collection[id.id()];                                                \
   }
 
 lookup_impl(BitSet, bs, bitsets);

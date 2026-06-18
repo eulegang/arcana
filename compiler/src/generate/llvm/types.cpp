@@ -10,37 +10,6 @@
 using namespace arcana::types;
 
 namespace gen {
-const char *prim_name(uint32_t id) {
-  switch (id) {
-  case 0:
-    return "void";
-
-  case 1:
-    return "i1";
-
-  case 2:
-  case 3:
-    return "i8";
-  case 4:
-  case 5:
-    return "i16";
-  case 6:
-  case 7:
-    return "i32";
-  case 8:
-  case 9:
-    return "i64";
-
-  case 10:
-    return "float";
-  case 11:
-    return "double";
-
-  default:
-    return NULL;
-  }
-}
-
 bool llvm::is_definable(type_id tid) {
   if (tid.category() == type_id::cat::prim)
     return true;

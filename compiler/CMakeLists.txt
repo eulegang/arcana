@@ -16,12 +16,20 @@ add_executable(
   src/reports/resolve.cpp
 
   src/generate/llvm.cpp
-  src/generate/emitter.cpp
-  src/generate/def-emitter.cpp
   src/generate/llvm/types.cpp
   src/generate/llvm/gen_func.cpp
   src/generate/llvm/gen_foreign.cpp
   src/generate/llvm/gen_constvar.cpp
+
+  src/generate/entry.cpp
+  src/generate/foreign.cpp
+  src/generate/generate.cpp
+  src/generate/types.cpp
+  src/generate/entries.cpp
+  src/generate/util.cpp
+
+  src/emitter/emitter.cpp
+  src/emitter/def-emitter.cpp
 )
 
 target_include_directories(arcanac PUBLIC ../lang/src)

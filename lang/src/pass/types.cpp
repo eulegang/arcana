@@ -18,7 +18,7 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Idx id,
                        uint16_t &size) {
 
   Ast::Node node = ast[id];
-  if (node.type != Node::ident || node.offset == 0xFFFF)
+  if (node.type != Node::ident)
     return false;
 
   sigil_span span = ast.span(id);
@@ -68,7 +68,7 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = id;
 
     if (node.child != 0) {
-      visit_bs(node.child, set);
+      visit_bs(cur, set);
       return;
     }
   } break;
@@ -79,7 +79,7 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = id;
 
     if (node.child != 0) {
-      visit_en(node.child, en);
+      visit_en(cur, en);
       return;
     }
   } break;
@@ -133,8 +133,9 @@ void TypeDefPass::visit(uint16_t cur) {
 }
 
 void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
-  Ast::Node root_ident = ast[cur];
-  Ast::Node node = ast[root_ident.next];
+  Ast::Node root = ast[cur];
+  Ast::Node ident = ast[root.child];
+  Ast::Node node = ast[ident.next];
 
   bool infer = false;
 
@@ -145,7 +146,7 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
     break;
 
   case Node::ident:
-    if (!primitive_bitsize(tokens, ast, cur, bitset.size)) {
+    if (!primitive_bitsize(tokens, ast, ident.next, bitset.size)) {
       bitset.size = 0xFFFF;
     }
 
@@ -206,8 +207,9 @@ void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
 
 void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
 
-  Ast::Node root_ident = ast[cur];
-  Ast::Node node = ast[root_ident.next];
+  Ast::Node root = ast[cur];
+  Ast::Node ident = ast[root.child];
+  Ast::Node node = ast[ident.next];
 
   bool infer = false;
 
@@ -218,7 +220,7 @@ void TypeDefPass::visit_en(uint16_t cur, types::Enumeration &en) {
     break;
 
   case Node::ident:
-    if (!primitive_bitsize(tokens, ast, cur, en.size)) {
+    if (!primitive_bitsize(tokens, ast, ident.next, en.size)) {
       en.size = 0xFFFF;
     }
 

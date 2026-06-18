@@ -198,7 +198,7 @@ void llvm::gen_main() {
 
   args = sub.load({slice, args});
 
-  auto res = sub.call({"i32", (Global) "arcana.main"}, {{slice, args}});
+  auto res = sub.call({"i32", (lir::Global) "arcana.main"}, {{slice, args}});
 
   sub.ret({"i32", res});
 }

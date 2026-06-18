@@ -1,17 +1,17 @@
 #include "../generate.h"
 #include "gmock/gmock.h"
 
-using Emitter = gen::Definition::Emitter;
-using Reg = gen::Reg;
+using Emitter = lir::Definition::Emitter;
+using Reg = lir::Reg;
 
-std::ostream &operator<<(std::ostream &out, const gen::Reg &reg) {
+std::ostream &operator<<(std::ostream &out, const lir::Reg &reg) {
   return out << reg.name;
 }
-std::ostream &operator<<(std::ostream &out, const gen::Global &g) {
+std::ostream &operator<<(std::ostream &out, const lir::Global &g) {
   return out << g.name;
 }
 
-std::ostream &operator<<(std::ostream &out, const gen::Lit &lit) {
+std::ostream &operator<<(std::ostream &out, const lir::Lit &lit) {
   return out << lit.name;
 }
 

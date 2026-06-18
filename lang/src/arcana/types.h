@@ -154,6 +154,7 @@ struct Typebase {
   template <typename T> type_id intern(T t);
   template <typename T> Gen<T> generate();
   template <typename T> T &lookup(type_id id);
+  template <typename T> const T &lookup(type_id id) const;
 
 private:
   SymbolTable &table;

@@ -31,7 +31,7 @@ void llvm::gen_foreign(sigil_node_id node) {
                       ? type_id()
                       : *types.overlay.resolve(ret.child);
 
-  Declaration declare;
+  lir::Declaration declare;
 
   if (name.type == arcana::Node::str) {
     declare.name = tokens.content(ast.span(func.child).start);
