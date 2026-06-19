@@ -23,6 +23,7 @@ add_executable(
 
   src/generate/entry.cpp
   src/generate/foreign.cpp
+  src/generate/func.cpp
   src/generate/generate.cpp
   src/generate/types.cpp
   src/generate/entries.cpp

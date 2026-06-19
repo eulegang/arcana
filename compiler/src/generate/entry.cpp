@@ -53,5 +53,5 @@ void gen::EntryComponent::gen_main() {
 
   auto res = sub.call({"i32", (lir::Global) "arcana.main"}, {{slice, args}});
 
-  sub.ret({"i32", res});
+  sub.ret<lir::Reg>({"i32", res});
 }

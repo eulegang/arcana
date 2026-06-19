@@ -11,6 +11,7 @@ struct Reg {
 
   Reg(uint16_t reg) : name{std::format("%{}", reg)} {}
   Reg(std::string reg) : name{std::format("%{}", reg)} {}
+  Reg(std::string_view reg) : name{std::format("%{}", reg)} {}
   Reg(const char *reg) : name{std::format("%{}", reg)} {}
 };
 
@@ -18,6 +19,7 @@ struct Global {
   std::string name;
 
   Global(std::string reg) : name{std::format("@{}", reg)} {}
+  Global(std::string_view reg) : name{std::format("@{}", reg)} {}
   Global(const char *reg) : name{std::format("@{}", reg)} {}
 };
 
@@ -26,6 +28,7 @@ struct Lit {
 
   Lit(uint16_t reg) : name{std::format("{}", reg)} {}
   Lit(std::string reg) : name{std::format("{}", reg)} {}
+  Lit(std::string_view reg) : name{std::format("{}", reg)} {}
 };
 
 template <typename T> struct Typed {
@@ -57,7 +60,8 @@ struct Definition {
     void store(Reg dst, Typed<Reg> src);
     Reg load(Typed<Reg> reg);
     Reg call(Typed<Global> func, std::vector<Typed<Reg>> args);
-    void ret(Typed<Reg> ret);
+
+    template <typename T> void ret(Typed<T> ret);
   };
 };
 

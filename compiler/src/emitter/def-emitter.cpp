@@ -3,6 +3,7 @@
 
 using Emitter = lir::Definition::Emitter;
 using Reg = lir::Reg;
+using Lit = lir::Lit;
 
 std::ostream &operator<<(std::ostream &out, const lir::Reg &reg) {
   return out << reg.name;
@@ -66,4 +67,11 @@ Reg Emitter::call(Typed<Global> func, std::vector<Typed<Reg>> args) {
   return cur;
 }
 
-void Emitter::ret(Typed<Reg> func) { out << "  ret " << func << std::endl; }
+template <typename T> void Emitter::ret(Typed<T> func) {
+  out << "  ret " << func << std::endl;
+}
+
+template void Emitter::ret<lir::Lit>(Typed<lir::Lit> func);
+template void Emitter::ret<Reg>(Typed<Reg> func);
+
+// void Emitter::ret(Typed<Lit> func) { out << "  ret " << func << std::endl; }

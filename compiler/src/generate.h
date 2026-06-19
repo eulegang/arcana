@@ -74,6 +74,12 @@ struct ForeignComponent : GenComponent {
       : GenComponent{emitter, unit} {}
 };
 
+struct FuncComponent : GenComponent {
+  void generate() override;
+  FuncComponent(lir::Emitter &emitter, Unit &unit)
+      : GenComponent{emitter, unit} {}
+};
+
 struct Generator : GenComponent {
   void generate() override;
   Generator(lir::Emitter &emitter, Unit &unit) : GenComponent{emitter, unit} {}
