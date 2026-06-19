@@ -2,6 +2,7 @@
 #include "../arcana/pass.h"
 #include "symbol.h"
 #include <cstdint>
+#include <format>
 
 namespace arcana {
 namespace pass {
@@ -13,29 +14,48 @@ void NamePass::run() {
 
 void NamePass::scan(uint16_t space, uint16_t cur) {
   auto root = ast[cur];
-  uint16_t subspace = space;
 
-  const auto mark = [this, space](sigil_node_id node) {
-    std::string_view view = tokens.content(ast.span(node).start);
+  const auto mark = [this, space](sigil_node_id node, bool record) {
+    sigil_span span = ast.span(node);
+    std::string_view view = tokens.content(span.start);
 
     symbol sym = symbol_table.intern(view);
     Name *name = overlay.alloc(node);
 
     name->_parent = space;
     name->_symbol = sym;
+
+    if (record) {
+      if (existing.contains(*name)) {
+        diagnostics.add_error("Duplicate name", span);
+      }
+
+      existing.insert(*name);
+    }
   };
 
   switch (root.type) {
   case Node::ident:
-    mark(cur);
+    mark(cur, false);
 
     break;
-  case Node::ns: {
+
+  case Node::ns:
+  case Node::st:
+  case Node::en:
+  case Node::bs:
+  case Node::alias: {
     Ast::Node ident = ast[root.child];
-    mark(root.child);
+    mark(root.child, true);
+
     if (ident.next) {
-      scan(root.child, ident.next);
+      scan(space, ident.next);
     }
+
+    if (root.next) {
+      scan(space, root.next);
+    }
+
     return;
   } break;
 

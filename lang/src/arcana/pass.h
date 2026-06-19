@@ -4,7 +4,9 @@
 #include "../arcana/entries.h"
 #include "../arcana/types.h"
 #include "symbol.h"
+#include <compare>
 #include <cstdint>
+#include <set>
 #include <sigil.h>
 #include <stack>
 #include <vector>
@@ -15,6 +17,8 @@ struct NamePass : Pass {
   struct Name {
     symbol _symbol;
     uint16_t _parent;
+
+    auto operator<=>(const Name &other) const = default;
   };
 
   using Overlay = sigil::Overlay<Name>;
@@ -22,6 +26,7 @@ struct NamePass : Pass {
   SymbolTable &symbol_table;
   Overlay overlay;
   Diagnostics &diagnostics;
+  std::set<Name> existing;
 
   NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
            Diagnostics &diagnostics)

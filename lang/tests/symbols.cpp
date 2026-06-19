@@ -22,15 +22,15 @@ TEST(symbol, func) {
 
   ASSERT_FALSE(diagnostics);
 
-  EXPECT_EQ(name_pass.overlay.resolve(2)->_parent, 0);
+  EXPECT_EQ(name_pass.overlay.resolve(2)->_parent, 0xFFFF);
   EXPECT_EQ(name_pass.overlay.resolve(2)->_symbol, syms.intern("main"));
 
-  EXPECT_EQ(name_pass.overlay.resolve(5)->_parent, 0);
+  EXPECT_EQ(name_pass.overlay.resolve(5)->_parent, 0xFFFF);
   EXPECT_EQ(name_pass.overlay.resolve(5)->_symbol, syms.intern("args"));
 
-  EXPECT_EQ(name_pass.overlay.resolve(9)->_parent, 0);
+  EXPECT_EQ(name_pass.overlay.resolve(9)->_parent, 0xFFFF);
   EXPECT_EQ(name_pass.overlay.resolve(9)->_symbol, syms.intern("u8"));
 
-  EXPECT_EQ(name_pass.overlay.resolve(12)->_parent, 0);
+  EXPECT_EQ(name_pass.overlay.resolve(12)->_parent, 0xFFFF);
   EXPECT_EQ(name_pass.overlay.resolve(12)->_symbol, syms.intern("u32"));
 }
