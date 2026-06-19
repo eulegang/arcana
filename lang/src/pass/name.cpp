@@ -12,25 +12,43 @@ void NamePass::run() {
 }
 
 void NamePass::scan(uint16_t space, uint16_t cur) {
-  auto node = ast[cur];
+  auto root = ast[cur];
   uint16_t subspace = space;
 
-  if (node.type == Node::ident) {
-    std::string_view view = tokens.content(ast.span(cur).start);
+  const auto mark = [this, space](sigil_node_id node) {
+    std::string_view view = tokens.content(ast.span(node).start);
 
     symbol sym = symbol_table.intern(view);
-    Name *name = overlay.alloc(cur);
+    Name *name = overlay.alloc(node);
 
-    name->_parent = 0;
+    name->_parent = space;
     name->_symbol = sym;
+  };
+
+  switch (root.type) {
+  case Node::ident:
+    mark(cur);
+
+    break;
+  case Node::ns: {
+    Ast::Node ident = ast[root.child];
+    mark(root.child);
+    if (ident.next) {
+      scan(root.child, ident.next);
+    }
+    return;
+  } break;
+
+  default:
+    break;
   }
 
-  if (node.child != 0) {
-    scan(subspace, node.child);
+  if (root.child != 0) {
+    scan(space, root.child);
   }
 
-  if (node.next != 0) {
-    scan(space, node.next);
+  if (root.next != 0) {
+    scan(space, root.next);
   }
 }
 } // namespace pass
