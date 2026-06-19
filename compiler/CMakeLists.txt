@@ -15,12 +15,6 @@ add_executable(
   src/reports/diagnostics.cpp
   src/reports/resolve.cpp
 
-  src/generate/llvm.cpp
-  src/generate/llvm/types.cpp
-  src/generate/llvm/gen_func.cpp
-  src/generate/llvm/gen_foreign.cpp
-  src/generate/llvm/gen_constvar.cpp
-
   src/generate/entry.cpp
   src/generate/foreign.cpp
   src/generate/func.cpp
