@@ -227,6 +227,8 @@ sigil_state parse_func_call(sigil_state state, sigil_node_id node) {
       cur->next = param_id;
     }
 
+    cur = param;
+
     run_subparser(param, parse_expr, child);
 
     if (token_is(comma)) {
