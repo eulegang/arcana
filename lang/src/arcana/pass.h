@@ -25,15 +25,17 @@ struct NamePass : Pass {
   using Overlay = sigil::Overlay<Name>;
 
   SymbolTable &symbol_table;
-  SymbolTree tree;
+  SymbolTree value_tree;
+  SymbolTree type_tree;
   Overlay overlay;
   Diagnostics &diagnostics;
   std::set<Name> existing;
+  bool type_space = false;
 
   NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
            Diagnostics &diagnostics)
-      : Pass{tokens, ast}, symbol_table{table}, tree{SymbolTree(8)},
-        diagnostics{diagnostics} {}
+      : Pass{tokens, ast}, symbol_table{table}, value_tree{SymbolTree(8)},
+        type_tree{SymbolTree(8)}, diagnostics{diagnostics} {}
 
   void run() override;
 

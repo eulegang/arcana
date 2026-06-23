@@ -19,7 +19,7 @@ void NamePass::run() {
 
   for (const auto &view : default_symbols) {
     symbol sym = symbol_table.intern(view);
-    tree.define(sym, (void *)0xFFFF);
+    type_tree.define(sym, (void *)0xFFFF);
   }
 
   scan(0xFFFF, 0);
@@ -35,6 +35,18 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
       scan(space, root.next);
     }
 
+  } break;
+
+  case Node::ty: {
+    type_space = true;
+
+    if (root.child)
+      scan(space, root.child);
+
+    type_space = false;
+
+    if (root.next)
+      scan(space, root.next);
   } break;
 
   case Node::foreign: {
@@ -55,7 +67,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
       scan(space, root.next);
     }
 
-    tree.push();
+    value_tree.push();
     sigil_node_id fn_params = 0;
     if (auto opt = find_next(cur_id, Node::fn_params); opt) {
       fn_params = std::get<0>(*opt);
@@ -85,7 +97,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
     if (ast[fn_params].next) {
       scan(space, ast[fn_params].next);
     }
-    tree.pop();
+    value_tree.pop();
   } break;
 
   case Node::fn: {
@@ -103,7 +115,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
       scan(space, root.next);
     }
 
-    tree.push();
+    value_tree.push();
     sigil_node_id fn_params = 0;
     if (auto opt = find_next(cur_id, Node::fn_params); opt) {
       fn_params = std::get<0>(*opt);
@@ -134,8 +146,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
     if (ast[fn_params].next) {
       scan(space, ast[fn_params].next);
     }
-    tree.pop();
-
+    value_tree.pop();
   } break;
 
   case Node::member: {
@@ -153,8 +164,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
   case Node::konst:
   case Node::ns:
   case Node::en:
-  case Node::bs:
-  case Node::alias: {
+  case Node::bs: {
     Ast::Node ident = ast[root.child];
     define_node(space, cur, root.child);
     check_node(space, root.child);
@@ -168,6 +178,23 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
     }
   } break;
 
+  case Node::alias: {
+    Ast::Node ident = ast[root.child];
+    type_space = true;
+    define_node(space, cur, root.child);
+    check_node(space, root.child);
+    type_space = false;
+
+    if (root.next) {
+      scan(space, root.next);
+    }
+
+    if (ident.next) {
+      scan(space, ident.next);
+    }
+
+  } break;
+
   case Node::st: {
     Ast::Node ident = ast[root.child];
     define_node(space, cur, root.child);
@@ -179,7 +206,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
     sigil_node_id next = ident.next;
 
-    tree.push();
+    value_tree.push();
 
     if (auto opt = find_next(root.child, Node::st_fields); opt) {
       sigil_node_id field_id = std::get<1>(*opt).child;
@@ -200,7 +227,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
       scan(space, next);
     }
 
-    tree.pop();
+    value_tree.pop();
   } break;
 
   default:
@@ -227,6 +254,9 @@ void NamePass::check_node(sigil_node_id space, sigil_node_id ident) {
   name->parent = space;
   name->sym = sym;
   void *data;
+
+  auto &tree = type_space ? type_tree : value_tree;
+
   if (tree.check(sym, &data)) {
     name->ref = (uint16_t)(long)data;
   } else {
@@ -248,6 +278,7 @@ void NamePass::define_node(sigil_node_id space, sigil_node_id target,
   symbol sym = symbol_table.intern(view);
   Name *name = overlay.alloc(target);
 
+  auto &tree = type_space ? type_tree : value_tree;
   if (!tree.define(sym, (void *)(long)target)) {
     diagnostics.add_error("duplicate definition", span);
   }
