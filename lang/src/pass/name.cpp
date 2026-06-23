@@ -161,10 +161,7 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
   } break;
 
   case Node::var:
-  case Node::konst:
-  case Node::ns:
-  case Node::en:
-  case Node::bs: {
+  case Node::konst: {
     Ast::Node ident = ast[root.child];
     define_node(space, cur, root.child);
     check_node(space, root.child);
@@ -178,6 +175,38 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
     }
   } break;
 
+  case Node::bs:
+  case Node::en: {
+    Ast::Node ident = ast[root.child];
+    type_space = true;
+    define_node(space, cur, root.child);
+    check_node(space, root.child);
+    type_space = false;
+
+    if (root.next) {
+      scan(space, root.next);
+    }
+
+    Ast::Node ty_slot = ast[ident.next];
+    if (ty_slot.type == Node::ident) {
+      type_space = true;
+      check_node(space, ident.next);
+      type_space = false;
+    }
+
+    sigil_node_id var_id = ty_slot.next;
+    while (var_id) {
+      Ast::Node var = ast[var_id];
+
+      define_node(space, var_id, var.child);
+      check_node(space, var.child);
+
+      var_id = var.next;
+    }
+
+  } break;
+
+  case Node::ns:
   case Node::alias: {
     Ast::Node ident = ast[root.child];
     type_space = true;
@@ -197,8 +226,10 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
   case Node::st: {
     Ast::Node ident = ast[root.child];
+    type_space = true;
     define_node(space, cur, root.child);
     check_node(space, root.child);
+    type_space = false;
 
     if (root.next) {
       scan(space, root.next);
