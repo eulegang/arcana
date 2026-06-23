@@ -13,7 +13,6 @@ module sigil {
     len: u16;
   }
 
-
   alias tokenizer = func(cur: u64, content: []u8, type: *token_type) -> i64;
 
   record token_options {

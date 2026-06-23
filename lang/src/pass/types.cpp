@@ -302,7 +302,7 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
       *overlay.alloc(ident.next) = tid;
 
       st.fields.push_back({
-          .sym = name->_symbol,
+          .sym = name->sym,
           .ty = tid,
       });
 
@@ -322,7 +322,7 @@ type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
   }
 
   if (node.type == Node::ident) {
-    type_id tid = resolve_primitive(names.resolve(cur)->_symbol);
+    type_id tid = resolve_primitive(names.resolve(cur)->sym);
 
     if (!tid) {
       auto [id, alias] = base.generate<types::Alias>();

@@ -40,12 +40,12 @@ std::string gen::name_of(Unit &unit, uint16_t node) {
 
   auto name = unit.overlays.names.resolve(node);
 
-  syms.push_back(name->_symbol);
-  while (name->_parent != 0xFFFF) {
-    name = unit.overlays.names.resolve(name->_parent);
+  syms.push_back(name->sym);
+  while (name->parent != 0xFFFF) {
+    name = unit.overlays.names.resolve(name->parent);
     if (!name)
       break;
-    syms.push_back(name->_symbol);
+    syms.push_back(name->parent);
   }
 
   std::reverse(syms.begin(), syms.end());

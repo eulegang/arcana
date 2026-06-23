@@ -10,11 +10,11 @@ std::string report::resolve(const arcana::pass::NamePass::Overlay &scopes,
   std::vector<symbol> syms;
   arcana::pass::NamePass::Name n = name;
 
-  syms.push_back(n._symbol);
-  while (n._parent != 0xFFFF) {
-    n = *scopes.resolve(n._parent);
+  syms.push_back(n.sym);
+  while (n.parent != 0xFFFF) {
+    n = *scopes.resolve(n.parent);
 
-    syms.push_back(n._symbol);
+    syms.push_back(n.sym);
   }
 
   for (const auto &sym : syms | std::views::reverse) {

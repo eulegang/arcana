@@ -25,7 +25,7 @@ bool gen::EntryComponent::has_main() {
 
     auto name = unit.overlays.names.resolve(i);
 
-    if (name->_symbol == s && name->_parent == 0xFFFF) {
+    if (name->sym == s && name->parent == 0xFFFF) {
       return true;
     }
   }

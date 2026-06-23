@@ -15,8 +15,9 @@ namespace arcana {
 namespace pass {
 struct NamePass : Pass {
   struct Name {
-    symbol _symbol;
-    uint16_t _parent;
+    symbol sym;
+    sigil_node_id parent;
+    sigil_node_id ref;
 
     auto operator<=>(const Name &other) const = default;
   };
@@ -24,18 +25,26 @@ struct NamePass : Pass {
   using Overlay = sigil::Overlay<Name>;
 
   SymbolTable &symbol_table;
+  SymbolTree tree;
   Overlay overlay;
   Diagnostics &diagnostics;
   std::set<Name> existing;
 
   NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
            Diagnostics &diagnostics)
-      : Pass{tokens, ast}, symbol_table{table}, diagnostics{diagnostics} {}
+      : Pass{tokens, ast}, symbol_table{table}, tree{SymbolTree(8)},
+        diagnostics{diagnostics} {}
 
   void run() override;
 
 private:
   void scan(uint16_t space, uint16_t cur);
+
+  void check_node(sigil_node_id space, sigil_node_id ident);
+  void define_node(sigil_node_id space, sigil_node_id target,
+                   sigil_node_id ident);
+  std::optional<std::pair<sigil_node_id, Ast::Node>> find_next(sigil_node_id id,
+                                                               Node type);
 };
 
 class EntryPass : Pass {

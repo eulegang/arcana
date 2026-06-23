@@ -121,12 +121,9 @@ void symbol_tree_pop(symbol_tree *self) {
 
   struct symbol_entry *base = ENTRIES(self);
 
-  while (true) {
-    bool end = base[self->len].flags == MARKER_SCOPE;
-
-    if (__builtin_sub_overflow(self->len, 1, &self->len)) {
-      break;
-    };
+  while (self->len) {
+    bool end = base[self->len - 1].flags == MARKER_SCOPE;
+    self->len--;
 
     if (end) {
       break;

@@ -37,13 +37,23 @@ void names_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
   arcana::pass::NamePass::Name *name = ctx->overlay.resolve(id);
 
   if (name) {
-    out << chroma::green << " parent = " << chroma::yellow << name->_parent;
+    out << " ";
+    if (name->parent != 0xFFFF) {
+      out << chroma::green << "parent = " << chroma::yellow << name->parent
+          << chroma::green << ", ";
+    }
 
-    out << chroma::clear << ", " << chroma::green
-        << "symbol = " << name->_symbol;
+    if (name->ref != 0xFFFF) {
+      out << chroma::green << "ref = " << chroma::blue << name->ref
+          << chroma::green << ", ";
+    }
 
-    out << chroma::clear << "(" << chroma::cyan
-        << ctx->table.resolve(name->_symbol) << chroma::clear << ")";
+    out << chroma::green << "id = " << chroma::blue << id;
+
+    out << chroma::clear << ", " << chroma::green << "symbol = " << name->sym;
+
+    out << chroma::clear << "(" << chroma::cyan << ctx->table.resolve(name->sym)
+        << chroma::clear << ")";
   }
 
   out << chroma::clear << std::endl;
