@@ -82,15 +82,6 @@ struct TypeDefPass : Pass {
 
   void run() override;
 
-  struct Patch {
-    types::type_id id;
-    symbol sym;
-
-    bool operator==(const Patch &other) const {
-      return id == other.id && sym == other.sym;
-    }
-  };
-
 private:
   void visit(uint16_t cur);
   void visit_bs(uint16_t cur, types::BitSet &);

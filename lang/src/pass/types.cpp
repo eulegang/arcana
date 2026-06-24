@@ -119,6 +119,7 @@ void TypeDefPass::visit(uint16_t cur) {
     Ast::Node ident = ast[node.child];
 
     type_id tid = resolve_type(0, ident.next);
+    *overlay.alloc(cur) = tid;
     *overlay.alloc(ident.next) = tid;
   } break;
 
