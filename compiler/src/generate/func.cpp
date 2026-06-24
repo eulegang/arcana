@@ -49,7 +49,6 @@ void gen::FuncComponent::generate() {
 
         switch (expr.type) {
         case arcana::Node::ret: {
-          bool generated = false;
           if (expr.child) {
             Ast::Node val = unit.ast[expr.child];
 
@@ -63,21 +62,8 @@ void gen::FuncComponent::generate() {
               };
 
               sub.ret<lir::Lit>(t);
-
-              // _llvm.out << "  " << "ret " << _llvm.type_name(ret) << " "
-              //           << _llvm.tokens.content(token) << std::endl;
-
-              generated = true;
             }
-
-            // gen_stmt(unit.ast[expr.child]);
           }
-
-          // if (!generated) {
-          //   _llvm.out << "  " << "ret " << _llvm.type_name(ret) << " %"
-          //             << tmp_var << std::endl;
-          // }
-
         } break;
 
         default:

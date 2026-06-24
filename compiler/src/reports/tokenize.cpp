@@ -45,8 +45,11 @@ chroma::basic_t token_color(arcana::Token type) {
     return chroma::purple;
 
   case arcana::Token::cond:
+  case arcana::Token::cond_if:
+  case arcana::Token::cond_else:
   case arcana::Token::otherwise:
   case arcana::Token::ret:
+  case arcana::Token::ret_err:
   case arcana::Token::let:
   case arcana::Token::var:
   case arcana::Token::mut:
