@@ -1,26 +1,29 @@
 
 #include "types.h"
+#include <sstream>
+#include <stdexcept>
+
 namespace arcana {
 namespace types {
 
 std::ostream &operator<<(std::ostream &out, const type_id &id) {
   switch (id.category()) {
   case arcana::types::type_id::cat::meta:
-    return out << "(meta)" << id.id();
+    return out << std::format("(meta){}", id.id());
   case arcana::types::type_id::cat::bs:
-    return out << "(bs)" << id.id();
+    return out << std::format("(bs){}", id.id());
   case arcana::types::type_id::cat::en:
-    return out << "(en)" << id.id();
+    return out << std::format("(en){}", id.id());
   case arcana::types::type_id::cat::st:
-    return out << "(st)" << id.id();
+    return out << std::format("(st){}", id.id());
   case arcana::types::type_id::cat::prim:
-    return out << "(prim)" << id.id();
+    return out << std::format("(prim){}", id.id());
   case arcana::types::type_id::cat::derive:
-    return out << "(derive)" << id.id();
+    return out << std::format("(derive){}", id.id());
   case arcana::types::type_id::cat::fn:
-    return out << "(fn)" << id.id();
+    return out << std::format("(fn){}", id.id());
   case arcana::types::type_id::cat::alias:
-    return out << "(alias)" << id.id();
+    return out << std::format("(alias){}", id.id());
 
   default:
     return out << "!!!";
@@ -127,6 +130,133 @@ bool Fn::operator==(const Fn &other) const {
 
 bool Derive::operator==(const Derive &other) const {
   return ty == other.ty && underlying == other.underlying;
+}
+
+std::string Typebase::repr(type_id id) const {
+  std::stringstream ss;
+
+  switch (id.category()) {
+  case type_id::cat::meta:
+    return "!!!";
+  case type_id::cat::bs: {
+    auto bs = bitsets[id.id()];
+
+    ss << "bitset(" << bs.size << ") { ";
+
+    auto it = bs.cases.begin();
+
+    if (it != bs.cases.end()) {
+      auto [sym, bit] = *it++;
+      ss << table.resolve(sym) << " = " << bit;
+    }
+
+    while (it != bs.cases.end()) {
+      ss << ", ";
+      auto [sym, bit] = *it++;
+      ss << table.resolve(sym) << " = " << bit;
+    }
+
+    ss << "}";
+
+    return ss.str();
+  } break;
+
+  case type_id::cat::en: {
+    auto en = enums[id.id()];
+
+    ss << "bitset(" << en.size << ") { ";
+
+    auto it = en.cases.begin();
+
+    if (it != en.cases.end()) {
+      auto [sym, pattern] = *it++;
+      ss << table.resolve(sym) << " = " << pattern;
+    }
+
+    while (it != en.cases.end()) {
+      ss << ", ";
+      auto [sym, bit] = *it++;
+      ss << table.resolve(sym) << " = " << bit;
+    }
+
+    ss << "}";
+
+    return ss.str();
+  } break;
+
+  case type_id::cat::st: {
+    auto en = structs[id.id()];
+
+    ss << "record { ";
+
+    auto it = en.fields.begin();
+
+    if (it != en.fields.end()) {
+      auto [sym, tid] = *it++;
+      ss << table.resolve(sym) << ": " << repr(tid);
+    }
+
+    while (it != en.fields.end()) {
+      ss << ", ";
+      auto [sym, tid] = *it++;
+      ss << table.resolve(sym) << ": " << repr(tid);
+    }
+
+    ss << "}";
+
+    return ss.str();
+
+  } break;
+
+  case type_id::cat::prim: {
+    return table.resolve(primitives[id.id()].sym);
+  } break;
+
+  case type_id::cat::derive: {
+    auto [ty, tid] = derives[id.id()];
+    switch (ty) {
+    case Derive::Type::Pointer:
+      ss << "*";
+      break;
+    case Derive::Type::Slice:
+      ss << "[]";
+      break;
+    }
+
+    ss << repr(tid);
+
+    return ss.str();
+  }
+  case type_id::cat::alias: {
+    return repr(aliases[id.id()].id);
+  } break;
+
+  case type_id::cat::fn: {
+    auto fn = fns[id.id()];
+    auto it = fn.params.begin();
+
+    ss << "(";
+
+    if (it != fn.params.end()) {
+      ss << repr(*it++);
+    }
+
+    while (it != fn.params.end()) {
+      ss << ", " << repr(*it++);
+    }
+
+    ss << ")";
+
+    if (fn.err) {
+      ss << " -> " << repr(fn.err) << "!" << repr(fn.ret);
+    } else if (fn.ret) {
+      ss << " -> " << repr(fn.ret);
+    }
+    return ss.str();
+  } break;
+  }
+
+  return "!!!";
 }
 
 } // namespace types

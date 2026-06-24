@@ -156,6 +156,8 @@ struct Typebase {
   template <typename T> T &lookup(type_id id);
   template <typename T> const T &lookup(type_id id) const;
 
+  std::string repr(type_id id) const;
+
 private:
   SymbolTable &table;
 };
