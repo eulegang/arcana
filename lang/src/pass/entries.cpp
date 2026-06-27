@@ -3,7 +3,7 @@
 
 void arcana::pass::EntryPass::run() { visit(0); }
 
-void arcana::pass::EntryPass::visit(sigil_node_id cur) {
+arcana::Pass::Branch arcana::pass::EntryPass::visit(sigil_node_id cur) {
   Ast::Node node = ast[cur];
 
   switch (node.type) {
@@ -11,13 +11,10 @@ void arcana::pass::EntryPass::visit(sigil_node_id cur) {
     in_func = true;
     entries.bodies.push_back(entry::Body{cur});
     if (node.child)
-      visit(node.child);
+      iterate(node.child);
     in_func = false;
 
-    if (node.next)
-      visit(node.next);
-
-    return;
+    return Pass::Branch::Next;
 
   case Node::foreign:
     entries.foreigns.push_back(entry::Foreign{cur});
@@ -35,9 +32,5 @@ void arcana::pass::EntryPass::visit(sigil_node_id cur) {
     break;
   }
 
-  if (node.child)
-    visit(node.child);
-
-  if (node.next)
-    visit(node.next);
+  return Pass::Branch::Nest;
 }

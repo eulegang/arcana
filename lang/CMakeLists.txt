@@ -22,6 +22,7 @@ add_library(
   src/parsers/cond.cpp
   src/parsers/binop.cpp
 
+  src/pass/pass.cpp
   src/pass/name.cpp
   src/pass/types.cpp
   src/pass/entries.cpp

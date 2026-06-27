@@ -8,6 +8,8 @@
 #include <string>
 #include <sys/stat.h>
 #include <utility>
+#include <variant>
+#include <vector>
 
 namespace arcana {
 namespace pass {
@@ -58,7 +60,7 @@ void TypeDefPass::run() {
   visit(0);
 }
 
-void TypeDefPass::visit(uint16_t cur) {
+Pass::Branch TypeDefPass::visit(uint16_t cur) {
   auto node = ast[cur];
 
   switch (node.type) {
@@ -69,7 +71,7 @@ void TypeDefPass::visit(uint16_t cur) {
 
     if (node.child != 0) {
       visit_bs(cur, set);
-      return;
+      return Pass::Branch::Terminate;
     }
   } break;
 
@@ -80,7 +82,7 @@ void TypeDefPass::visit(uint16_t cur) {
 
     if (node.child != 0) {
       visit_en(cur, en);
-      return;
+      return Pass::Branch::Terminate;
     }
   } break;
 
@@ -90,7 +92,7 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = id;
     visit_st(cur, cur, st);
 
-    return;
+    return Pass::Branch::Terminate;
   } break;
 
   case Node::alias: {
@@ -103,15 +105,15 @@ void TypeDefPass::visit(uint16_t cur) {
     *overlay.alloc(cur) = alias;
     *overlay.alloc(ident.next) = tid;
 
-    if (node.next)
-      visit(node.next);
-    return;
+    return Pass::Branch::Next;
   } break;
 
   case Node::foreign:
   case Node::fn: {
     type_id tid = resolve_type(0, cur);
     *overlay.alloc(cur) = tid;
+
+    return Pass::Branch::Next;
   } break;
 
   case Node::konst:
@@ -127,13 +129,7 @@ void TypeDefPass::visit(uint16_t cur) {
     break;
   }
 
-  if (node.child) {
-    visit(node.child);
-  }
-
-  if (node.next) {
-    visit(node.next);
-  }
+  return Pass::Branch::Nest;
 }
 
 void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
@@ -477,6 +473,89 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
       .err = err,
       .ret = ret,
   };
+}
+
+struct TypeSlate {
+  using Value = std::variant<uint16_t, type_id, std::monostate>;
+  struct Slot {
+    sigil_node_id node_id;
+    Value value;
+  };
+
+  std::vector<Slot> slots;
+
+  void clear() { slots.clear(); }
+  void push(sigil_node_id id) {
+    slots.push_back({
+        id,
+        std::monostate(),
+    });
+  }
+};
+
+void TypeDefPass::visit_bodies(uint16_t cur) {
+  Ast::Node root = ast[cur];
+  if (root.type == Node::fn) {
+    visit_bodies_annotate(cur);
+  } else {
+    if (root.child) {
+      visit_bodies(root.child);
+    }
+  }
+
+  if (root.next) {
+    visit_bodies(cur);
+  }
+}
+
+void TypeDefPass::visit_bodies_annotate(uint16_t cur) {
+  TypeSlate slate;
+
+  sigil_node_id id = cur;
+
+  while (id != 0) {
+    Ast::Node node = ast[id];
+
+    if (node.type == Node::fn_ret) {
+      break;
+    }
+
+    id = node.next;
+  }
+
+  Ast::Node ret_node = ast[id];
+  type_id retid;
+  type_id errid;
+
+  if (ret_node.child) {
+    retid = *overlay.resolve(ret_node.child);
+
+    if (Ast::Node node = ast[ret_node.child]; node.next) {
+      errid = *overlay.resolve(node.next);
+    }
+  } else {
+    retid = type_id(type_id::cat::prim, 0);
+  }
+
+  std::stack<sigil_node_id> stack;
+
+  stack.push(ret_node.next);
+  Ast::Node node = ast[ret_node.next];
+
+  while (node.child) {
+    stack.push(node.child);
+    node = ast[node.child];
+  }
+
+  while (stack.empty()) {
+    sigil_node_id i = stack.top();
+    stack.pop();
+
+    Ast::Node node = ast[i];
+
+    if (node.next) {
+    }
+  }
 }
 
 } // namespace pass

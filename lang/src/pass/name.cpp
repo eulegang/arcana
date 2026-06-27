@@ -14,39 +14,35 @@ std::array<std::string_view, 12> default_symbols = {
     "void", "bool", "u8",  "i8",  "u16", "i16",
     "u32",  "i32",  "u64", "i64", "f32", "f64"};
 
-void NamePass::run() {
-  overlay = sigil::Overlay<Name>(ast.ptr.get(), 4);
-
+NamePass::NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
+                   Diagnostics &diagnostics)
+    : Pass{tokens, ast}, symbol_table{table}, value_tree{8}, type_tree{8},
+      overlay{sigil::Overlay<Name>(ast.ptr.get(), 4)},
+      diagnostics{diagnostics} {
   for (const auto &view : default_symbols) {
     symbol sym = symbol_table.intern(view);
     type_tree.define(sym, (void *)0xFFFF);
   }
-
-  scan(0xFFFF, 0);
 }
 
-void NamePass::scan(uint16_t space, uint16_t cur) {
+Pass::Branch NamePass::visit(uint16_t cur) {
   auto root = ast[cur];
 
   switch (root.type) {
   case Node::ident: {
-    check_node(space, cur);
-    if (root.next) {
-      scan(space, root.next);
-    }
-
+    check_node(cur);
+    return Branch::Next;
   } break;
 
   case Node::ty: {
     type_space = true;
 
     if (root.child)
-      scan(space, root.child);
+      iterate(root.child);
 
     type_space = false;
 
-    if (root.next)
-      scan(space, root.next);
+    return Branch::Next;
   } break;
 
   case Node::foreign: {
@@ -60,11 +56,11 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
       throw std::logic_error("invalid tree produced");
     }
 
-    define_node(space, cur, ident_id);
-    check_node(space, ident_id);
+    define_node(cur, ident_id);
+    check_node(ident_id);
 
     if (root.next) {
-      scan(space, root.next);
+      iterate(root.next);
     }
 
     value_tree.push();
@@ -84,20 +80,24 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
       sigil_node_id type_slot = param.child;
       if (ast[param.child].type == Node::ident) {
-        define_node(space, param_id, param.child);
+        define_node(param_id, param.child);
         type_slot = ast[param.child].next;
       }
 
       if (ast[type_slot].type == Node::ty) {
-        scan(space, type_slot);
+        iterate(type_slot);
       }
 
       param_id = ast[param_id].next;
     }
+
     if (ast[fn_params].next) {
-      scan(space, ast[fn_params].next);
+      iterate(ast[fn_params].next);
     }
+
     value_tree.pop();
+
+    return Pass::Branch::Terminate;
   } break;
 
   case Node::fn: {
@@ -107,12 +107,12 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
     if (auto opt = find_next(cur_id, Node::ident); opt) {
       ident_id = std::get<0>(*opt);
-      define_node(space, cur, ident_id);
-      check_node(space, ident_id);
+      define_node(cur, ident_id);
+      check_node(ident_id);
     }
 
     if (root.next) {
-      scan(space, root.next);
+      iterate(root.next);
     }
 
     value_tree.push();
@@ -132,65 +132,59 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
       sigil_node_id type_slot = param.child;
       if (ast[param.child].type == Node::ident) {
-        define_node(space, param_id, param.child);
-        check_node(space, param.child);
+        define_node(param_id, param.child);
+        check_node(param.child);
         type_slot = ast[param.child].next;
       }
 
       if (ast[type_slot].type == Node::ty) {
-        scan(space, type_slot);
+        iterate(type_slot);
       }
 
       param_id = ast[param_id].next;
     }
+
     if (ast[fn_params].next) {
-      scan(space, ast[fn_params].next);
+      iterate(ast[fn_params].next);
     }
+
     value_tree.pop();
+
+    return Pass::Branch::Terminate;
   } break;
 
   case Node::member: {
     if (ast[root.child].type == Node::ident) {
-      check_node(space, root.child);
+      check_node(root.child);
     }
 
-    if (root.next) {
-      scan(space, root.next);
-    }
-
+    return Branch::Next;
   } break;
 
   case Node::var:
   case Node::konst: {
-    Ast::Node ident = ast[root.child];
-    define_node(space, cur, root.child);
-    check_node(space, root.child);
+    define_node(cur, root.child);
+    // check_node(root.child);
 
-    if (root.next) {
-      scan(space, root.next);
-    }
-
-    if (ident.next) {
-      scan(space, ident.next);
-    }
+    return Branch::Defer;
   } break;
 
   case Node::bs:
   case Node::en: {
     Ast::Node ident = ast[root.child];
     type_space = true;
-    define_node(space, cur, root.child);
-    check_node(space, root.child);
+    define_node(cur, root.child);
+    check_node(root.child);
     type_space = false;
 
     if (root.next) {
-      scan(space, root.next);
+      iterate(root.next);
     }
 
     Ast::Node ty_slot = ast[ident.next];
     if (ty_slot.type == Node::ident) {
       type_space = true;
-      check_node(space, ident.next);
+      check_node(ident.next);
       type_space = false;
     }
 
@@ -198,41 +192,45 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
     while (var_id) {
       Ast::Node var = ast[var_id];
 
-      define_node(space, var_id, var.child);
-      check_node(space, var.child);
+      define_node(var_id, var.child);
+      check_node(var.child);
 
       var_id = var.next;
     }
 
+    return Pass::Branch::Next;
   } break;
 
   case Node::ns:
   case Node::alias: {
     Ast::Node ident = ast[root.child];
     type_space = true;
-    define_node(space, cur, root.child);
-    check_node(space, root.child);
+    define_node(cur, root.child);
+    check_node(root.child);
     type_space = false;
 
     if (root.next) {
-      scan(space, root.next);
+      iterate(root.next);
     }
 
+    parents.push(cur);
     if (ident.next) {
-      scan(space, ident.next);
+      iterate(ident.next);
     }
+    parents.pop();
 
+    return Pass::Branch::Terminate;
   } break;
 
   case Node::st: {
     Ast::Node ident = ast[root.child];
     type_space = true;
-    define_node(space, cur, root.child);
-    check_node(space, root.child);
+    define_node(cur, root.child);
+    check_node(root.child);
     type_space = false;
 
     if (root.next) {
-      scan(space, root.next);
+      iterate(root.next);
     }
 
     sigil_node_id next = ident.next;
@@ -241,39 +239,38 @@ void NamePass::scan(uint16_t space, uint16_t cur) {
 
     if (auto opt = find_next(root.child, Node::st_fields); opt) {
       sigil_node_id field_id = std::get<1>(*opt).child;
+      parents.push(cur);
 
       while (field_id) {
         Ast::Node field = ast[field_id];
-        define_node(cur, field_id, field.child);
-        check_node(cur, field.child);
-        scan(cur, ast[field.child].next);
+        define_node(field_id, field.child);
+        check_node(field.child);
+        iterate(ast[field.child].next);
 
         field_id = field.next;
       }
+      parents.pop();
 
       next = std::get<1>(*opt).next;
     }
 
     if (next) {
-      scan(space, next);
+      iterate(next);
     }
 
     value_tree.pop();
+    return Pass::Branch::Terminate;
   } break;
 
   default:
-    if (root.child != 0) {
-      scan(space, root.child);
-    }
-
-    if (root.next != 0) {
-      scan(space, root.next);
-    }
+    return Pass::Branch::Nest;
     break;
   }
+
+  return Pass::Branch::Nest;
 }
 
-void NamePass::check_node(sigil_node_id space, sigil_node_id ident) {
+void NamePass::check_node(sigil_node_id ident) {
 
   sigil_span span = ast.span(ident);
   std::string_view view = tokens.content(span.start);
@@ -282,7 +279,7 @@ void NamePass::check_node(sigil_node_id space, sigil_node_id ident) {
 
   Name *name = overlay.alloc(ident);
 
-  name->parent = space;
+  name->parent = parents.empty() ? 0xFFFF : parents.top();
   name->sym = sym;
   void *data;
 
@@ -296,8 +293,7 @@ void NamePass::check_node(sigil_node_id space, sigil_node_id ident) {
   }
 }
 
-void NamePass::define_node(sigil_node_id space, sigil_node_id target,
-                           sigil_node_id ident) {
+void NamePass::define_node(sigil_node_id target, sigil_node_id ident) {
 
   if (ast[ident].type != Node::ident) {
     throw std::logic_error("invalid ident");
@@ -314,7 +310,7 @@ void NamePass::define_node(sigil_node_id space, sigil_node_id target,
     diagnostics.add_error("duplicate definition", span);
   }
 
-  name->parent = space;
+  name->parent = parents.empty() ? 0xFFFF : parents.top();
   name->ref = 0xFFFF;
   name->sym = sym;
 }

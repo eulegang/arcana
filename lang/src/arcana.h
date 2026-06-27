@@ -48,6 +48,33 @@ extern sigil_parser *parser;
 
 using Tokens = sigil::Tokens<arcana::Token>;
 using Ast = sigil::Ast<arcana::Node>;
-using Pass = sigil::Pass<arcana::Token, arcana::Node>;
+// using Pass = sigil::Pass<arcana::Token, arcana::Node>;
+
+struct Pass : public sigil::Pass<arcana::Token, arcana::Node> {
+  enum class Branch {
+    /// Iterate child then next
+    Nest,
+
+    /// Iterate next then child
+    Defer,
+
+    /// iterate child
+    Child,
+
+    /// iterate next
+    Next,
+
+    /// stop iteration
+    Terminate,
+  };
+
+  Pass(const Tokens &tokens, const Ast &ast)
+      : sigil::Pass<arcana::Token, arcana::Node>::Pass{tokens, ast} {}
+
+  void run();
+  void iterate(sigil_node_id id);
+
+  virtual Branch visit(sigil_node_id id) = 0;
+};
 
 } // namespace arcana

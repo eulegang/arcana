@@ -13,7 +13,7 @@
 
 namespace arcana {
 namespace pass {
-struct NamePass : Pass {
+struct NamePass final : Pass {
   struct Name {
     symbol sym;
     sigil_node_id parent;
@@ -29,29 +29,25 @@ struct NamePass : Pass {
   SymbolTree type_tree;
   Overlay overlay;
   Diagnostics &diagnostics;
+  std::stack<sigil_node_id> parents;
   std::set<Name> existing;
   bool type_space = false;
 
   NamePass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
-           Diagnostics &diagnostics)
-      : Pass{tokens, ast}, symbol_table{table}, value_tree{SymbolTree(8)},
-        type_tree{SymbolTree(8)}, diagnostics{diagnostics} {}
+           Diagnostics &diagnostics);
 
-  void run() override;
+  Branch visit(sigil_node_id id) override;
 
 private:
-  void scan(uint16_t space, uint16_t cur);
-
-  void check_node(sigil_node_id space, sigil_node_id ident);
-  void define_node(sigil_node_id space, sigil_node_id target,
-                   sigil_node_id ident);
+  void check_node(sigil_node_id ident);
+  void define_node(sigil_node_id target, sigil_node_id ident);
   std::optional<std::pair<sigil_node_id, Ast::Node>> find_next(sigil_node_id id,
                                                                Node type);
 };
 
-class EntryPass : Pass {
+class EntryPass final : Pass {
   bool in_func;
-  void visit(sigil_node_id id);
+  Branch visit(sigil_node_id id) override;
 
 public:
   entry::Entries &entries;
@@ -82,11 +78,15 @@ struct TypeDefPass : Pass {
 
   void run() override;
 
+  Branch visit(sigil_node_id cur) override;
+
 private:
-  void visit(uint16_t cur);
   void visit_bs(uint16_t cur, types::BitSet &);
   void visit_en(uint16_t cur, types::Enumeration &);
   void visit_st(uint16_t context, uint16_t cur, types::Struct &);
+
+  void visit_bodies(uint16_t cur);
+  void visit_bodies_annotate(uint16_t cur);
 
   types::type_id resolve_type(uint16_t context, uint16_t cur);
   types::type_id resolve_primitive(symbol sym);
