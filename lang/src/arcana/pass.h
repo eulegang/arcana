@@ -13,7 +13,7 @@
 
 namespace arcana {
 namespace pass {
-struct NamePass final : Pass {
+struct NamePass final : public Pass {
   struct Name {
     symbol sym;
     sigil_node_id parent;
@@ -45,9 +45,8 @@ private:
                                                                Node type);
 };
 
-class EntryPass final : Pass {
+class EntryPass final : public Pass {
   bool in_func;
-  Branch visit(sigil_node_id id) override;
 
 public:
   entry::Entries &entries;
@@ -55,10 +54,10 @@ public:
   EntryPass(const Tokens &tokens, const Ast &ast, entry::Entries &entries)
       : Pass{tokens, ast}, in_func{false}, entries{entries} {}
 
-  void run() override;
+  Branch visit(sigil_node_id id) override;
 };
 
-struct TypeDefPass : Pass {
+struct TypeDefPass : public Pass {
   using Overlay = sigil::Overlay<types::type_id>;
 
   SymbolTable &table;
@@ -72,11 +71,7 @@ struct TypeDefPass : Pass {
   TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
               types::Typebase &base,
               const arcana::pass::NamePass::Overlay &names,
-              Diagnostics &diagnostics)
-      : Pass{tokens, ast}, table{table}, base{base}, overlay{}, names{names},
-        diagnostics{diagnostics} {}
-
-  void run() override;
+              Diagnostics &diagnostics);
 
   Branch visit(sigil_node_id cur) override;
 

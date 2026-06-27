@@ -1,8 +1,6 @@
 
 #include "../arcana/pass.h"
 
-void arcana::pass::EntryPass::run() { visit(0); }
-
 arcana::Pass::Branch arcana::pass::EntryPass::visit(sigil_node_id cur) {
   Ast::Node node = ast[cur];
 
@@ -18,7 +16,7 @@ arcana::Pass::Branch arcana::pass::EntryPass::visit(sigil_node_id cur) {
 
   case Node::foreign:
     entries.foreigns.push_back(entry::Foreign{cur});
-    break;
+    return Pass::Branch::Next;
 
   case Node::var:
   case Node::konst:
@@ -26,7 +24,7 @@ arcana::Pass::Branch arcana::pass::EntryPass::visit(sigil_node_id cur) {
       entries.constvar.push_back(entry::ConstVar{cur});
     }
 
-    break;
+    return Pass::Branch::Next;
 
   default:
     break;
