@@ -58,6 +58,16 @@ Typebase::Typebase(SymbolTable &table)
   prim(f64, 8, 8, sign | f);
 
 #undef prim
+
+  derives.push_back({
+      Derive::Type::Slice,
+      type_id(type_id::cat::prim, 2),
+  });
+
+  derives.push_back({
+      Derive::Type::Slice,
+      type_id(type_id::cat::prim, 2),
+  });
 }
 
 #define intern(Type, Category, Collection)                                     \

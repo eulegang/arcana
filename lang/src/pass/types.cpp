@@ -115,12 +115,18 @@ Pass::Branch TypeDefPass::visit(uint16_t cur) {
     type_id tid = resolve_type(0, cur);
     *overlay.alloc(cur) = tid;
 
+    if (node.type == Node::fn) {
+      entries.push_back(cur);
+    }
+
     return Pass::Branch::Next;
   } break;
 
   case Node::konst:
   case Node::var: {
     Ast::Node ident = ast[node.child];
+
+    entries.push_back(cur);
 
     type_id tid = resolve_type(0, ident.next);
     *overlay.alloc(cur) = tid;
@@ -477,85 +483,22 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
   };
 }
 
-struct TypeSlate {
-  using Value = std::variant<uint16_t, type_id, std::monostate>;
-  struct Slot {
-    sigil_node_id node_id;
-    Value value;
-  };
+void TypeDefPass::run() {
+  iterate(0);
 
-  std::vector<Slot> slots;
-
-  void clear() { slots.clear(); }
-  void push(sigil_node_id id) {
-    slots.push_back({
-        id,
-        std::monostate(),
-    });
-  }
-};
-
-void TypeDefPass::visit_bodies(uint16_t cur) {
-  Ast::Node root = ast[cur];
-  if (root.type == Node::fn) {
-    visit_bodies_annotate(cur);
-  } else {
-    if (root.child) {
-      visit_bodies(root.child);
-    }
-  }
-
-  if (root.next) {
-    visit_bodies(cur);
-  }
-}
-
-void TypeDefPass::visit_bodies_annotate(uint16_t cur) {
-  TypeSlate slate;
-
-  sigil_node_id id = cur;
-
-  while (id != 0) {
-    Ast::Node node = ast[id];
-
-    if (node.type == Node::fn_ret) {
+  for (const auto entry : entries) {
+    switch (ast[entry].type) {
+    case Node::fn:
       break;
-    }
 
-    id = node.next;
-  }
+    case Node::var:
+    case Node::konst: {
+      InferDecl infer(*this, entry);
+      infer.run();
+    } break;
 
-  Ast::Node ret_node = ast[id];
-  type_id retid;
-  type_id errid;
-
-  if (ret_node.child) {
-    retid = *overlay.resolve(ret_node.child);
-
-    if (Ast::Node node = ast[ret_node.child]; node.next) {
-      errid = *overlay.resolve(node.next);
-    }
-  } else {
-    retid = type_id(type_id::cat::prim, 0);
-  }
-
-  std::stack<sigil_node_id> stack;
-
-  stack.push(ret_node.next);
-  Ast::Node node = ast[ret_node.next];
-
-  while (node.child) {
-    stack.push(node.child);
-    node = ast[node.child];
-  }
-
-  while (stack.empty()) {
-    sigil_node_id i = stack.top();
-    stack.pop();
-
-    Ast::Node node = ast[i];
-
-    if (node.next) {
+    default:
+      break;
     }
   }
 }
