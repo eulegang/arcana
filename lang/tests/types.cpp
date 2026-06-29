@@ -32,7 +32,7 @@ TEST(type_pass, func) {
   EXPECT_EQ(*type_def.overlay.resolve(0), type_id(type_id::cat::fn, 0));
 
   ASSERT_NE(type_def.overlay.resolve(6), nullptr);
-  EXPECT_EQ(*type_def.overlay.resolve(6), type_id(type_id::cat::derive, 1));
+  EXPECT_EQ(*type_def.overlay.resolve(6), type_id(type_id::cat::derive, 3));
 
   ASSERT_NE(type_def.overlay.resolve(11), nullptr);
   EXPECT_EQ(*type_def.overlay.resolve(11), type_id(type_id::cat::prim, 6));
