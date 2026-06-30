@@ -89,16 +89,23 @@ private:
   types::Fn gen_fn(uint16_t context, uint16_t cur);
 };
 
-struct InferDecl final : public Pass {
+struct InferPass : public Pass {
   TypeDefPass &parent;
   types::TypeSlate slate;
   sigil_node_id id;
 
-  InferDecl(TypeDefPass &parent, sigil_node_id id)
+  InferPass(TypeDefPass &parent, sigil_node_id id)
       : Pass{parent.tokens, parent.ast}, parent{parent}, id{id} {}
 
-  Branch visit(sigil_node_id id) override;
   void run() override;
+
+  void compress();
+  void annotate_ast();
+};
+
+struct InferDecl final : public InferPass {
+  InferDecl(TypeDefPass &parent, sigil_node_id id) : InferPass{parent, id} {}
+  Branch visit(sigil_node_id id) override;
 };
 
 } // namespace pass
