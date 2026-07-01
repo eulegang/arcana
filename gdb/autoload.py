@@ -1,12 +1,11 @@
 import gdb
+from enum import IntEnum, auto
 
 voidp = gdb.lookup_type("char").pointer()
 charp = voidp
 shortp = gdb.lookup_type("uint16_t").pointer()
 intp = gdb.lookup_type("int").pointer()
 longp = gdb.lookup_type("long").pointer()
-
-Entry = gdb.lookup_type("struct symbol_entry")
 
 
 class CSymbolTablePrinter:
@@ -40,6 +39,7 @@ class CSymbolTreePrinter:
 
     def to_string(self):
         assert self.__val.address is not None
+        Entry = gdb.lookup_type("struct symbol_entry")
 
         length = self.__val["len"]
         entries = (self.__val.address + 1).cast(Entry.pointer())
@@ -64,6 +64,45 @@ def symbols(val: gdb.Value):
     return None
 
 
+class Category(IntEnum):
+    meta = 0
+    bitset = auto()
+    enum = auto()
+    struct = auto()
+    primitive = auto()
+    derive = auto()
+    fn = auto()
+    alias = auto()
+
+
+class TypeIdPrinter:
+    "Prints a symbol_tree"
+
+    def __init__(self, val: gdb.Value):
+        self.__val = val
+
+    def to_string(self):
+        payload = self.__val["payload"]
+
+        cat = Category(int((payload >> 28) & 0xF))
+        id = int(payload & 0x0FFF_FFFF)
+
+        if cat == Category.meta:
+            if id == 0:
+                return "null"
+            elif id == 1:
+                return "poison"
+
+        return f"({cat.name}){id}"
+
+
+def types(val: gdb.Value):
+    if val.type.name == "arcana::types::type_id":
+        return TypeIdPrinter(val)
+    return None
+
+
 prog = gdb.current_progspace()
 if prog:
     prog.pretty_printers.append(symbols)
+    prog.pretty_printers.append(types)
