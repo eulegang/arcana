@@ -66,10 +66,10 @@ def symbols(val: gdb.Value):
 
 class Category(IntEnum):
     meta = 0
-    bitset = auto()
-    enum = auto()
-    struct = auto()
-    primitive = auto()
+    bitset = 1
+    enum = 2
+    struct = 3
+    primitive = 4
     derive = auto()
     fn = auto()
     alias = auto()

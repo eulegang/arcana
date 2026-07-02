@@ -65,7 +65,7 @@ Typebase::Typebase(SymbolTable &table)
   });
 
   derives.push_back({
-      Derive::Type::Slice,
+      Derive::Type::Pointer,
       type_id(type_id::cat::prim, 2),
   });
 }

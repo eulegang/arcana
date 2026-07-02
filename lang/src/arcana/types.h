@@ -14,9 +14,9 @@ struct type_id {
     en = 2,
     st = 3,
     prim = 4,
-    derive = 6,
-    fn = 7,
-    alias = 8,
+    derive = 5,
+    fn = 6,
+    alias = 7,
   };
 
   type_id() { payload = 0; }

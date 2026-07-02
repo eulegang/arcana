@@ -9,18 +9,36 @@
 namespace arcana {
 namespace types {
 struct TypeSlate {
-  using Value = std::variant<uint16_t, type_id, std::monostate>;
-  struct Slot {
-    sigil_node_id node_id;
-    Value value;
+
+  struct Link {
+    sigil_node_id a;
+    sigil_node_id b;
   };
 
-  std::vector<Slot> slots;
+  struct Fact {
+    sigil_node_id node;
+    type_id tid;
+  };
 
-  void clear();
+  struct Unknown {
+    sigil_node_id node;
+  };
+
   void push(sigil_node_id id);
   void link(sigil_node_id dst, sigil_node_id src);
   void set(sigil_node_id dst, type_id src);
+
+  void compress();
+
+  const std::vector<Unknown> &unknowns() { return _unknowns; }
+  const std::vector<Fact> &facts() { return _facts; }
+
+private:
+  std::vector<Link> _links;
+  std::vector<Fact> _facts;
+  std::vector<Unknown> _unknowns;
+
+  std::vector<sigil_node_id> linked(sigil_node_id);
 };
 } // namespace types
 } // namespace arcana

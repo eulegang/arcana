@@ -98,8 +98,6 @@ struct InferPass : public Pass {
       : Pass{parent.tokens, parent.ast}, parent{parent}, id{id} {}
 
   void run() override;
-
-  void compress();
   void annotate_ast();
 };
 

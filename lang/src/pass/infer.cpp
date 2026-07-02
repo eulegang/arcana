@@ -7,45 +7,26 @@ namespace pass {
 
 void InferPass::run() {
   iterate(id);
-  compress();
   annotate_ast();
 }
 
-void InferPass::compress() {
-  std::stack<size_t> refs;
-  for (size_t i = 0; i < slate.slots.size(); i++) {
-    size_t j = i;
-    auto slot = slate.slots[j];
+void InferPass::annotate_ast() {
+  slate.compress();
 
-    while (auto value = std::get_if<uint16_t>(&slot.value)) {
-      refs.push(j);
-      j = *value;
-      slot = slate.slots[j];
-    }
-
-    while (!refs.empty()) {
-      size_t cur = refs.top();
-      slate.slots[cur].value = slot.value;
-      refs.pop();
+  const types::type_id poison{types::type_id::cat::meta, 1};
+  for (const auto &[node, tid] : slate.facts()) {
+    if (tid == poison) {
+      parent.diagnostics.add_error("uncertain type found", {node, node});
     }
   }
-}
 
-void InferPass::annotate_ast() {
-  for (const auto slot : slate.slots) {
-    if (std::holds_alternative<std::monostate>(slot.value)) {
-      parent.diagnostics.add_error("uncertain type found",
-                                   {slot.node_id, slot.node_id});
+  for (const auto &fact : slate.facts()) {
+    auto tree = parent.overlay.resolve(fact.node);
+    if (!tree) {
+      tree = parent.overlay.alloc(fact.node);
     }
 
-    if (auto value = std::get_if<types::type_id>(&slot.value)) {
-      auto tree = parent.overlay.resolve(slot.node_id);
-      if (!tree) {
-        tree = parent.overlay.alloc(slot.node_id);
-      }
-
-      *tree = *value;
-    }
+    *tree = fact.tid;
   }
 }
 
