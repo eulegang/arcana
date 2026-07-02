@@ -471,8 +471,9 @@ types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
 
     Ast::Node ret_id_node = ast[ret_node.child];
     if (ret_id_node.next) {
-      err = resolve_type(context, ret_id_node.next);
-      *overlay.alloc(ret_id_node.next) = err;
+      err = ret;
+      ret = resolve_type(context, ret_id_node.next);
+      *overlay.alloc(ret_id_node.next) = ret;
     }
   }
 

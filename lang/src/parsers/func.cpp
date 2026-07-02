@@ -135,10 +135,6 @@ sigil_state parse_func_sig_ret(sigil_state state) {
   sigil_node *ty = sigil_state_node(state, root->child);
   run_subparser(ty, parse_type, next);
 
-  sigil_node *ok_ty = sigil_state_node(state, ty->child);
-
-  std::swap(ty->child, ok_ty->child);
-
   state.subroot = id;
   return state;
 }
