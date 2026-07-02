@@ -45,6 +45,10 @@ Pass::Branch InferDecl::visit(sigil_node_id id) {
     slate.push(ident.next);
     slate.link(ident.next, id);
 
+    if (auto tid = parent.overlay.resolve(ident.next); tid && *tid) {
+      slate.set(ident.next, *tid);
+    }
+
     Ast::Node type = ast[ident.next];
     slate.push(type.next);
     slate.link(id, type.next);
