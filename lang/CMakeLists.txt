@@ -33,11 +33,6 @@ add_library(
 )
 
 
-
-pkg_check_modules(SIGIL REQUIRED IMPORTED_TARGET sigil)
-pkg_check_modules(MFILE REQUIRED IMPORTED_TARGET mfile)
-pkg_check_modules(CHROMA REQUIRED IMPORTED_TARGET chroma)
-
 target_include_directories(arcana PUBLIC ../symbol/src)
 target_link_libraries(arcana PUBLIC PkgConfig::SIGIL)
 target_link_libraries(arcana PUBLIC symbol)
