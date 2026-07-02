@@ -24,14 +24,8 @@ add_library(
 
   src/pass/pass.cpp
   src/pass/name.cpp
-  src/pass/types.cpp
   src/pass/entries.cpp
-  src/pass/infer.cpp
-  src/pass/slate.cpp
-
-  src/arcana/types.cpp
 )
-
 
 target_include_directories(arcana PUBLIC ../symbol/src)
 target_link_libraries(arcana PUBLIC PkgConfig::SIGIL)
@@ -47,7 +41,6 @@ add_executable(
   tests/utils.cpp
   tests/token_table.cpp
   tests/symbols.cpp
-  tests/types.cpp
 )
 
 target_include_directories(arcana-unit PUBLIC ./src)

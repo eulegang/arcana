@@ -1,7 +1,6 @@
 #pragma once
 
 #include "arcana.h"
-#include "arcana/types.h"
 #include "arcana_nodes.h"
 #include <sigil.h>
 #include <string_view>

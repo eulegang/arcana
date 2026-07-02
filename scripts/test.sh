@@ -5,3 +5,4 @@ cmake --build build
 
 ctest --test-dir build/lang --output-on-failure
 ctest --test-dir build/symbol --output-on-failure
+ctest --test-dir build/types --output-on-failure
