@@ -34,11 +34,15 @@ void TypeSlate::set(sigil_node_id dst, type_id tid) {
   _facts.push_back({dst, tid});
 }
 
+void TypeSlate::hint(sigil_node_id dst, type_id tid) {
+  _hints.push_back({dst, tid});
+}
+
 void TypeSlate::compress() {
   const type_id poison{type_id::cat::meta, 1};
   InferCache cache;
 
-  for (const auto &[id] : _unknowns) {
+  for (const auto id : _unknowns) {
     cache[id] = type_id();
   }
 
@@ -70,6 +74,15 @@ void TypeSlate::compress() {
       if (a_ty != b_ty) {
         cache[a] = poison;
         cache[b] = poison;
+      }
+    }
+  }
+
+  for (const auto [id, tid] : _hints) {
+    if (!strong_check(cache, id)) {
+      cache[id] = tid;
+      for (const auto linked : linked(id)) {
+        cache[linked] = tid;
       }
     }
   }

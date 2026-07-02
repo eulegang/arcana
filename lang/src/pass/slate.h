@@ -20,23 +20,20 @@ struct TypeSlate {
     type_id tid;
   };
 
-  struct Unknown {
-    sigil_node_id node;
-  };
-
   void push(sigil_node_id id);
   void link(sigil_node_id dst, sigil_node_id src);
   void set(sigil_node_id dst, type_id src);
+  void hint(sigil_node_id dst, type_id src);
 
   void compress();
 
-  const std::vector<Unknown> &unknowns() { return _unknowns; }
   const std::vector<Fact> &facts() { return _facts; }
 
 private:
   std::vector<Link> _links;
   std::vector<Fact> _facts;
-  std::vector<Unknown> _unknowns;
+  std::vector<Fact> _hints;
+  std::vector<sigil_node_id> _unknowns;
 
   std::vector<sigil_node_id> linked(sigil_node_id);
 };

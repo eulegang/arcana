@@ -55,7 +55,10 @@ Pass::Branch InferDecl::visit(sigil_node_id id) {
 
   case Node::str:
     slate.set(id, types::type_id(types::type_id::cat::derive, 0));
+    break;
 
+  case Node::integer:
+    slate.hint(id, types::type_id(types::type_id::cat::prim, 8));
     break;
 
   default:
