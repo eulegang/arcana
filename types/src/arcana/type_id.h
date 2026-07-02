@@ -5,6 +5,7 @@
 
 namespace arcana::types {
 struct type_id {
+
 #define MASK 0xF0000000
   enum class cat : uint16_t {
     meta = 0,
@@ -56,6 +57,11 @@ struct type_id {
   }
 
   bool operator<(const type_id &other) const { return payload < other.payload; }
+
+  static type_id null;
+  static type_id poison;
+  static type_id unit;
+  static type_id boolean;
 
 private:
   uint32_t payload;

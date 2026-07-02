@@ -1,3 +1,4 @@
+#include "arcana/type_id.h"
 #include "arcana/typebase.h"
 #include <sstream>
 
@@ -130,6 +131,8 @@ std::string Typebase::repr(type_id id) const {
       ss << " -> " << repr(fn.err) << "!" << repr(fn.ret);
     } else if (fn.ret) {
       ss << " -> " << repr(fn.ret);
+    } else {
+      ss << " -> " << repr(type_id::unit);
     }
     return ss.str();
   } break;

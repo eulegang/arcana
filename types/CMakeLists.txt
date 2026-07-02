@@ -20,6 +20,7 @@ add_executable(
   arcana-types-unit
 
   tests/repr.cpp
+  tests/type_id.cpp
 )
 
 target_include_directories(arcana-types-unit PUBLIC ../lang/src)

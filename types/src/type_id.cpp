@@ -4,6 +4,10 @@
 #include <ostream>
 
 namespace arcana::types {
+type_id type_id::null = type_id();
+type_id type_id::poison = type_id(type_id::cat::meta, 1);
+type_id type_id::unit = type_id(type_id::cat::prim, 0);
+type_id type_id::boolean = type_id(type_id::cat::prim, 1);
 
 std::ostream &operator<<(std::ostream &out, const type_id &id) {
   switch (id.category()) {

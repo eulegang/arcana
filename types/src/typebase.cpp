@@ -80,6 +80,7 @@ generate(Struct, st, structs);
 generate(BitSet, bs, bitsets);
 generate(Enumeration, en, enums);
 generate(Alias, alias, aliases);
+generate(Fn, fn, fns);
 
 #undef generate
 
