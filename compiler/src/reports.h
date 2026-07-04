@@ -2,6 +2,7 @@
 
 #include "arcana.h"
 #include "arcana/pass.h"
+#include "arcana/types.h"
 #include "symbol.h"
 #include <sigil.h>
 
@@ -21,7 +22,7 @@ void names(const arcana::Ast &, const SymbolTable &,
 
 void types(const arcana::Tokens &, const arcana::Ast &,
            const arcana::pass::NamePass::Overlay &,
-           const arcana::types::Typebase &, const arcana::pass::TypeDefPass &);
+           const arcana::types::Typebase &, const arcana::types::TypeDefPass &);
 
 void diagnostics(std::string_view, const arcana::Tokens &tokens,
                  arcana::Diagnostics &diagnostics);

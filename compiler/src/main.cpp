@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
   arcana::types::Typebase base{syms};
   arcana::entry::Entries entries;
 
-  arcana::pass::TypeDefPass type_def{
+  arcana::types::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 

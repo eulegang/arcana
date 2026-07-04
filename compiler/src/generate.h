@@ -16,7 +16,7 @@ namespace gen {
 struct Unit {
   struct Overlays {
     const arcana::pass::NamePass::Overlay &names;
-    const arcana::pass::TypeDefPass::Overlay &types;
+    const arcana::types::TypeDefPass::Overlay &types;
   };
 
   const arcana::Tokens &tokens;

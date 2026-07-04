@@ -15,5 +15,5 @@ pkg_check_modules(CHROMA REQUIRED IMPORTED_TARGET chroma)
 add_subdirectory(symbol)
 add_subdirectory(lang)
 add_subdirectory(types)
-# add_subdirectory(compiler)
+add_subdirectory(compiler)
 

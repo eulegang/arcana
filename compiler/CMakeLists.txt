@@ -28,7 +28,9 @@ add_executable(
 )
 
 target_include_directories(arcanac PUBLIC ../lang/src)
+target_include_directories(arcanac PUBLIC ../types/src)
 target_link_libraries(arcanac arcana)
+target_link_libraries(arcanac arcana-types)
 target_link_libraries(arcanac PkgConfig::SIGIL)
 target_link_libraries(arcanac PkgConfig::MFILE)
 target_link_libraries(arcanac PkgConfig::CHROMA)

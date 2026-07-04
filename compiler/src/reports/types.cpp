@@ -13,7 +13,7 @@ struct ctx {
   std::ostream *out;
   const SymbolTable &table;
   const arcana::types::Typebase &base;
-  const arcana::pass::TypeDefPass::Overlay &overlay;
+  const arcana::types::TypeDefPass::Overlay &overlay;
 };
 
 void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
@@ -39,7 +39,7 @@ void types_dump_nodes(uint16_t id, sigil::Ast<arcana::Node>::Node node, void *,
 void report::types(const arcana::Tokens &, const arcana::Ast &ast,
                    const arcana::pass::NamePass::Overlay &,
                    const arcana::types::Typebase &base,
-                   const arcana::pass::TypeDefPass &pass) {
+                   const arcana::types::TypeDefPass &pass) {
 
   std::ostream *out = &std::cout;
   ctx ctx = {
