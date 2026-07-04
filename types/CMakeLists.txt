@@ -1,5 +1,5 @@
 add_library(
-  arcana-types SHARED
+  arcana-types STATIC
 
   src/repr.cpp
   src/typebase.cpp

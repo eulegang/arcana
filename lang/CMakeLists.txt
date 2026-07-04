@@ -1,5 +1,5 @@
 add_library(
-  arcana SHARED
+  arcana STATIC
 
   src/token-table.cpp
   src/tokens.cpp
