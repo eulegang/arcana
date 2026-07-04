@@ -1,20 +1,115 @@
-#include "../arcana/pass.h"
-#include "symbol.h"
-#include <algorithm>
+#include "arcana/typepass.h"
+#include "arcana.h"
 #include <charconv>
-#include <cstdint>
-#include <sigil.h>
-#include <stdexcept>
-#include <string>
-#include <sys/stat.h>
-#include <utility>
-#include <variant>
-#include <vector>
 
-namespace arcana {
-namespace pass {
+using namespace arcana;
+using namespace arcana::types;
+using Branch = arcana::Pass::Branch;
 
-using type_id = types::type_id;
+TypeDefPass::TypeDefPass(const Tokens &tokens, const Ast &ast,
+                         SymbolTable &table, types::Typebase &base,
+                         const arcana::pass::NamePass::Overlay &names,
+                         Diagnostics &diagnostics)
+    : Pass{tokens, ast}, base{base}, overlay{ast.ptr.get(), 4}, table{table},
+      names{names}, diagnostics{diagnostics} {}
+
+void TypeDefPass::run() {
+  iterate(0);
+
+  for (const auto entry : entries) {
+    switch (ast[entry].type) {
+    case Node::fn:
+      break;
+
+    case Node::var:
+    case Node::konst: {
+      InferDeclPass infer(*this, entry);
+      infer.run();
+    } break;
+
+    default:
+      break;
+    }
+  }
+}
+
+Branch TypeDefPass::visit(uint16_t cur) {
+  auto node = ast[cur];
+
+  switch (node.type) {
+  case Node::bs: {
+    auto [id, set] = base.generate<types::BitSet>();
+    // ids.push_back(std::make_pair(cur, id));
+    *overlay.alloc(cur) = id;
+
+    if (node.child != 0) {
+      visit_bs(cur, set);
+      return Pass::Branch::Terminate;
+    }
+  } break;
+
+  case Node::en: {
+    auto [id, en] = base.generate<types::Enumeration>();
+    // ids.push_back(std::make_pair(cur, id));
+    *overlay.alloc(cur) = id;
+
+    if (node.child != 0) {
+      visit_en(cur, en);
+      return Pass::Branch::Terminate;
+    }
+  } break;
+
+  case Node::st: {
+    auto [id, st] = base.generate<types::Struct>();
+    // ids.push_back(std::make_pair(cur, id));
+    *overlay.alloc(cur) = id;
+    visit_st(cur, cur, st);
+
+    return Pass::Branch::Terminate;
+  } break;
+
+  case Node::alias: {
+    Ast::Node ident = ast[node.child];
+    type_id tid = resolve_type(cur, ident.next);
+    type_id alias = type_id(type_id::cat::alias, base.aliases.size());
+    base.aliases.push_back({.id = tid});
+    // ids.push_back(std::make_pair(cur, alias));
+
+    *overlay.alloc(cur) = alias;
+    *overlay.alloc(ident.next) = tid;
+
+    return Pass::Branch::Next;
+  } break;
+
+  case Node::foreign:
+  case Node::fn: {
+    type_id tid = resolve_type(0, cur);
+    *overlay.alloc(cur) = tid;
+
+    if (node.type == Node::fn) {
+      entries.push_back(cur);
+    }
+
+    return Pass::Branch::Next;
+  } break;
+
+  case Node::konst:
+  case Node::var: {
+    Ast::Node ident = ast[node.child];
+
+    entries.push_back(cur);
+
+    type_id tid = resolve_type(0, ident.next);
+    *overlay.alloc(cur) = tid;
+    *overlay.alloc(ident.next) = tid;
+  } break;
+
+  default:
+    break;
+  }
+
+  return Pass::Branch::Nest;
+}
 
 bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Idx id,
                        uint16_t &size) {
@@ -53,91 +148,6 @@ bool primitive_bitsize(const Tokens &tokens, const Ast &ast, Ast::Idx id,
   }
 
   return false;
-}
-
-TypeDefPass::TypeDefPass(const Tokens &tokens, const Ast &ast,
-                         SymbolTable &table, types::Typebase &base,
-                         const arcana::pass::NamePass::Overlay &names,
-                         Diagnostics &diagnostics)
-    : Pass{tokens, ast}, table{table}, base{base}, overlay{ast.ptr.get(), 4},
-      names{names}, diagnostics{diagnostics} {}
-
-Pass::Branch TypeDefPass::visit(uint16_t cur) {
-  auto node = ast[cur];
-
-  switch (node.type) {
-  case Node::bs: {
-    auto [id, set] = base.generate<types::BitSet>();
-    ids.push_back(std::make_pair(cur, id));
-    *overlay.alloc(cur) = id;
-
-    if (node.child != 0) {
-      visit_bs(cur, set);
-      return Pass::Branch::Terminate;
-    }
-  } break;
-
-  case Node::en: {
-    auto [id, en] = base.generate<types::Enumeration>();
-    ids.push_back(std::make_pair(cur, id));
-    *overlay.alloc(cur) = id;
-
-    if (node.child != 0) {
-      visit_en(cur, en);
-      return Pass::Branch::Terminate;
-    }
-  } break;
-
-  case Node::st: {
-    auto [id, st] = base.generate<types::Struct>();
-    ids.push_back(std::make_pair(cur, id));
-    *overlay.alloc(cur) = id;
-    visit_st(cur, cur, st);
-
-    return Pass::Branch::Terminate;
-  } break;
-
-  case Node::alias: {
-    Ast::Node ident = ast[node.child];
-    type_id tid = resolve_type(cur, ident.next);
-    type_id alias = type_id(type_id::cat::alias, base.aliases.size());
-    base.aliases.push_back({.id = tid});
-    ids.push_back(std::make_pair(cur, alias));
-
-    *overlay.alloc(cur) = alias;
-    *overlay.alloc(ident.next) = tid;
-
-    return Pass::Branch::Next;
-  } break;
-
-  case Node::foreign:
-  case Node::fn: {
-    type_id tid = resolve_type(0, cur);
-    *overlay.alloc(cur) = tid;
-
-    if (node.type == Node::fn) {
-      entries.push_back(cur);
-    }
-
-    return Pass::Branch::Next;
-  } break;
-
-  case Node::konst:
-  case Node::var: {
-    Ast::Node ident = ast[node.child];
-
-    entries.push_back(cur);
-
-    type_id tid = resolve_type(0, ident.next);
-    *overlay.alloc(cur) = tid;
-    *overlay.alloc(ident.next) = tid;
-  } break;
-
-  default:
-    break;
-  }
-
-  return Pass::Branch::Nest;
 }
 
 void TypeDefPass::visit_bs(uint16_t cur, types::BitSet &bitset) {
@@ -301,7 +311,7 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
       Ast::Node field = ast[cur];
       Ast::Node ident = ast[field.child];
 
-      NamePass::Name *name = names.resolve(field.child);
+      pass::NamePass::Name *name = names.resolve(field.child);
 
       type_id tid = resolve_type(context, ident.next);
       *overlay.alloc(ident.next) = tid;
@@ -318,191 +328,3 @@ void TypeDefPass::visit_st(uint16_t context, uint16_t cur, types::Struct &st) {
   if (root.next)
     visit(root.next);
 }
-
-type_id TypeDefPass::resolve_type(uint16_t context, uint16_t cur) {
-  Ast::Node node = ast[cur];
-
-  if (node.type == Node::ty && node.child) {
-    return resolve_type(context, node.child);
-  }
-
-  if (node.type == Node::ident) {
-    type_id tid = resolve_primitive(names.resolve(cur)->sym);
-
-    if (!tid) {
-      auto [id, alias] = base.generate<types::Alias>();
-      alias.id = type_id();
-    }
-
-    return tid;
-  }
-
-  if (node.type == Node::pointer) {
-    type_id tid = resolve_type(context, node.child);
-
-    uint32_t id = 0;
-    for (const auto &derive : base.derives) {
-      if (derive.ty == types::Derive::Type::Pointer &&
-          derive.underlying == tid) {
-        return type_id(type_id::cat::derive, id);
-      }
-
-      id++;
-    }
-
-    type_id underlying{tid};
-    tid = type_id(type_id::cat::derive, base.derives.size());
-    base.derives.push_back({
-        .ty = types::Derive::Type::Pointer,
-        .underlying = underlying,
-    });
-
-    return tid;
-  }
-
-  if (node.type == Node::slice) {
-    type_id tid = resolve_type(context, node.child);
-
-    uint32_t id = 0;
-    for (const auto &derive : base.derives) {
-      if (derive.ty == types::Derive::Type::Slice && derive.underlying == tid) {
-        return type_id(type_id::cat::derive, id);
-      }
-
-      id++;
-    }
-
-    type_id underlying{tid};
-    tid = type_id(type_id::cat::derive, base.derives.size());
-    base.derives.push_back({
-        .ty = types::Derive::Type::Slice,
-        .underlying = underlying,
-    });
-    return tid;
-  }
-
-  if (node.type == Node::fn) {
-    types::Fn new_fn = gen_fn(context, cur);
-
-    uint32_t id = 0;
-    for (const auto &fn : base.fns) {
-      if (fn == new_fn) {
-        return type_id(type_id::cat::fn, id);
-      }
-
-      id++;
-    }
-    type_id tid = type_id(type_id::cat::fn, base.fns.size());
-    base.fns.push_back(new_fn);
-
-    return tid;
-  }
-
-  if (node.type == Node::foreign) {
-    types::Fn new_fn = gen_fn(context, cur);
-
-    uint32_t id = 0;
-    for (const auto &fn : base.fns) {
-      if (fn == new_fn) {
-        return type_id(type_id::cat::fn, id);
-      }
-
-      id++;
-    }
-    type_id tid = type_id(type_id::cat::fn, base.fns.size());
-    base.fns.push_back(new_fn);
-
-    return tid;
-  }
-
-  return type_id();
-}
-
-type_id TypeDefPass::resolve_primitive(symbol sym) {
-  uint16_t id = 0;
-  for (const auto &prim : base.primitives) {
-    if (prim.sym == sym) {
-      return type_id(type_id::cat::prim, id);
-    }
-
-    id++;
-  }
-
-  return type_id(type_id::cat::meta, 0);
-}
-
-types::Fn TypeDefPass::gen_fn(uint16_t context, uint16_t cur) {
-  Ast::Node fn = ast[cur];
-
-  Ast::Node args = ast[fn.child];
-  if (args.type == Node::str)
-    args = ast[args.next];
-
-  if (args.type == Node::ident)
-    args = ast[args.next];
-
-  uint16_t param_id = args.child;
-
-  std::vector<type_id> params;
-  type_id err;
-  type_id ret;
-
-  while (param_id) {
-    Ast::Node param = ast[param_id];
-    uint16_t id = param.child;
-    Ast::Node ty = ast[param.child];
-
-    if (ty.type == Node::ident) {
-      id = ty.next;
-      ty = ast[ty.next];
-    }
-
-    type_id param_tid = resolve_type(context, id);
-    params.push_back(param_tid);
-    *overlay.alloc(id) = param_tid;
-
-    param_id = param.next;
-  }
-
-  if (args.next) {
-    Ast::Node ret_node = ast[args.next];
-    ret = resolve_type(context, ret_node.child);
-    *overlay.alloc(ret_node.child) = ret;
-
-    Ast::Node ret_id_node = ast[ret_node.child];
-    if (ret_id_node.next) {
-      err = ret;
-      ret = resolve_type(context, ret_id_node.next);
-      *overlay.alloc(ret_id_node.next) = ret;
-    }
-  }
-
-  return types::Fn{
-      .params = params,
-      .err = err,
-      .ret = ret,
-  };
-}
-
-void TypeDefPass::run() {
-  iterate(0);
-
-  for (const auto entry : entries) {
-    switch (ast[entry].type) {
-    case Node::fn:
-      break;
-
-    case Node::var:
-    case Node::konst: {
-      InferDecl infer(*this, entry);
-      infer.run();
-    } break;
-
-    default:
-      break;
-    }
-  }
-}
-
-} // namespace pass
-} // namespace arcana

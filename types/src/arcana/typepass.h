@@ -1,15 +1,24 @@
 #pragma once
 
+#include "arcana.h"
+#include "arcana/pass.h"
+#include "arcana/type_id.h"
+#include "arcana/type_sync.h"
+#include "arcana/typebase.h"
+#include "symbol.h"
+
+namespace arcana::types {
 struct TypeDefPass : public Pass {
   using Overlay = sigil::Overlay<types::type_id>;
 
-  SymbolTable &table;
-  types::Typebase &base;
-  std::vector<std::pair<uint16_t, types::type_id>> ids;
-
+  Typebase &base;
   Overlay overlay;
-  const NamePass::Overlay &names;
+
+  SymbolTable &table;
+  const arcana::pass::NamePass::Overlay &names;
+
   Diagnostics &diagnostics;
+
   std::vector<sigil_node_id> entries;
 
   TypeDefPass(const Tokens &tokens, const Ast &ast, SymbolTable &table,
@@ -33,7 +42,7 @@ private:
 
 struct InferPass : public Pass {
   TypeDefPass &parent;
-  types::TypeSlate slate;
+  TypeSync sync;
   sigil_node_id id;
 
   InferPass(TypeDefPass &parent, sigil_node_id id)
@@ -43,7 +52,10 @@ struct InferPass : public Pass {
   void annotate_ast();
 };
 
-struct InferDecl final : public InferPass {
-  InferDecl(TypeDefPass &parent, sigil_node_id id) : InferPass{parent, id} {}
-  Branch visit(sigil_node_id id) override;
+struct InferDeclPass final : public InferPass {
+  InferDeclPass(TypeDefPass &parent, sigil_node_id id)
+      : InferPass{parent, id} {}
+
+  Branch visit(sigil_node_id cur) override;
 };
+} // namespace arcana::types

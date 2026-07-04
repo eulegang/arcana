@@ -1,4 +1,3 @@
-#include "arcana/types.h"
 #include <mfile.h>
 #include <sigil.h>
 
@@ -7,14 +6,14 @@
 
 #include "arcana.h"
 #include "arcana/pass.h"
+#include "arcana/types.h"
 #include "arcana_tokens.h"
 #include "symbol.h"
-#include "utils.h"
 
 using arcana::types::type_id;
 
 TEST(type_pass, func) {
-  mfile file{"corpus/func.arc"};
+  mfile file{"func.arc"};
   std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
@@ -24,7 +23,7 @@ TEST(type_pass, func) {
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{
+  arcana::types::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
@@ -39,7 +38,7 @@ TEST(type_pass, func) {
 }
 
 TEST(type_pass, record) {
-  mfile file{"corpus/record.arc"};
+  mfile file{"record.arc"};
   std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
@@ -49,7 +48,7 @@ TEST(type_pass, record) {
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{
+  arcana::types::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
@@ -64,7 +63,7 @@ TEST(type_pass, record) {
 }
 
 TEST(type_pass, bitset) {
-  mfile file{"corpus/bitset.arc"};
+  mfile file{"bitset.arc"};
   std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
@@ -74,7 +73,7 @@ TEST(type_pass, bitset) {
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{
+  arcana::types::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
@@ -84,7 +83,7 @@ TEST(type_pass, bitset) {
 }
 
 TEST(type_pass, enum) {
-  mfile file{"corpus/enum.arc"};
+  mfile file{"enum.arc"};
   std::string_view sv = file;
   arcana::Tokens tokens(sv, arcana::tokenizer);
   arcana::Ast ast{arcana::parser, tokens};
@@ -94,7 +93,7 @@ TEST(type_pass, enum) {
   name_pass.run();
 
   arcana::types::Typebase base{syms};
-  arcana::pass::TypeDefPass type_def{
+  arcana::types::TypeDefPass type_def{
       tokens, ast, syms, base, name_pass.overlay, diagnostics};
   type_def.run();
 
