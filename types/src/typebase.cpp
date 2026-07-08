@@ -1,4 +1,5 @@
 #include "arcana/typebase.h"
+#include "arcana/type_id.h"
 
 using namespace arcana::types;
 
@@ -106,3 +107,32 @@ lookup_impl(Fn, fn, fns);
 lookup_impl(Derive, derive, derives);
 
 #undef lookup_impl
+
+type_id Typebase::member(type_id base, symbol sym) {
+  std::string_view name = table.resolve(sym);
+
+  switch (base.category()) {
+  case type_id::cat::derive: {
+
+    auto derive = lookup<Derive>(base);
+    switch (derive.ty) {
+    case Derive::Type::Pointer:
+      return type_id::poison;
+
+    case Derive::Type::Slice:
+      if (name == "len") {
+        return type_id(type_id::cat::prim, 8);
+      } else if (name == "data") {
+        return derive.underlying;
+      }
+      return type_id::poison;
+      break;
+    }
+
+  } break;
+
+  default:
+    return type_id::poison;
+  }
+  return type_id::poison;
+}

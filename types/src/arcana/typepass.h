@@ -58,4 +58,15 @@ struct InferDeclPass final : public InferPass {
 
   Branch visit(sigil_node_id cur) override;
 };
+
+struct InferFuncPass final : public InferPass {
+  type_id ret;
+  type_id err;
+
+  InferFuncPass(TypeDefPass &parent, sigil_node_id id)
+      : InferPass{parent, id} {}
+
+  void run() override;
+  Branch visit(sigil_node_id cur) override;
+};
 } // namespace arcana::types

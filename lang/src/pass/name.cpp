@@ -154,8 +154,19 @@ Pass::Branch NamePass::visit(uint16_t cur) {
   } break;
 
   case Node::member: {
-    if (ast[root.child].type == Node::ident) {
-      check_node(root.child);
+    sigil_node_id id = root.child;
+    Ast::Node node = ast[id];
+    if (node.type == Node::ident) {
+      check_node(id);
+
+      if (node.next) {
+        id = node.next;
+        node = ast[id];
+
+        if (node.type == Node::ident) {
+          define_oneoff(id);
+        }
+      }
     }
 
     return Branch::Next;
@@ -291,6 +302,17 @@ void NamePass::check_node(sigil_node_id ident) {
     diagnostics.add_error("missing definition", span);
     name->ref = 0xFFFF;
   }
+}
+
+void NamePass::define_oneoff(sigil_node_id ident) {
+  sigil_span span = ast.span(ident);
+  std::string_view view = tokens.content(span.start);
+
+  symbol sym = symbol_table.intern(view);
+
+  Name *name = overlay.alloc(ident);
+  name->parent = parents.empty() ? 0xFFFF : parents.top();
+  name->sym = sym;
 }
 
 void NamePass::define_node(sigil_node_id target, sigil_node_id ident) {

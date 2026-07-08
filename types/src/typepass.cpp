@@ -18,8 +18,10 @@ void TypeDefPass::run() {
 
   for (const auto entry : entries) {
     switch (ast[entry].type) {
-    case Node::fn:
-      break;
+    case Node::fn: {
+      InferFuncPass infer{*this, entry};
+      infer.run();
+    } break;
 
     case Node::var:
     case Node::konst: {

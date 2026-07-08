@@ -39,6 +39,7 @@ struct NamePass final : public Pass {
 
 private:
   void check_node(sigil_node_id ident);
+  void define_oneoff(sigil_node_id ident);
   void define_node(sigil_node_id target, sigil_node_id ident);
   std::optional<std::pair<sigil_node_id, Ast::Node>> find_next(sigil_node_id id,
                                                                Node type);
