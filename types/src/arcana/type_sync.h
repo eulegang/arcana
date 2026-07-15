@@ -1,5 +1,6 @@
 #pragma once
 
+#include "arcana/space.h"
 #include "arcana/type_id.h"
 #include "arcana/typebase.h"
 
@@ -20,18 +21,18 @@ struct TypeSync {
 
   void compress();
 
-  const std::vector<Assoc> &facts() { return _facts; }
+  const std::span<Assoc> facts() { return _facts; }
 
   TypeSync(const Typebase &base) : base{base} {}
 
-private:
-  std::vector<Link> _links;
-  std::vector<Assoc> _facts;
-  std::vector<Assoc> _hints;
-  std::vector<sigil_node_id> _unknowns;
-  std::vector<Member> _members;
-  const Typebase &base;
+  std::vector<sigil_node_id> linked(sigil_node_id) const;
 
-  std::vector<sigil_node_id> linked(sigil_node_id);
+private:
+  util::Space<Link> _links;
+  util::Space<Assoc> _facts;
+  util::Space<Assoc> _hints;
+  util::Space<sigil_node_id> _unknowns;
+  util::Space<Member> _members;
+  const Typebase &base;
 };
 } // namespace arcana::types

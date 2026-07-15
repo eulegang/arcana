@@ -40,21 +40,39 @@ struct InferCache {
       mapping[dst] = type_id::poison;
     }
   }
+
+  void broadcast_link(Key id, const TypeSync &sync) {
+    const auto tid = std::get<type_id>(mapping[id]);
+    for (const auto linked : sync.linked(id)) {
+      mapping[linked] = tid;
+    }
+  }
+
+  void unify(Key a, Key b, const TypeSync &sync) {
+    bool a_strong = strong_check(a);
+    bool b_strong = strong_check(b);
+
+    if (!a_strong && !b_strong) {
+      mapping[a] = b;
+    } else if (a_strong && !b_strong) {
+      broadcast_link(a, sync);
+    } else if (b_strong && !a_strong) {
+      broadcast_link(b, sync);
+    } else {
+      assert_same(a, b);
+    }
+  }
 };
 
-void TypeSync::push(sigil_node_id id) { _unknowns.push_back({id}); }
+void TypeSync::push(sigil_node_id id) { _unknowns.push(id); }
 
 void TypeSync::link(sigil_node_id dst, sigil_node_id src) {
-  _links.push_back({dst, src});
+  _links.push({dst, src});
 }
 
-void TypeSync::set(sigil_node_id dst, type_id tid) {
-  _facts.push_back({dst, tid});
-}
+void TypeSync::set(sigil_node_id dst, type_id tid) { _facts.push({dst, tid}); }
 
-void TypeSync::hint(sigil_node_id dst, type_id tid) {
-  _hints.push_back({dst, tid});
-}
+void TypeSync::hint(sigil_node_id dst, type_id tid) { _hints.push({dst, tid}); }
 
 void TypeSync::compress() {
   InferCache cache;
@@ -68,31 +86,7 @@ void TypeSync::compress() {
   }
 
   for (const auto [a, b] : _links) {
-    bool a_strong = cache.strong_check(a);
-    bool b_strong = cache.strong_check(b);
-
-    if (!a_strong && !b_strong) {
-      cache[a] = b;
-    } else if (a_strong && !b_strong) {
-      const auto tid = std::get<type_id>(cache[a]);
-
-      for (const auto linked : linked(a)) {
-        cache[linked] = tid;
-      }
-    } else if (b_strong && !a_strong) {
-      const auto tid = std::get<type_id>(cache[b]);
-      for (const auto linked : linked(b)) {
-        cache[linked] = tid;
-      }
-    } else {
-      auto a_ty = std::get<type_id>(cache[a]);
-      auto b_ty = std::get<type_id>(cache[b]);
-
-      if (a_ty != b_ty) {
-        cache[a] = type_id::poison;
-        cache[b] = type_id::poison;
-      }
-    }
+    cache.unify(a, b, *this);
   }
 
   for (const auto [id, tid] : _hints) {
@@ -106,8 +100,7 @@ void TypeSync::compress() {
 
   // TODO: rework. just need an answer right now
   std::vector<size_t> pending;
-  for (size_t i = 0; i < _members.size(); i++) {
-    const auto [dst, src, member] = _members[i];
+  for (size_t i = 0; const auto &[dst, src, member] : _members) {
     auto sstrong = cache.strong_check(src);
     auto dstrong = cache.strong_check(dst);
     if (!sstrong && !dstrong) {
@@ -133,17 +126,17 @@ void TypeSync::compress() {
   _facts.clear();
   for (const auto &[key, value] : cache) {
     if (auto v = std::get_if<type_id>(&value)) {
-      _facts.push_back({key, *v});
+      _facts.push({key, *v});
     } else {
       auto id = std::get<sigil_node_id>(value);
       if (auto tid = std::get_if<type_id>(&cache[id])) {
-        _facts.push_back({key, *tid});
+        _facts.push({key, *tid});
       }
     }
   }
 }
 
-std::vector<sigil_node_id> TypeSync::linked(sigil_node_id root) {
+std::vector<sigil_node_id> TypeSync::linked(sigil_node_id root) const {
   std::vector<sigil_node_id> results;
 
   std::stack<sigil_node_id> fringe;
@@ -153,7 +146,8 @@ std::vector<sigil_node_id> TypeSync::linked(sigil_node_id root) {
     auto cur = fringe.top();
     fringe.pop();
 
-    for (const auto &[a, b] : _links) {
+    for (auto it = _links.cbegin(); it != _links.cend(); ++it) {
+      const auto [a, b] = *it;
       if (a == cur || b == cur) {
         auto next = cur == a ? b : a;
         if (std::find(results.begin(), results.end(), cur) != results.end()) {
