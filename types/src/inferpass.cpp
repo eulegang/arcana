@@ -1,4 +1,5 @@
 
+#include "arcana.h"
 #include "arcana/type_id.h"
 #include "arcana/typepass.h"
 
@@ -34,13 +35,13 @@ type_id resolve_expr(const TypeDefPass &pass, sigil_node_id id) {
   case Node::ident: {
     auto name = pass.names.resolve(id);
     if (!name)
-      return type_id::poison;
+      return type_id::null;
     auto ref = name->ref;
 
     auto tid = pass.overlay.resolve(ref);
 
     if (!tid)
-      return type_id::poison;
+      return type_id::null;
 
     return *tid;
   }
@@ -219,13 +220,17 @@ Branch InferFuncPass::visit(sigil_node_id id) {
 
   case Node::ty:
     sync.set(id, *parent.overlay.resolve(id));
-    break;
+    return Pass::Branch::Terminate;
 
   case Node::ident: {
     if (auto name = parent.names.resolve(id); name) {
       auto ref = name->ref;
 
-      sync.link(id, ref);
+      if (auto tid = parent.overlay.resolve(ref); tid && *tid) {
+        sync.set(id, *tid);
+      } else {
+        sync.link(id, ref);
+      }
     }
 
   } break;

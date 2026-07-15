@@ -46,7 +46,8 @@ struct InferPass : public Pass {
   sigil_node_id id;
 
   InferPass(TypeDefPass &parent, sigil_node_id id)
-      : Pass{parent.tokens, parent.ast}, parent{parent}, id{id} {}
+      : Pass{parent.tokens, parent.ast}, parent{parent}, sync{parent.base},
+        id{id} {}
 
   void run() override;
   void annotate_ast();

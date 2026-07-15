@@ -1,5 +1,5 @@
 msg :: "hello world\n";
-stdout : u32 = 1;
+stdout : i32 = 1;
 
 func write(fd: u32, slice: []u8) -> void!i64{
   n := cwrite(fd, slice.data, slice.len);

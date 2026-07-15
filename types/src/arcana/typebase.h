@@ -28,7 +28,7 @@ struct Typebase {
   template <typename T> T &lookup(type_id id);
   template <typename T> const T &lookup(type_id id) const;
 
-  type_id member(type_id base, symbol name);
+  type_id member(type_id base, symbol name) const;
 
   std::string repr(type_id id) const;
 

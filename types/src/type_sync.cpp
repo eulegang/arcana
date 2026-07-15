@@ -30,6 +30,16 @@ struct InferCache {
 
   auto begin() { return mapping.begin(); }
   auto end() { return mapping.end(); }
+
+  void assert_same(Key dst, Key src) {
+    auto a_ty = std::get<type_id>(mapping[src]);
+    auto b_ty = std::get<type_id>(mapping[dst]);
+
+    if (a_ty != b_ty) {
+      mapping[src] = type_id::poison;
+      mapping[dst] = type_id::poison;
+    }
+  }
 };
 
 void TypeSync::push(sigil_node_id id) { _unknowns.push_back({id}); }
@@ -57,19 +67,19 @@ void TypeSync::compress() {
     cache[id] = tid;
   }
 
-  for (const auto &[a, b] : _links) {
+  for (const auto [a, b] : _links) {
     bool a_strong = cache.strong_check(a);
     bool b_strong = cache.strong_check(b);
 
     if (!a_strong && !b_strong) {
       cache[a] = b;
-    } else if (a_strong) {
+    } else if (a_strong && !b_strong) {
       const auto tid = std::get<type_id>(cache[a]);
 
       for (const auto linked : linked(a)) {
         cache[linked] = tid;
       }
-    } else if (b_strong) {
+    } else if (b_strong && !a_strong) {
       const auto tid = std::get<type_id>(cache[b]);
       for (const auto linked : linked(b)) {
         cache[linked] = tid;
@@ -92,6 +102,32 @@ void TypeSync::compress() {
         cache[linked] = tid;
       }
     }
+  }
+
+  // TODO: rework. just need an answer right now
+  std::vector<size_t> pending;
+  for (size_t i = 0; i < _members.size(); i++) {
+    const auto [dst, src, member] = _members[i];
+    auto sstrong = cache.strong_check(src);
+    auto dstrong = cache.strong_check(dst);
+    if (!sstrong && !dstrong) {
+      cache[dst] = type_id::poison;
+    } else if (!dstrong) {
+      type_id tid = std::get<type_id>(cache[src]);
+      cache[dst] = base.member(tid, member);
+    } else {
+      pending.push_back(i);
+    }
+  }
+
+  size_t cached = pending.size();
+  while (!pending.empty()) {
+
+    if (cached == pending.size()) {
+      // no work was done
+    }
+
+    cached = pending.size();
   }
 
   _facts.clear();

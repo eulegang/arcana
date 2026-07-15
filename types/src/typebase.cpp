@@ -108,7 +108,7 @@ lookup_impl(Derive, derive, derives);
 
 #undef lookup_impl
 
-type_id Typebase::member(type_id base, symbol sym) {
+type_id Typebase::member(type_id base, symbol sym) const {
   std::string_view name = table.resolve(sym);
 
   switch (base.category()) {
