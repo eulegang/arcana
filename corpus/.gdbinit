@@ -1,0 +1,4 @@
+
+source ../gdb/autoload.py
+
+

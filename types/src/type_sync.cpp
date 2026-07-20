@@ -73,6 +73,9 @@ void TypeSync::link(sigil_node_id dst, sigil_node_id src) {
 void TypeSync::set(sigil_node_id dst, type_id tid) { _facts.push({dst, tid}); }
 
 void TypeSync::hint(sigil_node_id dst, type_id tid) { _hints.push({dst, tid}); }
+void TypeSync::member(sigil_node_id dst, sigil_node_id src, symbol ref) {
+  _members.push({dst, src, ref});
+}
 
 void TypeSync::compress() {
   InferCache cache;
@@ -113,15 +116,15 @@ void TypeSync::compress() {
     }
   }
 
-  size_t cached = pending.size();
-  while (!pending.empty()) {
-
-    if (cached == pending.size()) {
-      // no work was done
-    }
-
-    cached = pending.size();
-  }
+  // size_t cached = pending.size();
+  // while (!pending.empty()) {
+  //
+  //   if (cached == pending.size()) {
+  //     // no work was done
+  //   }
+  //
+  //   cached = pending.size();
+  // }
 
   _facts.clear();
   for (const auto &[key, value] : cache) {

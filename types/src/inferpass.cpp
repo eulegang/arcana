@@ -2,6 +2,8 @@
 #include "arcana.h"
 #include "arcana/type_id.h"
 #include "arcana/typepass.h"
+#include <cassert>
+#include <stdexcept>
 
 using namespace arcana::types;
 using Branch = arcana::Pass::Branch;
@@ -252,24 +254,11 @@ Branch InferFuncPass::visit(sigil_node_id id) {
     Ast::Node src = ast[root.child];
     Ast::Node access = ast[src.next];
 
-    auto tid = resolve_expr(parent, root.child);
-
-    switch (access.type) {
-    case Node::ident: {
-      auto name = parent.names.resolve(src.next);
-
-      if (name) {
-        type_id ref_tid = parent.base.member(tid, name->sym);
-        sync.set(id, ref_tid);
-        sync.link(id, src.next);
-      }
-
-    } break;
-
-    default:
-      break;
-    }
-
+    assert(access.type == Node::ident);
+    auto name = parent.names.resolve(src.next);
+    assert(name);
+    sync.member(root.child, src.next, name->sym);
+    sync.link(id, src.next);
   } break;
 
   default:

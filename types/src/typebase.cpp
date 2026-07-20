@@ -112,6 +112,9 @@ type_id Typebase::member(type_id base, symbol sym) const {
   std::string_view name = table.resolve(sym);
 
   switch (base.category()) {
+  case arcana::types::type_id::cat::meta:
+    return type_id::null;
+
   case type_id::cat::derive: {
 
     auto derive = lookup<Derive>(base);
