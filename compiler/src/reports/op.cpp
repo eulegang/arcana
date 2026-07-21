@@ -51,7 +51,9 @@ std::ostream &operator<<(std::ostream &out, const arcana::Node &node) {
     break;
 
   case arcana::Node::block:
-  case arcana::Node::fn_call:
+  case arcana::Node::call:
+  case arcana::Node::call_param:
+  case arcana::Node::call_params:
   case arcana::Node::expr:
   case arcana::Node::member:
   case arcana::Node::eq:

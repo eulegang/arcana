@@ -26,12 +26,16 @@ enum class Node : uint16_t {
   bs,
   bs_case,
 
+  foreign,
+
   fn,
   fn_params,
   fn_param,
   fn_ret,
-  foreign,
-  fn_call,
+
+  call,
+  call_params,
+  call_param,
 
   literal,
   integer,

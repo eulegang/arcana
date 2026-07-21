@@ -46,8 +46,14 @@ const char *node_name(const Node &node) {
   case arcana::Node::foreign:
     return "foreign";
 
-  case arcana::Node::fn_call:
+  case arcana::Node::call:
     return "call";
+
+  case arcana::Node::call_params:
+    return "cparams";
+
+  case arcana::Node::call_param:
+    return "cparam";
 
   case arcana::Node::fn_params:
     return "params";

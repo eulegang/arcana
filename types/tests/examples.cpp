@@ -73,5 +73,5 @@ TEST(type_pass, const) {
 
 TEST(type_pass, hello) {
   load_file("hello.arc");
-  ASSERT_TYPE(0, type_id(type_id::cat::en, 0));
+  ASSERT_TYPE(0, type_id(type_id::cat::prim, 8));
 }

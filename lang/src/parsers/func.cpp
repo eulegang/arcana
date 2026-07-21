@@ -208,18 +208,18 @@ sigil_state parse_func_call(sigil_state state, sigil_node_id node) {
   check_token(lparen);
   next_token();
 
-  auto [id, root] = alloc_node(fn_call);
+  auto [id, root] = alloc_node(call);
 
   root->child = node;
 
-  auto [params_id, params] = alloc_node(fn_params);
+  auto [params_id, params] = alloc_node(call_params);
   sigil_state_node(state, node)->next = params_id;
 
   sigil_node *cur = params;
   while (true) {
     loop_terminal_token(rparen);
 
-    auto [param_id, param] = alloc_node(fn_param);
+    auto [param_id, param] = alloc_node(call_param);
     if (cur == params) {
       cur->child = param_id;
     } else {

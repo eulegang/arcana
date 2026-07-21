@@ -164,7 +164,7 @@ Branch InferFuncPass::visit(sigil_node_id id) {
     break;
   }
 
-  case Node::fn_call: {
+  case Node::call: {
     auto tid = resolve_callable(parent, root.child);
     Ast::Node expr = ast[root.child];
     Ast::Node params = ast[expr.next];
