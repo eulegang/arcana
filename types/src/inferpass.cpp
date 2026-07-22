@@ -197,6 +197,9 @@ Branch InferFuncPass::visit(sigil_node_id id) {
     return Pass::Branch::Terminate;
   } break;
 
+  case Node::call_param:
+    return Pass::Branch::Child;
+
   case Node::var:
   case Node::konst: {
     sync.push(id);
@@ -218,6 +221,7 @@ Branch InferFuncPass::visit(sigil_node_id id) {
 
     iterate(type.next);
 
+    return Pass::Branch::Next;
   } break;
 
   case Node::ty:
@@ -228,13 +232,15 @@ Branch InferFuncPass::visit(sigil_node_id id) {
     if (auto name = parent.names.resolve(id); name) {
       auto ref = name->ref;
 
-      if (auto tid = parent.overlay.resolve(ref); tid && *tid) {
-        sync.set(id, *tid);
-      } else {
-        sync.link(id, ref);
+      if (ref) {
+
+        if (auto tid = parent.overlay.resolve(ref); tid && *tid) {
+          sync.set(id, *tid);
+        } else {
+          sync.link(id, ref);
+        }
       }
     }
-
   } break;
 
   case Node::cond: {
@@ -249,16 +255,18 @@ Branch InferFuncPass::visit(sigil_node_id id) {
   } break;
 
   case Node::member: {
-    iterate(root.child);
-
     Ast::Node src = ast[root.child];
     Ast::Node access = ast[src.next];
+
+    iterate(root.child);
 
     assert(access.type == Node::ident);
     auto name = parent.names.resolve(src.next);
     assert(name);
     sync.member(root.child, src.next, name->sym);
     sync.link(id, src.next);
+
+    return Pass::Branch::Next;
   } break;
 
   default:
